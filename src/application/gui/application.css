@@ -1,0 +1,29 @@
+.table-row-cell:filled:selected { 
+  -fx-background: -fx-control-inner-background ;
+  -fx-background-color: -fx-table-cell-border-color, -fx-background ;
+  -fx-background-insets: 0, 0 0 1 0 ;
+  -fx-table-cell-border-color: derive(-fx-color, 5%);
+}
+.table-row-cell:odd:filled:selected {
+  -fx-background: -fx-control-inner-background-alt ;
+}
+.ready{
+}
+.fail{
+   -fx-dark-text-color: #FF0000;
+   -fx-mid-text-color: #FF0000;
+   -fx-light-text-color: #FF0000;
+   -fx-background-color: #FF9999;
+}
+.processing{
+   -fx-dark-text-color: #888888;
+   -fx-mid-text-color: #888888;
+   -fx-light-text-color: #888888;
+   -fx-background-color: #cccccc;
+}
+.complete{
+   -fx-dark-text-color: #005500;
+   -fx-mid-text-color: #005500;
+   -fx-light-text-color: #005500;
+   -fx-background-color: #99cc99;
+}
