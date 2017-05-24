@@ -48,7 +48,7 @@ public class MainApplication extends Application {
 			Scene scene = new Scene(rootLayout);
 			scene.getStylesheets().add(MainApplication.class.getResource("gui/application.css").toExternalForm());
 			stage.setScene(scene);
-
+			stage.setTitle("ILS Process App");
 			//Show the stage; application window
 			stage.show();
 			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {
