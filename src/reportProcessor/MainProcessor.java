@@ -8,6 +8,8 @@ import application.AttributeIndex;
 import application.Report;
 import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
+import reportSummary.ReportSummary;
+import reportSummary.ReportSummaryFactory;
 import util.FileUtility;
 
 /*
@@ -89,5 +91,11 @@ public class MainProcessor implements Runnable{
 			}
 		}
 		FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_Output.txt");
+		
+		
+		ReportSummary reportSmmary = ReportSummaryFactory.getInstance();
+		if(reportSmmary!=null){
+			reportSmmary.process(reports);
+		}
 	}
 }

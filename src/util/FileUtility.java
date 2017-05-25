@@ -1,5 +1,6 @@
 package util;
 
+import java.awt.Desktop;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,6 +54,30 @@ public class FileUtility {
 	        os.close();
 	    }
 	}
+	
+	public static void openFile(String filename){
+		 try {
+
+	      		File file = new File(filename);
+	      		if (file.exists()) {
+
+	      			if (Desktop.isDesktopSupported()) {
+	      				Desktop.getDesktop().open(file);
+	      			} else {
+	      				System.out.println("Awt Desktop is not supported!");
+	      			}
+
+	      		} else {
+	      			System.out.println("File is not exists!");
+	      		}
+
+	      		System.out.println("Done");
+
+	      	  } catch (Exception ex) {
+	      		ex.printStackTrace();
+	      	  }
+	}
+	
 	public static void writeWordsToText(String text,String filename){
 		BufferedWriter writer = null;
 		try

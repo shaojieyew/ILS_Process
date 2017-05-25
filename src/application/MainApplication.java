@@ -11,6 +11,7 @@ import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 
 
 public class MainApplication extends Application {
@@ -41,7 +42,15 @@ public class MainApplication extends Application {
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(MainApplication.class.getResource("gui/Main.fxml"));
             rootLayout = (BorderPane) loader.load();
+
+            FXMLLoader sideBarLoader = new FXMLLoader();
+            sideBarLoader.setLocation(MainApplication.class.getResource("gui/SideBar.fxml"));
+            GridPane sideBarRootLayout = (GridPane) sideBarLoader.load();
+            rootLayout.setLeft(sideBarRootLayout);
+            
             FXMLController controller = (FXMLController)loader.getController();
+            controller.setStageAndSetupListeners(stage); 
+            controller = (FXMLController)sideBarLoader.getController();
             controller.setStageAndSetupListeners(stage);
             
 			//Setup CSS Style for the FXML

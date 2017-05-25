@@ -14,6 +14,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
+import util.FileUtility;
 
 /*
  * Class for managing the tableview.
@@ -38,30 +39,10 @@ public  class ReportTableView implements InputChangeListener{
 		            if (node instanceof TableRow) {
 		                row = (TableRow) node;
 		            } else {
-		                // clicking on text part
 		                row = (TableRow) node.getParent();
 		            }
 		            Report report = (Report) row.getItem();
-			      	  try {
-
-			      		File file = new File(report.getPath());
-			      		if (file.exists()) {
-
-			      			if (Desktop.isDesktopSupported()) {
-			      				Desktop.getDesktop().open(file);
-			      			} else {
-			      				System.out.println("Awt Desktop is not supported!");
-			      			}
-
-			      		} else {
-			      			System.out.println("File is not exists!");
-			      		}
-
-			      		System.out.println("Done");
-
-			      	  } catch (Exception ex) {
-			      		ex.printStackTrace();
-			      	  }
+		            FileUtility.openFile(report.getPath());
 		        }
 		    }
 		});
