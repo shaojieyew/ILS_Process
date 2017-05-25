@@ -57,7 +57,7 @@ public class MainApplication extends Application {
 	                Platform.exit();
 	                System.exit(0);
 	            }
-	});
+			});
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
