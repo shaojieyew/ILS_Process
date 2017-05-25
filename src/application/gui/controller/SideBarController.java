@@ -28,7 +28,7 @@ import javafx.scene.control.TextField;
 import javafx.stage.FileChooser.ExtensionFilter;
 import reportProcessor.MainProcessor;
 import reportProcessor.ReportChangeListener;
-import reportSummary.ImportFileVerificationFactory;
+import reportSummary.ReportSummary;
 import reportSummary.ReportSummaryFactory;
 import util.FileUtility;
 import util.FilesChooser;
@@ -102,12 +102,12 @@ public class SideBarController extends FXMLController implements Initializable {
 				XSSFWorkbook book = new XSSFWorkbook(fis); 
 				int totalSheet = book.getNumberOfSheets();
 				XSSFSheet sheet=book.getSheet(comboBoxSheets.getValue());
-				if(new ImportFileVerificationFactory().getInstance(sheet).verify()){
+
+				ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
+				if(rs.verify()){
 					labelVerifyFormat.setText("Valid Format");
-					ReportSummaryFactory.createInstance(sheet);
 				}else{
 					labelVerifyFormat.setText("Invalid Format");
-					ReportSummaryFactory.deleteInstance();
 				}
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
