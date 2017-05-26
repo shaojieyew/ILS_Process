@@ -47,6 +47,7 @@ public class AppProperty {
 				output = new FileOutputStream("config.properties");
 				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
 				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty("report_summary", "");
 				PROP.store(output, null);
 
 			} catch (IOException io) {

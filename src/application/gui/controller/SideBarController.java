@@ -50,21 +50,37 @@ public class SideBarController extends FXMLController implements Initializable {
 	
 	public static File importedFile = null;
 	
+	public File getImportedFile() {
+		return importedFile;
+	}
+
+	public void setImportedFile(File importedFile) {
+		SideBarController.importedFile = importedFile;
+		if(importedFile!=null){
+			labelImportedFile.setText(importedFile.getName());
+			InputConfiguration.getInstance().setReportSummaryFile(importedFile.getAbsolutePath());
+		}
+		loadExcelSheetToComboBox();
+	}
+
 	public SideBarController() {
     }
 
 	@FXML
 	public void initialize(URL fxmlurl, ResourceBundle arg1) {
+		String path = InputConfiguration.getInstance().getReportSummaryFile();
+		if(path!=null){
+			File f = new File(path);
+			if(f!=null)
+				setImportedFile(f);
+		}
 	}
 
 	@FXML
 	public void onImportExcel(){
 		ExtensionFilter filters[] = {FilesChooser.FORMAT_EXCEL};
-		importedFile = FilesChooser.show(getStage(), "Select Excel file", OutputConfiguration.getInstance().getDirectory(), filters);
-		if(importedFile!=null){
-			labelImportedFile.setText(importedFile.getName());
-		}
-		loadExcelSheetToComboBox();
+		setImportedFile(FilesChooser.show(getStage(), "Select Excel file", OutputConfiguration.getInstance().getDirectory(), filters));
+		
 	}
 
 	@FXML

@@ -13,7 +13,6 @@ public class Report extends ReportObservable{
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
 	
-	
 	private final SimpleStringProperty fileName = new SimpleStringProperty("");
 	private final SimpleStringProperty fileType = new SimpleStringProperty("");
 	private final SimpleStringProperty path = new SimpleStringProperty("");
@@ -27,7 +26,21 @@ public class Report extends ReportObservable{
     	path.set(fpath);
 		this.status.set(STATUS_NOT_PROCESSED);
     }
-
+	
+	public AttributeIndex getAttributeIndexByAttribute(String arg){
+		if(arg==null)
+			return null;
+		AttributeIndex attribute = null;
+		for(AttributeIndex a: attributes){
+			if(a.getAttribute().equals(arg)){
+					attribute=a;
+					break;
+			}
+		}
+		return attribute;
+	}
+	
+	
 	public String getFileName() {
         return fileName.get();
     }

@@ -15,6 +15,8 @@ import util.FileUtility;
  * Make call to data extraction, data correction and reading
  */
 public class ReportProcessor  implements Runnable{
+	private static final boolean DEBUG=false;
+	
 	private MainProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
@@ -124,7 +126,7 @@ public class ReportProcessor  implements Runnable{
 				 }
 			 }
 			 
-			 
+			 if(DEBUG){
 			 //===============print out for debug===========
 			 String output="";
 			 
@@ -146,7 +148,7 @@ public class ReportProcessor  implements Runnable{
 			 FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_"+report.getAuthor_name()+".txt");
 			 
 			 //============================================
-			 
+			 }
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
