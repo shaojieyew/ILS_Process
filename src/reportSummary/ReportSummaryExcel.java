@@ -73,6 +73,7 @@ public class ReportSummaryExcel implements ReportSummary {
 						}
 						if(studentColIndex!=-1&&recColIndex!=-1&&bandColIndex!=-1){
 							headerRow = row.getRowNum();
+							endOfstudentRow = headerRow+2;
 							break;
 						}
 					}
@@ -147,8 +148,9 @@ public class ReportSummaryExcel implements ReportSummary {
 			 }
 		}
 		
-		cleanSheet(endOfstudentRow,sheet.getLastRowNum(),0,bandColIndex+3);
+		System.out.println(endOfstudentRow);
 		if(endOfstudentRow>-1){
+			cleanSheet(endOfstudentRow,sheet.getLastRowNum(),0,bandColIndex+3);
 			writeSummaryCount(endOfstudentRow);
 			
 			int rowForLeftOver =endOfstudentRow+6;
@@ -161,9 +163,9 @@ public class ReportSummaryExcel implements ReportSummary {
 				writeReportToRow(newRow, r);
 				rowForLeftOver++;
 			}
-
 			writeDetailSummaryCount(endOfstudentRow, headerRow, bandColIndex+7, false);
 			writeDetailSummaryCount(endOfstudentRow, headerRow+11, bandColIndex+7, true);
+	
 		}
 		save();
 	}

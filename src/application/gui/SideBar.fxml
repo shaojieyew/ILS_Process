@@ -22,8 +22,9 @@
       <Button fx:id="importBtn" mnemonicParsing="false" onAction="#onImportExcel" text="Import Existing Excel" />
       <Button mnemonicParsing="false" onAction="#openImportedFile" text="Open" GridPane.columnIndex="1" GridPane.rowIndex="1" />
       <ComboBox fx:id="comboBoxSheets" onAction="#onComboBoxSheetsSelectedChange" prefHeight="25.0" prefWidth="146.0" promptText="--Select Sheet--" GridPane.rowIndex="2" />
-      <Button mnemonicParsing="false" text="New" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+      <Button mnemonicParsing="false" onAction="#onClickNewSheet" text="New" GridPane.columnIndex="1" GridPane.rowIndex="2" />
       <Label fx:id="labelImportedFile" text="" GridPane.rowIndex="1" />
       <Label fx:id="labelVerifyFormat" prefHeight="17.0" prefWidth="108.0" text="" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+      <Button mnemonicParsing="false" onAction="#onClickNewExcel" text="New Excel" GridPane.columnIndex="2" />
    </children>
 </GridPane>

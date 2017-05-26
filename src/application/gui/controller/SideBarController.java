@@ -3,6 +3,8 @@ package application.gui.controller;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -25,10 +27,13 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
+import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
 import reportProcessor.MainProcessor;
 import reportProcessor.ReportChangeListener;
 import reportSummary.ReportSummary;
+import reportSummary.ReportSummaryExcel;
+import reportSummary.ReportSummaryExcelLayout;
 import reportSummary.ReportSummaryFactory;
 import util.FileUtility;
 import util.FilesChooser;
@@ -131,5 +136,53 @@ public class SideBarController extends FXMLController implements Initializable {
 			}
 		}
 	}
-	
+	@FXML
+	public void onClickNewSheet(){
+		if(importedFile!=null){
+			try {
+				FileInputStream fis = new FileInputStream(importedFile);
+				XSSFWorkbook book = new XSSFWorkbook(fis); 
+				int totalSheet = book.getNumberOfSheets();
+				
+				//create sheet and layout for imported file;
+				book.createSheet("Sheet"+(totalSheet+1));
+				XSSFSheet sheet=book.getSheet("Sheet"+(totalSheet+1));
+				ReportSummaryExcelLayout.createNewLayout(sheet);
+
+				//save file
+				FileOutputStream out =  new FileOutputStream(importedFile.getAbsoluteFile());
+				sheet.getWorkbook().write(out);
+				out.close();
+				
+				//update combo box
+				comboBoxSheets.getItems().add(sheet.getSheetName());
+				comboBoxSheets.setValue(sheet.getSheetName());
+				ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
+				if(rs.verify()){
+					labelVerifyFormat.setText("Valid Format");
+				}else{
+					labelVerifyFormat.setText("Invalid Format");
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	@FXML
+	public void onClickNewExcel(){
+		ExtensionFilter [] filters = {FilesChooser.FORMAT_EXCEL};
+		File file = FilesChooser.save(getStage(), "Save new excel file",OutputConfiguration.getInstance().getDirectory(),filters );
+		if(file != null){
+			 try {
+				 XSSFWorkbook workbook = new XSSFWorkbook();
+				 XSSFSheet sheet = workbook.createSheet("Sheet1");
+				 ReportSummaryExcelLayout.createNewLayout(sheet);
+			     FileOutputStream out =  new FileOutputStream(file.getAbsoluteFile());
+			     workbook.write(out);
+			     out.close();
+			     setImportedFile( file);
+		        } catch (IOException ex) {
+		        }
+		}
+	}
 }
