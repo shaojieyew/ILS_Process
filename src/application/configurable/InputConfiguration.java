@@ -13,6 +13,8 @@ public final class InputConfiguration {
         return INSTANCE;
     }
 
+	public static final String LISTEN_ReportSummaryFile="reportSummaryFile";
+	public static final String LISTEN_InputDirectory="input";
 	
 	//readable file types for the application
 	private String fileType[] = {"pdf","png","html","htm","jpeg","jpg","tiff","bmp","gif"};
@@ -23,28 +25,54 @@ public final class InputConfiguration {
 	
 	//List of listener listening to changes of this class's instance
 	private ArrayList<InputChangeListener> inputChangeListeners = new ArrayList<InputChangeListener>();
+	private ArrayList<InputChangeListener> reportSummaryChangeListeners = new ArrayList<InputChangeListener>();
 
 	//notify changes to listener
-	public void notifyChange(){
-		for(int i =0;i<inputChangeListeners.size();i++){
-			inputChangeListeners.get(i).onUpdateInput(this);	
+	public void notifyChange(String type){
+		ArrayList<InputChangeListener> listeners = null;
+		switch(type){
+		case LISTEN_InputDirectory:
+			listeners=inputChangeListeners;
+			break;
+		case LISTEN_ReportSummaryFile:
+			listeners=reportSummaryChangeListeners;
+			break;
+		}
+		if(listeners!=null){
+			for(int i =0;i<listeners.size();i++){
+				listeners.get(i).onUpdateInput(this, type);	
+			}
 		}
 	}
 
 	//add new listener
-	public void listenToChange(InputChangeListener listener){
-		inputChangeListeners.add(listener);
+	public void listenToChange(InputChangeListener listener, String type){
+		switch(type){
+		case LISTEN_InputDirectory:
+			inputChangeListeners.add(listener);
+			break;
+		case LISTEN_ReportSummaryFile:
+			reportSummaryChangeListeners.add(listener);
+			break;
+		}
 	}
 	//remove listener
-	public void unlistenToChange(InputChangeListener listener){
-		inputChangeListeners.remove(listener);
+	public void unlistenToChange(InputChangeListener listener, String type){
+		switch(type){
+		case LISTEN_InputDirectory:
+			inputChangeListeners.remove(listener);
+			break;
+		case LISTEN_ReportSummaryFile:
+			reportSummaryChangeListeners.remove(listener);
+			break;
+		}
 	}
 	
 
 	public void setDirectory(String newDir){
 		inputDirectory=newDir;
 		AppProperty.setValue("input", newDir);
-		notifyChange();
+		notifyChange(LISTEN_InputDirectory);
 	}
 	public String getDirectory(){
 		return inputDirectory;
@@ -62,7 +90,7 @@ public final class InputConfiguration {
 	public void setReportSummaryFile(String reportSummaryFile) {
 		this.reportSummaryFile = reportSummaryFile;
 		AppProperty.setValue("report_summary", reportSummaryFile);
-		notifyChange();
+		notifyChange(LISTEN_ReportSummaryFile);
 	}
 
 

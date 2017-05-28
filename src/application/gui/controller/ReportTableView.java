@@ -27,7 +27,7 @@ public  class ReportTableView implements InputChangeListener{
 	private int totalGetReport=0;
 	private Report selectedReport = null;
 	public ReportTableView(TableView<Report> inTableview){
-		addInputListener();
+		addListener(InputConfiguration.LISTEN_InputDirectory);
 		tableview = inTableview;
 		
 		tableview.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -93,18 +93,20 @@ public  class ReportTableView implements InputChangeListener{
 	
 	//listen to input configuration change
 	@Override
-	public void addInputListener() {
-		InputConfiguration.getInstance().listenToChange(this);
+	public void addListener(String type) {
+		InputConfiguration.getInstance().listenToChange(this,type);
 	}
 
 	@Override
-	public void removeInputListener() {
-		InputConfiguration.getInstance().unlistenToChange(this);
+	public void removeListener(String type) {
+		InputConfiguration.getInstance().unlistenToChange(this,type);
 	}
 
 	@Override
-	public void onUpdateInput(InputConfiguration inputDirectory) {
-		updateListByInputDirectory();
+	public void onUpdateInput(InputConfiguration inputDirectory, String type) {
+		if(type.equals(InputConfiguration.LISTEN_InputDirectory)){
+			updateListByInputDirectory();
+		}
 	}
 
 	public int getTotalGetReport() {

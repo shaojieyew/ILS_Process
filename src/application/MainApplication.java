@@ -9,13 +9,15 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.MenuBar;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 
 
 public class MainApplication extends Application {
-    private BorderPane rootLayout;
 	@Override
 	public void start(Stage stage) {
 		String jvmBit="";
@@ -38,23 +40,17 @@ public class MainApplication extends Application {
         }
 		
 		try {
-			//Load FXML Main.fxml and setup controller of FXML
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(MainApplication.class.getResource("gui/Main.fxml"));
-            rootLayout = (BorderPane) loader.load();
 
-            FXMLLoader sideBarLoader = new FXMLLoader();
-            sideBarLoader.setLocation(MainApplication.class.getResource("gui/SideBar.fxml"));
-            GridPane sideBarRootLayout = (GridPane) sideBarLoader.load();
-            rootLayout.setLeft(sideBarRootLayout);
-            
-            FXMLController controller = (FXMLController)loader.getController();
+			//Load FXML Main.fxml and setup controller of FXML
+            FXMLLoader mainLoader = new FXMLLoader();
+            mainLoader.setLocation(MainApplication.class.getResource("gui/Main.fxml"));
+            BorderPane mainLayout = (BorderPane) mainLoader.load();
+
+            FXMLController controller = (FXMLController)mainLoader.getController();
             controller.setStageAndSetupListeners(stage); 
-            controller = (FXMLController)sideBarLoader.getController();
-            controller.setStageAndSetupListeners(stage);
             
 			//Setup CSS Style for the FXML
-			Scene scene = new Scene(rootLayout);
+			Scene scene = new Scene(mainLayout);
 			scene.getStylesheets().add(MainApplication.class.getResource("gui/application.css").toExternalForm());
 			stage.setScene(scene);
 			stage.setTitle("ILS Process App");

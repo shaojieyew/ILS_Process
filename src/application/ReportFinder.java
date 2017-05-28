@@ -12,7 +12,9 @@ public class ReportFinder {
 	public ArrayList<Report> findAllReport() {
 		InputConfiguration inputDirectory=InputConfiguration.getInstance();
 		ArrayList<Report> reports = new ArrayList<Report>();
-	    for (final File fileEntry : FileUtility.getListOfFile(inputDirectory.getDirectory())) {
+		File[] files = FileUtility.getListOfFile(inputDirectory.getDirectory());
+		if(files!=null){
+	    for (final File fileEntry : files) {
 	    	String fileType = FileUtility.getFileExtension(fileEntry);
 	    	for(String type : inputDirectory.getFileType()){
 	    		if(fileType.equals(type)){
@@ -21,6 +23,7 @@ public class ReportFinder {
 	    		}
 	    	}
 	    }
+		}
 	    return reports;
 	}
 

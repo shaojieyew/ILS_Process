@@ -26,6 +26,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.stage.FileChooser;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -43,61 +44,46 @@ import util.FolderChooser;
  * Controller class for Main.fxml in application.css
  */
 
-public class SideBarController extends FXMLController implements Initializable {
+public class SideBarController extends FXMLController implements Initializable, InputChangeListener {
 	@FXML
 	private Button importBtn;
 	@FXML
 	private ComboBox<String> comboBoxSheets;
 	@FXML
-	private Label labelImportedFile;
+	private TextField labelImportedFile;
 	@FXML
 	private Label labelVerifyFormat;
 	
-	public static File importedFile = null;
-	
-	public File getImportedFile() {
+	public static String importedFile = null;
+
+	public SideBarController() {
+		addListener(InputConfiguration.LISTEN_ReportSummaryFile);
+    }
+
+	public String getImportedFile() {
 		return importedFile;
 	}
 
-	public void setImportedFile(File importedFile) {
+	public void setImportedFile(String importedFile) {
 		SideBarController.importedFile = importedFile;
-		if(importedFile!=null){
-			labelImportedFile.setText(importedFile.getName());
-			InputConfiguration.getInstance().setReportSummaryFile(importedFile.getAbsolutePath());
-		}
+		labelImportedFile.setText(importedFile);
 		loadExcelSheetToComboBox();
 	}
 
-	public SideBarController() {
-    }
-
 	@FXML
 	public void initialize(URL fxmlurl, ResourceBundle arg1) {
-		String path = InputConfiguration.getInstance().getReportSummaryFile();
-		if(path!=null){
-			File f = new File(path);
-			if(f!=null&&f.exists())
-				setImportedFile(f);
-		}
-	}
-
-	@FXML
-	public void onImportExcel(){
-		ExtensionFilter filters[] = {FilesChooser.FORMAT_EXCEL};
-		setImportedFile(FilesChooser.show(getStage(), "Select Excel file", OutputConfiguration.getInstance().getDirectory(), filters));
-		
 	}
 
 	@FXML
 	public void openImportedFile(){
 		if(importedFile!=null){
-			FileUtility.openFile(importedFile.getPath());
+			FileUtility.openFile(importedFile);
 		}
 	}
 
 	@FXML
 	public void loadExcelSheetToComboBox(){
-		if(importedFile!=null){
+		if(importedFile!=null&&importedFile.length()>0){
 			FileInputStream fis;
 			try {
 				fis = new FileInputStream(importedFile);
@@ -150,7 +136,7 @@ public class SideBarController extends FXMLController implements Initializable {
 				ReportSummaryExcelLayout.createNewLayout(sheet);
 
 				//save file
-				FileOutputStream out =  new FileOutputStream(importedFile.getAbsoluteFile());
+				FileOutputStream out =  new FileOutputStream(importedFile);
 				sheet.getWorkbook().write(out);
 				out.close();
 				
@@ -168,21 +154,29 @@ public class SideBarController extends FXMLController implements Initializable {
 			}
 		}
 	}
+
 	@FXML
-	public void onClickNewExcel(){
-		ExtensionFilter [] filters = {FilesChooser.FORMAT_EXCEL};
-		File file = FilesChooser.save(getStage(), "Save new excel file",OutputConfiguration.getInstance().getDirectory(),filters );
-		if(file != null){
-			 try {
-				 XSSFWorkbook workbook = new XSSFWorkbook();
-				 XSSFSheet sheet = workbook.createSheet("Sheet1");
-				 ReportSummaryExcelLayout.createNewLayout(sheet);
-			     FileOutputStream out =  new FileOutputStream(file.getAbsoluteFile());
-			     workbook.write(out);
-			     out.close();
-			     setImportedFile( file);
-		        } catch (IOException ex) {
-		        }
+	public void openRemoveFile(){
+		importedFile="";
+		InputConfiguration.getInstance().setReportSummaryFile(importedFile);
+	}
+	
+	@Override
+	public void onUpdateInput(InputConfiguration inputDirectory, String type) {
+		if(type.equals(InputConfiguration.LISTEN_ReportSummaryFile)){
+			setImportedFile(inputDirectory.getReportSummaryFile());
 		}
+	}
+
+	//Subscribe to new changes in input configuration
+	@Override
+	public void addListener(String type) {
+		InputConfiguration.getInstance().listenToChange(this,type);
+	}
+		
+	//Un-subscribe to new changes in input configuration
+	@Override
+	public void removeListener(String type) {
+		InputConfiguration.getInstance().unlistenToChange(this,type);
 	}
 }

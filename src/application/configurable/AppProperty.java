@@ -65,6 +65,12 @@ public class AppProperty {
 	}
 	 
 	 public static void setValue(String property, String value) {
+		 if(value==null){
+			 value="";
+		 }
+		 if(property==null||property.length()==0){
+			 return;
+		 }
 		OutputStream output = null;
 		try {
 			output = new FileOutputStream("config.properties");

@@ -22,6 +22,8 @@ public class FileUtility {
 	*/
 	
 	public static File[] getListOfFile(String path){
+		if(path==null)
+			return null;
 		File folder = new File(path);
 		return folder.listFiles();
 	}
