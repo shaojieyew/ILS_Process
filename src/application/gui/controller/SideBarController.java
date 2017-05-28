@@ -76,7 +76,7 @@ public class SideBarController extends FXMLController implements Initializable {
 		String path = InputConfiguration.getInstance().getReportSummaryFile();
 		if(path!=null){
 			File f = new File(path);
-			if(f!=null)
+			if(f!=null&&f.exists())
 				setImportedFile(f);
 		}
 	}

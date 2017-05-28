@@ -33,11 +33,11 @@ public class ReportSummaryExcel implements ReportSummary {
 		sheet=o;
 	}
 
-
 	private int studentColIndex = -1;
 	private int recColIndex = -1;
 	private int bandColIndex = -1;
 	private int headerRow = -1;
+	private boolean includeUnknownStudentInCounting = false;
 	
 	@Override
 	public void process(ObservableList<Report> reports) {
@@ -151,18 +151,33 @@ public class ReportSummaryExcel implements ReportSummary {
 		System.out.println(endOfstudentRow);
 		if(endOfstudentRow>-1){
 			cleanSheet(endOfstudentRow,sheet.getLastRowNum(),0,bandColIndex+3);
+			
+			if(includeUnknownStudentInCounting){
+				for(Report r: reportList){
+					Row newRow = getRow( endOfstudentRow);
+					Cell studentCell = newRow.createCell(studentColIndex);
+					studentCell.setCellValue(r.getAuthor_name().toUpperCase());
+					
+					writeReportToRow(newRow, r);
+					endOfstudentRow++;
+				}
+			}
+			
 			writeSummaryCount(endOfstudentRow);
 			
-			int rowForLeftOver =endOfstudentRow+6;
-			
-			for(Report r: reportList){
-				Row newRow = getRow( rowForLeftOver);
-				Cell studentCell = newRow.createCell(studentColIndex);
-				studentCell.setCellValue(r.getAuthor_name().toUpperCase());
-				
-				writeReportToRow(newRow, r);
-				rowForLeftOver++;
+
+			if(!includeUnknownStudentInCounting){
+				int rowForLeftOver =endOfstudentRow+6;
+				for(Report r: reportList){
+					Row newRow = getRow( rowForLeftOver);
+					Cell studentCell = newRow.createCell(studentColIndex);
+					studentCell.setCellValue(r.getAuthor_name().toUpperCase());
+					
+					writeReportToRow(newRow, r);
+					rowForLeftOver++;
+				}
 			}
+			
 			writeDetailSummaryCount(endOfstudentRow, headerRow, bandColIndex+7, false);
 			writeDetailSummaryCount(endOfstudentRow, headerRow+11, bandColIndex+7, true);
 	
@@ -313,10 +328,10 @@ public class ReportSummaryExcel implements ReportSummary {
 				if(percentage){
 					String totalRecvColLetter = CellReference.convertNumToColString(bandColIndex-1);
 					String totalRecvFormula = "$"+totalRecvColLetter+"$"+(studentEndRow+3);
-					String indexCount = "COUNTIF("+colLetter1+(studentStartRow)+":"+colLetter1+endOfstudentRow+", \""+att+x+"\")";
+					String indexCount = "COUNTIF("+colLetter1+(studentStartRow)+":"+colLetter1+(endOfstudentRow+1)+", \""+att+x+"\")";
 					cell.setCellFormula("IF(("+indexCount+") = 0, \"\", 100 * ("+indexCount+") / ("+totalRecvFormula+"))");
 				}else{
-					cell.setCellFormula("COUNTIF("+colLetter1+(studentStartRow)+":"+colLetter1+endOfstudentRow+", \""+att+x+"\")");
+					cell.setCellFormula("COUNTIF("+colLetter1+(studentStartRow)+":"+colLetter1+(endOfstudentRow+1)+", \""+att+x+"\")");
 				}
 				CellStyle formulaStyle3 = formulaStyle;
 				formulaStyle3.setDataFormat(sheet.getWorkbook().createDataFormat().getFormat("0"));
@@ -377,7 +392,7 @@ public class ReportSummaryExcel implements ReportSummary {
 		}
 	}
 
-	public Row getRow(int index){
+	private Row getRow(int index){
 		Row row = sheet.getRow(index);
 		if(row==null){
 			row = sheet.createRow(index);
@@ -420,7 +435,7 @@ public class ReportSummaryExcel implements ReportSummary {
 		cell = row.createCell(studentColIndex-1);
 		String colLetter = CellReference.convertNumToColString(studentColIndex);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+")");
+		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+")");
 		cell.setCellStyle(formulaStyle);
 
 		cell = row.createCell(bandColIndex-2);
@@ -429,31 +444,31 @@ public class ReportSummaryExcel implements ReportSummary {
 		colLetter = CellReference.convertNumToColString(recColIndex);
 		cell = row.createCell(bandColIndex-1);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"Y\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"Y\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex);
 		cell = row.createCell(bandColIndex);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+")");
+		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+1);
 		cell = row.createCell(bandColIndex+1);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+")");
+		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+")");
 		cell.setCellStyle(formulaStyle);
 
 		colLetter = CellReference.convertNumToColString(bandColIndex+2);
 		cell = row.createCell(bandColIndex+2);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+")");
+		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+")");
 		cell.setCellStyle(formulaStyle);
 
 		colLetter = CellReference.convertNumToColString(bandColIndex+3);
 		cell = row.createCell(bandColIndex+3);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+")");
+		cell.setCellFormula("COUNTA("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+")");
 		cell.setCellStyle(formulaStyle);
 		
 		rowIndex=rowIndex+1;
@@ -465,25 +480,25 @@ public class ReportSummaryExcel implements ReportSummary {
 		colLetter = CellReference.convertNumToColString(bandColIndex);
 		cell = row.createCell(bandColIndex);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"A*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"A*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+1);
 		cell = row.createCell(bandColIndex+1);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"S*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"S*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+2);
 		cell = row.createCell(bandColIndex+2);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"V*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"V*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+3);
 		cell = row.createCell(bandColIndex+3);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"Q*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"Q*\")");
 		cell.setCellStyle(formulaStyle);
 		
 
@@ -496,25 +511,25 @@ public class ReportSummaryExcel implements ReportSummary {
 		colLetter = CellReference.convertNumToColString(bandColIndex);
 		cell = row.createCell(bandColIndex);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"R*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"R*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+1);
 		cell = row.createCell(bandColIndex+1);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"I*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"I*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+2);
 		cell = row.createCell(bandColIndex+2);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"B*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"B*\")");
 		cell.setCellStyle(formulaStyle);
 		
 		colLetter = CellReference.convertNumToColString(bandColIndex+3);
 		cell = row.createCell(bandColIndex+3);
 		cell.setCellType(XSSFCell.CELL_TYPE_FORMULA);
-		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow)+", \"G*\")");
+		cell.setCellFormula("COUNTIF("+colLetter+"$"+(headerRow+3)+":"+colLetter+"$"+(endOfstudentRow+1)+", \"G*\")");
 		cell.setCellStyle(formulaStyle);
 		
 	}
