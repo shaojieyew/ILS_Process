@@ -1,14 +1,20 @@
 package reportProcessor;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import org.apache.commons.io.FileUtils;
+
 import application.AttributeIndex;
 import application.Report;
+import application.ReportObservable;
 import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
 import reportSummary.ReportSummary;
+import reportSummary.ReportSummaryExcelLayout;
 import reportSummary.ReportSummaryFactory;
 import util.FileUtility;
 
@@ -21,6 +27,7 @@ public class MainProcessor implements Runnable{
 	//variable keep track of the progress
 	private int totalCount = 0 ;
 	private boolean cancelProcess = false;
+	private boolean reprocessCompletedFile = false;
 	
 	/*
 	private int completedCount = 0 ;
@@ -31,19 +38,24 @@ public class MainProcessor implements Runnable{
 	*/
 	
 	//constructor setup list of reports to process
-	public MainProcessor(ObservableList<Report> data){
-		reports=data;
-		totalCount=data.size();
+	public MainProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
+		if(numberOfThread<=0){
+			numberOfThread=1;
+		}
+		this.count_thread = new Semaphore(numberOfThread);
+		this.reports=data;
+		this.totalCount=data.size();
+		this.reprocessCompletedFile = reprocessCompletedFile;
 	}
 	
 	//singleton method
-	public static MainProcessor getInstance(ObservableList<Report> data) {
-		INSTANCE = new MainProcessor(data);
+	public static MainProcessor getInstance(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile) {
+		INSTANCE = new MainProcessor(data,numberOfThread,reprocessCompletedFile);
         return INSTANCE;
     }
 	
 	//setup counting semaphore for multithreading
-	private Semaphore count_thread = new Semaphore(2);
+	private Semaphore count_thread;
 	public void releaseSemaphore(){
 		count_thread.release();
 	}
@@ -66,12 +78,13 @@ public class MainProcessor implements Runnable{
 					break;
 				}
 				//start a sub-thread to process a report
-				Thread thread1 = new Thread(new ReportProcessor(this,reports.get(i),i));
+				Thread thread1 = new Thread(new ReportProcessor(this,reports.get(i),i,reprocessCompletedFile));
 				thread1.start();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
+		
 	}
 
 	public boolean isCancelProcess() {
@@ -90,6 +103,15 @@ public class MainProcessor implements Runnable{
 				 }
 			}
 		}
+		File folder = new File(AppProperty.getValue("output"));
+		if(!folder.exists()){
+			try {
+				FileUtils.forceMkdir(folder);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
 		FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_Output.txt");
 		
 		
@@ -98,4 +120,5 @@ public class MainProcessor implements Runnable{
 			reportSmmary.process(reports);
 		}
 	}
+
 }

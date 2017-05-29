@@ -20,8 +20,8 @@ public final class InputConfiguration {
 	private String fileType[] = {"pdf","png","html","htm","jpeg","jpg","tiff","bmp","gif"};
 	//input folder of the application configuration
 	private String inputDirectory =AppProperty.getValue("input");
-
 	private String reportSummaryFile =AppProperty.getValue("report_summary");
+	private String reportSummaryFile_sheet =AppProperty.getValue("report_summary_sheet");
 	
 	//List of listener listening to changes of this class's instance
 	private ArrayList<InputChangeListener> inputChangeListeners = new ArrayList<InputChangeListener>();
@@ -89,8 +89,20 @@ public final class InputConfiguration {
 
 	public void setReportSummaryFile(String reportSummaryFile) {
 		this.reportSummaryFile = reportSummaryFile;
+		if(!reportSummaryFile.equals(reportSummaryFile)||reportSummaryFile==null||reportSummaryFile.length()==0){
+			setReportSummaryFile_sheet("");
+		}
 		AppProperty.setValue("report_summary", reportSummaryFile);
 		notifyChange(LISTEN_ReportSummaryFile);
+	}
+
+	public String getReportSummaryFile_sheet() {
+		return reportSummaryFile_sheet;
+	}
+
+	public void setReportSummaryFile_sheet(String reportSummaryFile_sheet) {
+		this.reportSummaryFile_sheet = reportSummaryFile_sheet;
+		AppProperty.setValue("report_summary_sheet", reportSummaryFile_sheet);
 	}
 
 

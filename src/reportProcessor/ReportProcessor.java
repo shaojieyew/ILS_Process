@@ -17,21 +17,23 @@ import util.FileUtility;
 public class ReportProcessor  implements Runnable{
 	private static final boolean DEBUG=false;
 	
+	private boolean reprocessCompletedFile=false;
 	private MainProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
 	
 	//constructor
-	public ReportProcessor(MainProcessor mainProcess, Report report, int index){
+	public ReportProcessor(MainProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
 		this.mainProcess =mainProcess;
 		this.index = index;
 		this.report = report;
+		this.reprocessCompletedFile = reprocessCompletedFile;
 	}
 	
 	//start thread
 	@Override
 	public void run() {
-		if(!report.getStatus().equals(Report.STATUS_COMPLETED)){
+		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
 			preProcess();
 			runProcess();
 		}
@@ -65,11 +67,15 @@ public class ReportProcessor  implements Runnable{
 		 if(zeroCount!=4&&nonZeroCount!=4){
 			 fail=true;
 		 }
-		
-		if(fail){
-			report.setStatus(Report.STATUS_FAILED);
+
+		if(new File(report.getPath()).exists()){
+			if(fail){
+				report.setStatus(Report.STATUS_FAILED);
+			}else{
+				report.setStatus(Report.STATUS_COMPLETED);
+			}
 		}else{
-			report.setStatus(Report.STATUS_COMPLETED);
+			report.setStatus(Report.STATUS_NOT_FOUND);
 		}
 	}
 	public void runProcess(){

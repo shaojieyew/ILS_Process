@@ -9,9 +9,11 @@ import java.util.ResourceBundle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import application.AppDialog;
 import application.MainApplication;
 import application.Report;
 import application.ReportObservable;
+import application.configurable.AppProperty;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
 import application.configurable.OutputConfiguration;
@@ -31,7 +33,9 @@ import javafx.scene.layout.GridPane;
 import javafx.stage.FileChooser.ExtensionFilter;
 import reportProcessor.MainProcessor;
 import reportProcessor.ReportChangeListener;
+import reportSummary.ReportSummary;
 import reportSummary.ReportSummaryExcelLayout;
+import reportSummary.ReportSummaryFactory;
 import util.FilesChooser;
 import util.FolderChooser;
 
@@ -107,7 +111,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		File f = FolderChooser.show(getStage(), "Select Input Directory",inputTextfield.getText());
 		if(f!=null){
 			InputConfiguration.getInstance().setDirectory(f.getPath());
-			processedCount=0;
+			completedCount=0;
+			failedCount = 0;
+			inProcessCount = 0;
 			updateProgressBar();
 		}
 	}
@@ -125,12 +131,33 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	//process the list of reports in the tableview
 	@FXML
 	public void startProcess(){
+		int result = 0;
+		boolean rerunProcess=false;
+		if(completedCount>0){
+			String[] buttonNames = {"Re-process","Skip"};
+			 result = AppDialog.multiButtonDialog(buttonNames , "Re-process completed file?", "");
+			if(result==-1){
+				return;
+			}
+			if(result==0){
+				rerunProcess=true;
+			}
+		}
+		
 		//disable all control will processing
 		diableAllControls(true);
 		//get report from the tableview
-		processedCount = 0;
+		completedCount = 0;
+		failedCount = 0;
+		inProcessCount = 0;
 		ObservableList<Report> data = tableview.getItems();
-		mainProcessor = MainProcessor.getInstance(data);
+		int multi_thread_count = 1;
+		try{
+			multi_thread_count = Integer.parseInt(AppProperty.getValue("multi_thread"));
+		}catch(Exception ex){
+			
+		}
+		mainProcessor = MainProcessor.getInstance(data,multi_thread_count,rerunProcess);
 		Thread mainProcessorThread = new Thread(mainProcessor);
 		mainProcessorThread.start();
 		cancelBtn.setDisable(false);
@@ -149,12 +176,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		cancelBtn.setDisable(true);
 		if(mainProcessor!=null){
 			mainProcessor.forceStopProcess();
-			ObservableList<Report> data = tableview.getItems();
-			for(Report r: data){
-				if(r.getStatus().equals(Report.STATUS_IN_PROCESSING)){
-					nonInProcess=false;
-					break;
-				}
+			if(inProcessCount>0){
+				nonInProcess=false;
 			}
 		}
 		//finish touch up and generate report
@@ -175,9 +198,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 		if(type.equals(InputConfiguration.LISTEN_ReportSummaryFile)){
 			if(inputDirectory.getReportSummaryFile()!=null&&inputDirectory.getReportSummaryFile().length()>0){
-		        rootPane.setLeft(leftPane);
+		        if(new File(inputDirectory.getReportSummaryFile()).exists()){
+					rootPane.setLeft(leftPane);
+		        }else{
+		        	inputDirectory.setReportSummaryFile("");
+		        }
 			}else{
 		        rootPane.setLeft(null);
+		        ReportSummaryFactory.deleteInstance();
 			}
 		}
 	}
@@ -205,29 +233,43 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		ReportObservable.unlistenToChange(this);
 	}
 
-	public int processedCount = 0;
+	public int completedCount = 0;
+	public int failedCount = 0;
+	public int inProcessCount = 0;
 	@Override
 	public void onUpdateReport(ReportObservable reportObservable) {
 			//update UI
+			if((Report.STATUS_IN_PROCESSING).equals(reportObservable.getStatus())){
+				inProcessCount++;
+			}
+			if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())){
+				inProcessCount--;
+				completedCount++;
+			}
+			if((Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
+				inProcessCount--;
+				failedCount++;
+			}
 			Platform.runLater(new Runnable() {
                  @Override public void run() {
          			tableview.getColumns().get(0).setVisible(false);
          			tableview.getColumns().get(0).setVisible(true);
-         			if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())){
-         				processedCount++;
-	         			double percentageProcess= updateProgressBar();
-	         			if(percentageProcess==1||mainProcessor.isCancelProcess()){
-	             			cancelProcess();
-	         			}
-         			}
+     			
+         				if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
+    	         			double percentageProcess= updateProgressBar();
+    	         			if(percentageProcess==1||mainProcessor.isCancelProcess()){
+    	             			cancelProcess();
+    	         			}
+         				}
+         				
                  }
              });
 	}
 	
 	public double updateProgressBar(){
 		int reportToProcess = ReportTableViewFactory.getInstance(tableview).getTotalGetReport();
-		String progressText = processedCount+"/"+reportToProcess;
-		double percentageProcess = (float)processedCount/(float)reportToProcess;
+		String progressText = (completedCount+failedCount)+"/"+reportToProcess;
+		double percentageProcess = (float)(completedCount+failedCount)/(float)reportToProcess;
 		progressBar.setProgress(percentageProcess);
 		progressLabel.setText(progressText);
 		return percentageProcess;
@@ -252,7 +294,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			 try {
 				 XSSFWorkbook workbook = new XSSFWorkbook();
 				 XSSFSheet sheet = workbook.createSheet("Sheet1");
-				 ReportSummaryExcelLayout.createNewLayout(sheet);
+				 //ReportSummaryExcelLayout.createNewLayout(sheet);
 			     FileOutputStream out =  new FileOutputStream(file.getAbsoluteFile());
 			     workbook.write(out);
 			     out.close();

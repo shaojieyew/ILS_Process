@@ -10,10 +10,10 @@
 .ready{
 }
 .fail{
-   -fx-dark-text-color: #FF0000;
-   -fx-mid-text-color: #FF0000;
-   -fx-light-text-color: #FF0000;
-   -fx-background-color: #FF9999;
+   -fx-dark-text-color: #880000;
+   -fx-mid-text-color: #880000;
+   -fx-light-text-color: #880000;
+   -fx-background-color: #FFbbbb;
 }
 .processing{
    -fx-dark-text-color: #888888;

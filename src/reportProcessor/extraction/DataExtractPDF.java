@@ -89,6 +89,9 @@ public class DataExtractPDF extends DataExtract{
 	
 	//get text from pdf using pdfBox's stripper
 	public static String getTextFromPDF(File input){
+		if(!input.exists()){
+			return "";
+		}
     	PDDocument pd;
     	try {
     	         pd = PDDocument.load(input);
@@ -110,6 +113,9 @@ public class DataExtractPDF extends DataExtract{
 	
 	//convert all the pdf pages to bufferedImages
     public BufferedImage[] pdfToBufferimage(File file){
+    	if(!file.exists()){
+    		return null;
+    	}
     	BufferedImage[] bi=null;
         try {
 	        PDDocument document = PDDocument.load(file);

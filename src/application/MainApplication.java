@@ -2,9 +2,15 @@ package application;
 	
 import java.io.File;
 import java.nio.file.Paths;
+
+import application.configurable.AppProperty;
+import application.configurable.InputConfiguration;
+import application.configurable.OutputConfiguration;
 import application.gui.controller.FXMLController;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
@@ -62,6 +68,15 @@ public class MainApplication extends Application {
 	                Platform.exit();
 	                System.exit(0);
 	            }
+			});
+			stage.focusedProperty().addListener(new ChangeListener<Boolean>()
+			{
+				@Override
+				public void changed(ObservableValue<? extends Boolean> focused, Boolean arg1, Boolean arg2) {
+					if(focused.getValue()==true){
+						InputConfiguration.getInstance().setReportSummaryFile(AppProperty.getValue("report_summary"));
+					}
+				}
 			});
 		} catch(Exception e) {
 			e.printStackTrace();

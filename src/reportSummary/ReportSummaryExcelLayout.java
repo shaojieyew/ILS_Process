@@ -19,6 +19,7 @@ public class ReportSummaryExcelLayout {
 		int studentRecvdReport_colIndex=5;
 		int studentBand_colIndex=6;
 		
+		studentListHeader_RowIndex= studentListHeader_RowIndex+sheet.getLastRowNum();
 	    
 		Row header1 = sheet.createRow(studentListHeader_RowIndex);
 		Row header2 = sheet.createRow(studentListHeader_RowIndex+1);

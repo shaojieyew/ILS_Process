@@ -1,5 +1,6 @@
 package reportSummary;
 
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -19,6 +20,7 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
+import application.AppDialog;
 import application.AttributeIndex;
 import application.Report;
 import application.configurable.InputConfiguration;
@@ -37,13 +39,13 @@ public class ReportSummaryExcel implements ReportSummary {
 	private int recColIndex = -1;
 	private int bandColIndex = -1;
 	private int headerRow = -1;
-	private boolean includeUnknownStudentInCounting = false;
+	private boolean includeUnknownStudentInCounting = true;
 	
 	@Override
 	public void process(ObservableList<Report> reports) {
 		if(!verify()){
 			System.out.println("Invalid format");
-			return;
+			ReportSummaryExcelLayout.createNewLayout(sheet);	
 		}
 		System.out.println("Writing data to file");
 		Iterator<Row> itr = sheet.iterator(); 
@@ -619,8 +621,13 @@ public class ReportSummaryExcel implements ReportSummary {
 	private void save(){
 		FileOutputStream out = null;
 		try {
+			try {
 			out =  new FileOutputStream(InputConfiguration.getInstance().getReportSummaryFile());
 			sheet.getWorkbook().write(out);
+			}catch(FileNotFoundException ex){
+				//labelVerifyFormat.setText(ex.getMessage());
+				AppDialog.alert("Cannot generate report to excel!",ex.getMessage());
+			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

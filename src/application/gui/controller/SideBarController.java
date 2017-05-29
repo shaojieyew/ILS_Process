@@ -12,6 +12,7 @@ import java.util.ResourceBundle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
+import application.AppDialog;
 import application.Report;
 import application.ReportObservable;
 import application.configurable.InputChangeListener;
@@ -83,16 +84,26 @@ public class SideBarController extends FXMLController implements Initializable, 
 
 	@FXML
 	public void loadExcelSheetToComboBox(){
+		ReportSummaryFactory.deleteInstance();
 		if(importedFile!=null&&importedFile.length()>0){
 			FileInputStream fis;
 			try {
-				fis = new FileInputStream(importedFile);
-				XSSFWorkbook book = new XSSFWorkbook(fis); 
-				int totalSheet = book.getNumberOfSheets();
-				comboBoxSheets.getItems().clear();
-				for(int i=0;i<totalSheet;i++){
-					String sheetname = book.getSheetAt(i).getSheetName();
-					comboBoxSheets.getItems().add(sheetname);
+				if(new File(importedFile).exists()){
+					fis = new FileInputStream(importedFile);
+					XSSFWorkbook book = new XSSFWorkbook(fis); 
+					int totalSheet = book.getNumberOfSheets();
+					comboBoxSheets.getItems().clear();
+					for(int i=0;i<totalSheet;i++){
+						String sheetname = book.getSheetAt(i).getSheetName();
+						comboBoxSheets.getItems().add(sheetname);
+					}
+					String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
+					if(sheetName!=null&&sheetName.length()>0){
+						if(comboBoxSheets.getItems().contains(sheetName)){
+							comboBoxSheets.setValue(sheetName);
+							ReportSummary rs = ReportSummaryFactory.createInstance( book.getSheet(sheetName));
+						}
+					}
 				}
 			} catch ( IOException e) {
 				// TODO Auto-generated catch block
@@ -108,19 +119,27 @@ public class SideBarController extends FXMLController implements Initializable, 
 				FileInputStream fis = new FileInputStream(importedFile);
 				XSSFWorkbook book = new XSSFWorkbook(fis); 
 				int totalSheet = book.getNumberOfSheets();
-				XSSFSheet sheet=book.getSheet(comboBoxSheets.getValue());
-
-				ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
+				
+				if(comboBoxSheets.getValue()!=null){
+					XSSFSheet sheet=book.getSheet(comboBoxSheets.getValue());
+					ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
+					InputConfiguration.getInstance().setReportSummaryFile_sheet(comboBoxSheets.getValue());
+				}else{
+					ReportSummaryFactory.deleteInstance();
+				}
+				/*
 				if(rs.verify()){
 					labelVerifyFormat.setText("Valid Format");
 				}else{
 					labelVerifyFormat.setText("Invalid Format");
-				}
+				}*/
 			} catch (IOException e) {
-				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}catch (Exception e) {
 				e.printStackTrace();
 			}
 		}
+
 	}
 	@FXML
 	public void onClickNewSheet(){
@@ -133,25 +152,25 @@ public class SideBarController extends FXMLController implements Initializable, 
 				//create sheet and layout for imported file;
 				book.createSheet("Sheet"+(totalSheet+1));
 				XSSFSheet sheet=book.getSheet("Sheet"+(totalSheet+1));
-				ReportSummaryExcelLayout.createNewLayout(sheet);
+				//ReportSummaryExcelLayout.createNewLayout(sheet);
 
 				//save file
-				FileOutputStream out =  new FileOutputStream(importedFile);
-				sheet.getWorkbook().write(out);
-				out.close();
-				
-				//update combo box
-				comboBoxSheets.getItems().add(sheet.getSheetName());
-				comboBoxSheets.setValue(sheet.getSheetName());
-				ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
-				if(rs.verify()){
-					labelVerifyFormat.setText("Valid Format");
-				}else{
-					labelVerifyFormat.setText("Invalid Format");
+				try{
+					FileOutputStream out =  new FileOutputStream(importedFile);
+					sheet.getWorkbook().write(out);
+					out.close();
+
+					//update combo box
+					comboBoxSheets.getItems().add(sheet.getSheetName());
+					comboBoxSheets.setValue(sheet.getSheetName());
+				}catch(FileNotFoundException ex){
+					//labelVerifyFormat.setText(ex.getMessage());
+					AppDialog.alert("Cannot create new sheet!",ex.getMessage());
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+			
 		}
 	}
 

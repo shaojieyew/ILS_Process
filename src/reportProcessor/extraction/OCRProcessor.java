@@ -52,6 +52,9 @@ public class OCRProcessor {
 	}
     
     public String ocrImage(BufferedImage[] images){
+    	if(images==null||images.length==0){
+    		return "";
+    	}
          String result = "";
          Tesseract instance = new Tesseract();
          instance.setDatapath(Paths.get("").toAbsolutePath().toString()+"\\tessdata");

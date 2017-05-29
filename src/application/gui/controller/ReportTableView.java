@@ -67,6 +67,9 @@ public  class ReportTableView implements InputChangeListener{
 			        case Report.STATUS_FAILED:
 			            this.getStyleClass().add("fail"); 
 			        	break;
+			        case Report.STATUS_NOT_FOUND:
+			            this.getStyleClass().add("fail"); 
+			        	break;
 			        default:
 			        	break;
 			        }

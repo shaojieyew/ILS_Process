@@ -48,6 +48,8 @@ public class AppProperty {
 				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
 				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
 				PROP.setProperty("report_summary", "");
+				PROP.setProperty("report_summary_sheet", "");
+				PROP.setProperty("multi_thread", "2");
 				PROP.store(output, null);
 
 			} catch (IOException io) {

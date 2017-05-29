@@ -3,6 +3,7 @@ package util;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Paths;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -20,6 +21,9 @@ public class FilesChooser {
 		File init = null;
 		if(initialLocation!=null)
 			init = new File(initialLocation);
+		if(!init.exists()){
+			init = new File(Paths.get("").toAbsolutePath().toString());
+		}
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setInitialDirectory(init);
 		fileChooser.setTitle(title);
@@ -31,6 +35,9 @@ public class FilesChooser {
 		File init = null;
 		if(initialLocation!=null)
 			init = new File(initialLocation);
+		if(!init.exists()){
+			init = new File(Paths.get("").toAbsolutePath().toString());
+		}
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.setInitialDirectory(init);
 		fileChooser.setTitle(title);

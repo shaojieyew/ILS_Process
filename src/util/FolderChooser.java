@@ -1,6 +1,7 @@
 package util;
 
 import java.io.File;
+import java.nio.file.Paths;
 
 import javafx.stage.DirectoryChooser;
 import javafx.stage.Stage;
@@ -10,6 +11,9 @@ public class FolderChooser {
 		File init = null;
 		if(initialLocation!=null)
 			init = new File(initialLocation);
+		if(!init.exists()){
+			init = new File(Paths.get("").toAbsolutePath().toString());
+		}
 		DirectoryChooser fileChooser = new DirectoryChooser();
 		fileChooser.setInitialDirectory(init);
 		fileChooser.setTitle(title);
