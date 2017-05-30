@@ -1,8 +1,6 @@
-package application;
+package report;
 
 import java.util.ArrayList;
-
-import reportProcessor.ReportChangeListener;
 
 public abstract class ReportObservable {
 	//List of listener listening to changes of this class's instance

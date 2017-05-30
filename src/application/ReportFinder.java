@@ -4,6 +4,7 @@ import java.io.File;
 import java.util.ArrayList;
 
 import application.configurable.InputConfiguration;
+import report.Report;
 import util.FileUtility;
 
 public class ReportFinder {

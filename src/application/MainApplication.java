@@ -15,6 +15,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import util.AppDialog;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.MenuBar;
@@ -74,7 +75,7 @@ public class MainApplication extends Application {
 				@Override
 				public void changed(ObservableValue<? extends Boolean> focused, Boolean arg1, Boolean arg2) {
 					if(focused.getValue()==true){
-						InputConfiguration.getInstance().setReportSummaryFile(AppProperty.getValue("report_summary"));
+						InputConfiguration.getInstance().setReportSummaryFile(InputConfiguration.getInstance().getReportSummaryFile());
 					}
 				}
 			});

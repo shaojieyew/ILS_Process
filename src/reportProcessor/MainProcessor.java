@@ -9,10 +9,10 @@ import java.util.concurrent.Semaphore;
 import org.apache.commons.io.FileUtils;
 
 import application.AttributeIndex;
-import application.Report;
-import application.ReportObservable;
 import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
+import report.Report;
+import report.ReportObservable;
 import reportSummary.ReportSummary;
 import reportSummary.ReportSummaryExcelLayout;
 import reportSummary.ReportSummaryFactory;
@@ -21,7 +21,7 @@ import util.FileUtility;
 /*
  * Main Process for managing multiple threads for processing
  */
-public class MainProcessor implements Runnable{
+public class MainProcessor extends Processor implements Runnable{
 	private static MainProcessor INSTANCE;
 	private ObservableList<Report> reports;
 	//variable keep track of the progress
@@ -65,11 +65,15 @@ public class MainProcessor implements Runnable{
 	}
 	
 	List<Thread> listOfThreads = new ArrayList<Thread>();
+	private final Semaphore lock = new Semaphore(1);
 	
 	@Override
 	public void run() {
+		started();
+		Semaphore token = new Semaphore((totalCount-1)*-1);
 		cancelProcess = false;
 		listOfThreads.clear();
+		List<Processor> runningProcessors = new ArrayList<Processor>();
 		for(int i =0;i<totalCount;i++){
 			try {
 				count_thread.acquire();
@@ -78,47 +82,49 @@ public class MainProcessor implements Runnable{
 					break;
 				}
 				//start a sub-thread to process a report
-				Thread thread1 = new Thread(new ReportProcessor(this,reports.get(i),i,reprocessCompletedFile));
+				ReportProcessor rp = new ReportProcessor(this,reports.get(i),i,reprocessCompletedFile);
+				rp.addListener(new ProcessorListener(){
+					@Override
+					public void onComplete(Processor processor) {
+						try {
+							lock.acquire();
+							runningProcessors.remove(processor);
+							token.release();
+							lock.release();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+					@Override
+					public void onStart(Processor processor) {
+						try {
+							lock.acquire();
+							runningProcessors.add(processor);
+							lock.release();
+						} catch (InterruptedException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
+				Thread thread1 = new Thread(rp);
 				thread1.start();
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
-		
+		try {
+			token.acquire();
+			completed();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public boolean isCancelProcess() {
 		return cancelProcess;
 	}
 	
-	public void generateReport(){
-		String output=""; 
-		for(Report report : reports){
-			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
-				output = output+"===============Name and ILS Attributes==============";
-				 output = output+System.getProperty("line.separator").toString();
-				 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
-				 for(AttributeIndex ai : report.getAttributes()){
-					 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
-				 }
-			}
-		}
-		File folder = new File(AppProperty.getValue("output"));
-		if(!folder.exists()){
-			try {
-				FileUtils.forceMkdir(folder);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_Output.txt");
-		
-		
-		ReportSummary reportSmmary = ReportSummaryFactory.getInstance();
-		if(reportSmmary!=null){
-			reportSmmary.process(reports);
-		}
-	}
 
 }

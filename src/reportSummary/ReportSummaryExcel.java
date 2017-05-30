@@ -1,5 +1,6 @@
 package reportSummary;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -20,13 +21,13 @@ import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 
-import application.AppDialog;
 import application.AttributeIndex;
-import application.Report;
 import application.configurable.InputConfiguration;
 import javafx.collections.ObservableList;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
+import report.Report;
+import util.AppDialog;
 
 public class ReportSummaryExcel implements ReportSummary {
 	private XSSFSheet sheet;
@@ -184,7 +185,6 @@ public class ReportSummaryExcel implements ReportSummary {
 			writeDetailSummaryCount(endOfstudentRow, headerRow+11, bandColIndex+7, true);
 	
 		}
-		save();
 	}
 
 	private void writeDetailSummaryCount(int endOfstudentRow, int startRow, int startCol, boolean percentage) {
@@ -618,19 +618,21 @@ public class ReportSummaryExcel implements ReportSummary {
 		}
 	}
 	
-	private void save(){
+	public boolean save(File destFile){
+		boolean success = true;
 		FileOutputStream out = null;
 		try {
 			try {
-			out =  new FileOutputStream(InputConfiguration.getInstance().getReportSummaryFile());
+			out =  new FileOutputStream(destFile.getAbsolutePath());
 			sheet.getWorkbook().write(out);
 			}catch(FileNotFoundException ex){
-				//labelVerifyFormat.setText(ex.getMessage());
-				AppDialog.alert("Cannot generate report to excel!",ex.getMessage());
+				//AppDialog.alert("Cannot generate report to excel!",ex.getMessage());
+				success=false;
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			success=false;
 		}finally{
 			if(out!=null){
 				try {
@@ -641,6 +643,7 @@ public class ReportSummaryExcel implements ReportSummary {
 				}
 			}
 		}
+		return success;
 	}
 
 	@Override

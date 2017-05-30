@@ -1,10 +1,9 @@
 package application.gui.controller;
 
 import java.util.ArrayList;
-
 import java.awt.Desktop;
 import java.io.File;
-import application.Report;
+
 import application.ReportFinder;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
@@ -14,6 +13,7 @@ import javafx.scene.Node;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
 import javafx.scene.input.MouseEvent;
+import report.Report;
 import util.FileUtility;
 
 /*

@@ -1,18 +1,18 @@
 package application.gui.controller;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
+import java.util.concurrent.Semaphore;
 
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import application.AppDialog;
 import application.MainApplication;
-import application.Report;
-import application.ReportObservable;
 import application.configurable.AppProperty;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
@@ -29,13 +29,17 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
+
 import javafx.stage.FileChooser.ExtensionFilter;
+import report.Report;
+import report.ReportChangeListener;
+import report.ReportObservable;
 import reportProcessor.MainProcessor;
-import reportProcessor.ReportChangeListener;
-import reportSummary.ReportSummary;
-import reportSummary.ReportSummaryExcelLayout;
+import reportProcessor.Processor;
+import reportProcessor.ProcessorListener;
+import reportProcessor.SummaryGenerator;
 import reportSummary.ReportSummaryFactory;
+import util.AppDialog;
 import util.FilesChooser;
 import util.FolderChooser;
 
@@ -62,6 +66,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	private BorderPane rootPane;
 	private Node leftPane=null;
 
+	public static final String defaultFileName = "ILS-Result";
+	
 	public MainProcessor mainProcessor;
 	
 	public MainController() {
@@ -131,11 +137,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	//process the list of reports in the tableview
 	@FXML
 	public void startProcess(){
-		int result = 0;
+		int result = 1;
 		boolean rerunProcess=false;
 		if(completedCount>0){
 			String[] buttonNames = {"Re-process","Skip"};
-			 result = AppDialog.multiButtonDialog(buttonNames , "Re-process completed file?", "");
+			// result = AppDialog.multiButtonDialog(buttonNames , "Re-process completed file?", "");
 			if(result==-1){
 				return;
 			}
@@ -158,6 +164,16 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			
 		}
 		mainProcessor = MainProcessor.getInstance(data,multi_thread_count,rerunProcess);
+		mainProcessor.addListener(new ProcessorListener(){
+			@Override
+			public void onComplete(Processor process) {
+				generateSummary();
+			}
+
+			@Override
+			public void onStart(Processor process) {
+			}
+		});
 		Thread mainProcessorThread = new Thread(mainProcessor);
 		mainProcessorThread.start();
 		cancelBtn.setDisable(false);
@@ -182,13 +198,77 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 		//finish touch up and generate report
 		if(mainProcessor==null||nonInProcess){
-			if(mainProcessor!=null)
-				mainProcessor.generateReport();
 			diableAllControls(false);
 			cancelBtn.setDisable(true);
 		}
-	
 	}
+	
+
+	private void generateSummary() {
+		File destFile = null;
+		XSSFWorkbook book;
+		XSSFSheet sheet = null;
+		
+		if(InputConfiguration.getInstance().getReportSummaryFile().length()>0){
+			File file = new File(InputConfiguration.getInstance().getReportSummaryFile());
+			if(!file.exists()){
+				InputConfiguration.getInstance().setReportSummaryFile("");
+				InputConfiguration.getInstance().setReportSummaryFile_sheet("");
+			}else{
+				destFile=file;
+				String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
+				
+					FileInputStream fis;
+					try {
+						fis = new FileInputStream(file.getAbsolutePath());
+						book = new XSSFWorkbook(fis);
+						if(sheetName.length()>0){
+							sheet = book.getSheet(sheetName);
+							if(sheet==null){
+								book.createSheet(sheetName);
+								sheet=book.getSheet(sheetName);
+							}
+						}else{
+							sheet = book.createSheet();
+							sheetName = sheet.getSheetName();
+						}
+					} catch (FileNotFoundException e) {
+						e.printStackTrace();
+					} catch (IOException e) {
+						e.printStackTrace();
+					} 
+			}
+		}
+		if(InputConfiguration.getInstance().getReportSummaryFile().length()<=0){
+			book = new XSSFWorkbook();	
+			sheet = book.createSheet();
+			destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+".xlsx");
+			int count = 1;
+			while(destFile.exists()){
+				destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+" ("+count+").xlsx");
+				count++;
+			}
+		}
+		SummaryGenerator summaryProcess = new SummaryGenerator(tableview.getItems(), OutputConfiguration.getInstance().getDirectory(),destFile, sheet);
+		Thread thread1 = new Thread(summaryProcess);
+		thread1.start();
+		summaryProcess.addListener(new ProcessorListener(){
+			@Override
+			public void onComplete(Processor process) {
+				Platform.runLater(new Runnable() {
+	                 @Override public void run() {
+	                		InputConfiguration.getInstance().setReportSummaryFile_sheet(((XSSFSheet)((SummaryGenerator)process).getSummaryFile()).getSheetName());
+	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryGenerator)process).getDestFile().getAbsolutePath());
+			         }
+				});
+			}
+
+			@Override
+			public void onStart(Processor process) {
+			}
+		});
+	}
+
 
 	//on input configuration changed
 	@Override
@@ -233,11 +313,19 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		ReportObservable.unlistenToChange(this);
 	}
 
+	private static final Semaphore lockStatCounter = new Semaphore(1);
+	
 	public int completedCount = 0;
 	public int failedCount = 0;
 	public int inProcessCount = 0;
 	@Override
 	public void onUpdateReport(ReportObservable reportObservable) {
+		try {
+			lockStatCounter.acquire();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 			//update UI
 			if((Report.STATUS_IN_PROCESSING).equals(reportObservable.getStatus())){
 				inProcessCount++;
@@ -250,6 +338,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				inProcessCount--;
 				failedCount++;
 			}
+			lockStatCounter.release();
 			Platform.runLater(new Runnable() {
                  @Override public void run() {
          			tableview.getColumns().get(0).setVisible(false);
@@ -264,6 +353,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
          				
                  }
              });
+			
 	}
 	
 	public double updateProgressBar(){
@@ -293,13 +383,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		if(file != null){
 			 try {
 				 XSSFWorkbook workbook = new XSSFWorkbook();
-				 XSSFSheet sheet = workbook.createSheet("Sheet1");
+				 XSSFSheet sheet = workbook.createSheet();
+				 String sheetName = sheet.getSheetName();
 				 //ReportSummaryExcelLayout.createNewLayout(sheet);
 			     FileOutputStream out =  new FileOutputStream(file.getAbsoluteFile());
 			     workbook.write(out);
 			     out.close();
-			     //setImportedFile( file);
-				InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+				 InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+				 InputConfiguration.getInstance().setReportSummaryFile_sheet(sheetName);
 		        } catch (IOException ex) {
 		    }
 		}

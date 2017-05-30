@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
@@ -12,34 +11,18 @@ import java.util.ResourceBundle;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-import application.AppDialog;
-import application.Report;
-import application.ReportObservable;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
-import application.configurable.OutputConfiguration;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
-import javafx.scene.control.ProgressBar;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
-import javafx.stage.FileChooser;
-import javafx.stage.FileChooser.ExtensionFilter;
-import reportProcessor.MainProcessor;
-import reportProcessor.ReportChangeListener;
 import reportSummary.ReportSummary;
-import reportSummary.ReportSummaryExcel;
-import reportSummary.ReportSummaryExcelLayout;
 import reportSummary.ReportSummaryFactory;
+import util.AppDialog;
 import util.FileUtility;
-import util.FilesChooser;
-import util.FolderChooser;
 
 /*
  * Controller class for Main.fxml in application.css
@@ -84,7 +67,7 @@ public class SideBarController extends FXMLController implements Initializable, 
 
 	@FXML
 	public void loadExcelSheetToComboBox(){
-		ReportSummaryFactory.deleteInstance();
+		//ReportSummaryFactory.deleteInstance();
 		if(importedFile!=null&&importedFile.length()>0){
 			FileInputStream fis;
 			try {
@@ -101,12 +84,13 @@ public class SideBarController extends FXMLController implements Initializable, 
 					if(sheetName!=null&&sheetName.length()>0){
 						if(comboBoxSheets.getItems().contains(sheetName)){
 							comboBoxSheets.setValue(sheetName);
-							ReportSummary rs = ReportSummaryFactory.createInstance( book.getSheet(sheetName));
+							InputConfiguration.getInstance().setReportSummaryFile_sheet(sheetName);
+						}else{
+							InputConfiguration.getInstance().setReportSummaryFile_sheet("");
 						}
 					}
 				}
 			} catch ( IOException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} 
 		}
@@ -122,11 +106,13 @@ public class SideBarController extends FXMLController implements Initializable, 
 				
 				if(comboBoxSheets.getValue()!=null){
 					XSSFSheet sheet=book.getSheet(comboBoxSheets.getValue());
-					ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
+					//ReportSummary rs = ReportSummaryFactory.createInstance(sheet);
 					InputConfiguration.getInstance().setReportSummaryFile_sheet(comboBoxSheets.getValue());
-				}else{
-					ReportSummaryFactory.deleteInstance();
 				}
+				/*else{
+					//InputConfiguration.getInstance().setReportSummaryFile_sheet("");
+					//ReportSummaryFactory.deleteInstance();
+				}*/
 				/*
 				if(rs.verify()){
 					labelVerifyFormat.setText("Valid Format");
@@ -150,8 +136,7 @@ public class SideBarController extends FXMLController implements Initializable, 
 				int totalSheet = book.getNumberOfSheets();
 				
 				//create sheet and layout for imported file;
-				book.createSheet("Sheet"+(totalSheet+1));
-				XSSFSheet sheet=book.getSheet("Sheet"+(totalSheet+1));
+				XSSFSheet sheet=book.createSheet();
 				//ReportSummaryExcelLayout.createNewLayout(sheet);
 
 				//save file

@@ -1,9 +1,10 @@
 package reportProcessor;
 
 import java.io.File;
+
 import application.AttributeIndex;
-import application.Report;
 import application.configurable.AppProperty;
+import report.Report;
 import reportProcessor.analysis.DataCorrection;
 import reportProcessor.analysis.ReportDataReader;
 import reportProcessor.analysis.ReportDataReaderBySplit;
@@ -14,7 +15,7 @@ import util.FileUtility;
  * Class for processing the report
  * Make call to data extraction, data correction and reading
  */
-public class ReportProcessor  implements Runnable{
+public class ReportProcessor extends Processor implements Runnable{
 	private static final boolean DEBUG=false;
 	
 	private boolean reprocessCompletedFile=false;
@@ -33,13 +34,15 @@ public class ReportProcessor  implements Runnable{
 	//start thread
 	@Override
 	public void run() {
+		started();
 		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
 			preProcess();
 			runProcess();
 		}
 		postProcess();
+		completed();
 	}
-	
+
 	private void preProcess() {
 		report.setStatus(Report.STATUS_IN_PROCESSING);
 	}

@@ -12,7 +12,6 @@ public class ReportSummaryFactory {
 	    	instance=rs;
 	    	return rs;
 		}
-
 		public static ReportSummary getInstance(){
 			return instance;
 		}
