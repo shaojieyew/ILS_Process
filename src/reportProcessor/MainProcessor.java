@@ -74,10 +74,14 @@ public class MainProcessor extends Processor implements Runnable{
 		cancelProcess = false;
 		listOfThreads.clear();
 		List<Processor> runningProcessors = new ArrayList<Processor>();
+		int count =0;
 		for(int i =0;i<totalCount;i++){
 			try {
 				count_thread.acquire();
 				if(cancelProcess){
+					for(int x=0;x<(totalCount-count);x++){
+						token.release();
+					}
 					count_thread.release();
 					break;
 				}
@@ -92,7 +96,6 @@ public class MainProcessor extends Processor implements Runnable{
 							token.release();
 							lock.release();
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
@@ -103,19 +106,20 @@ public class MainProcessor extends Processor implements Runnable{
 							runningProcessors.add(processor);
 							lock.release();
 						} catch (InterruptedException e) {
-							// TODO Auto-generated catch block
 							e.printStackTrace();
 						}
 					}
 				});
 				Thread thread1 = new Thread(rp);
 				thread1.start();
+				count++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
 		}
 		try {
 			token.acquire();
+			System.out.println("COMPLETED!!!!!@#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 			completed();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

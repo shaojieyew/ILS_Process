@@ -106,8 +106,10 @@ public class ReportSummaryExcel implements ReportSummary {
 		}
 		
 		for(Report report : reports){
-			NewStudentList.add(report.getAuthor_name());
-			reportList.add(report);
+			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
+				NewStudentList.add(report.getAuthor_name());
+				reportList.add(report);
+			}
 		}
 		
 

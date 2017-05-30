@@ -141,7 +141,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		boolean rerunProcess=false;
 		if(completedCount>0){
 			String[] buttonNames = {"Re-process","Skip"};
-			// result = AppDialog.multiButtonDialog(buttonNames , "Re-process completed file?", "");
+			 result = AppDialog.multiButtonDialog(buttonNames , "Re-process completed file?", "");
 			if(result==-1){
 				return;
 			}
@@ -167,6 +167,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		mainProcessor.addListener(new ProcessorListener(){
 			@Override
 			public void onComplete(Processor process) {
+				System.out.println("@@@@@@@@@@@Start to generate!!!");
 				generateSummary();
 			}
 
@@ -197,10 +198,10 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			}
 		}
 		//finish touch up and generate report
-		if(mainProcessor==null||nonInProcess){
-			diableAllControls(false);
-			cancelBtn.setDisable(true);
-		}
+		//if(mainProcessor==null||nonInProcess){
+		//	diableAllControls(false);
+		//	cancelBtn.setDisable(true);
+		//}
 	}
 	
 
@@ -210,6 +211,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		XSSFSheet sheet = null;
 		
 		if(InputConfiguration.getInstance().getReportSummaryFile().length()>0){
+			
 			File file = new File(InputConfiguration.getInstance().getReportSummaryFile());
 			if(!file.exists()){
 				InputConfiguration.getInstance().setReportSummaryFile("");
@@ -240,14 +242,22 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			}
 		}
 		if(InputConfiguration.getInstance().getReportSummaryFile().length()<=0){
+
+			System.out.println("@@@@@@@@check file!!!");
 			book = new XSSFWorkbook();	
+			System.out.println("@@@@@@@@ 1-check file!!!");
 			sheet = book.createSheet();
+			System.out.println("@@@@@@@@ 2 -check file!!!");
 			destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+".xlsx");
+			System.out.println("@@@@@@@@ 3 - check file!!!");
 			int count = 1;
+			System.out.println("@@@@@@@@ 4 - check file!!!");
 			while(destFile.exists()){
+				System.out.println("@@@@@@@@ 5 - check file!!!");
 				destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+" ("+count+").xlsx");
 				count++;
 			}
+			System.out.println("@@@@@@@@done checking!!!");
 		}
 		SummaryGenerator summaryProcess = new SummaryGenerator(tableview.getItems(), OutputConfiguration.getInstance().getDirectory(),destFile, sheet);
 		Thread thread1 = new Thread(summaryProcess);
@@ -259,7 +269,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	                 @Override public void run() {
 	                		InputConfiguration.getInstance().setReportSummaryFile_sheet(((XSSFSheet)((SummaryGenerator)process).getSummaryFile()).getSheetName());
 	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryGenerator)process).getDestFile().getAbsolutePath());
-			         }
+	        				diableAllControls(false);
+	        				cancelBtn.setDisable(true);
+	                 }
 				});
 			}
 
@@ -273,21 +285,28 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	//on input configuration changed
 	@Override
 	public void onUpdateInput(InputConfiguration inputDirectory, String type) {
-		if(type.equals(InputConfiguration.LISTEN_InputDirectory)){
-			inputTextfield.setText(inputDirectory.getDirectory());
-		}
-		if(type.equals(InputConfiguration.LISTEN_ReportSummaryFile)){
-			if(inputDirectory.getReportSummaryFile()!=null&&inputDirectory.getReportSummaryFile().length()>0){
-		        if(new File(inputDirectory.getReportSummaryFile()).exists()){
-					rootPane.setLeft(leftPane);
-		        }else{
-		        	inputDirectory.setReportSummaryFile("");
-		        }
-			}else{
-		        rootPane.setLeft(null);
-		        ReportSummaryFactory.deleteInstance();
+
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				if(type.equals(InputConfiguration.LISTEN_InputDirectory)){
+					inputTextfield.setText(inputDirectory.getDirectory());
+				}
+				if(type.equals(InputConfiguration.LISTEN_ReportSummaryFile)){
+					if(inputDirectory.getReportSummaryFile()!=null&&inputDirectory.getReportSummaryFile().length()>0){
+				        if(new File(inputDirectory.getReportSummaryFile()).exists()){
+							rootPane.setLeft(leftPane);
+				        }else{
+				        	inputDirectory.setReportSummaryFile("");
+				        }
+					}else{
+				        rootPane.setLeft(null);
+				        ReportSummaryFactory.deleteInstance();
+					}
+				}
 			}
-		}
+			
+		});
 	}
 
 	//Subscribe to new changes in input configuration

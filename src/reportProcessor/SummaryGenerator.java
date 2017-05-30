@@ -31,6 +31,7 @@ public class SummaryGenerator extends Processor implements Runnable{
 	
 	//constructor setup list of reports to process
 	public SummaryGenerator(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile){
+
 		this.reports=data;
 		this.outputDirectory= outputDirectory;
 		this.destFile = destFile;
@@ -46,6 +47,8 @@ public class SummaryGenerator extends Processor implements Runnable{
 	@Override
 	public void run() {
 		started();
+		System.out.println("@@@@@@@@start generator");
+		/*
 		String output="";
 		for(Report report : reports){
 			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
@@ -67,14 +70,16 @@ public class SummaryGenerator extends Processor implements Runnable{
 			}
 		}
 		FileUtility.writeWordsToText(output,outputDirectory+"\\ILS_Output.txt");
-		
-
+		*/
 		
 		ReportSummary reportSmmary = ReportSummaryFactory.createInstance(summaryFile);
 		if(reportSmmary!=null){
+			System.out.println("@@@@@@@@start generator process");
 			reportSmmary.process(reports);
+			System.out.println("@@@@@@@@start generator save");
 			reportSmmary.save(destFile);
 		}
+		System.out.println("@@@@@@@@start generator DONE");
 		completed();
 	}
 	
