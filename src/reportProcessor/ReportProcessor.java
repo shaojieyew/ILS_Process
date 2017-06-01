@@ -1,9 +1,10 @@
 package reportProcessor;
 
 import java.io.File;
-import application.AttributeIndex;
-import application.Report;
+
 import application.configurable.AppProperty;
+import report.AttributeIndex;
+import report.Report;
 import reportProcessor.analysis.DataCorrection;
 import reportProcessor.analysis.ReportDataReader;
 import reportProcessor.analysis.ReportDataReaderBySplit;
@@ -14,28 +15,34 @@ import util.FileUtility;
  * Class for processing the report
  * Make call to data extraction, data correction and reading
  */
-public class ReportProcessor  implements Runnable{
+public class ReportProcessor extends Processor implements Runnable{
+	private static final boolean DEBUG=false;
+	
+	private boolean reprocessCompletedFile=false;
 	private MainProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
 	
 	//constructor
-	public ReportProcessor(MainProcessor mainProcess, Report report, int index){
+	public ReportProcessor(MainProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
 		this.mainProcess =mainProcess;
 		this.index = index;
 		this.report = report;
+		this.reprocessCompletedFile = reprocessCompletedFile;
 	}
 	
 	//start thread
 	@Override
 	public void run() {
-		if(!report.getStatus().equals(Report.STATUS_COMPLETED)){
+		started();
+		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
 			preProcess();
 			runProcess();
 		}
 		postProcess();
+		completed();
 	}
-	
+
 	private void preProcess() {
 		report.setStatus(Report.STATUS_IN_PROCESSING);
 	}
@@ -63,11 +70,15 @@ public class ReportProcessor  implements Runnable{
 		 if(zeroCount!=4&&nonZeroCount!=4){
 			 fail=true;
 		 }
-		
-		if(fail){
-			report.setStatus(Report.STATUS_FAILED);
+
+		if(new File(report.getPath()).exists()){
+			if(fail){
+				report.setStatus(Report.STATUS_FAILED);
+			}else{
+				report.setStatus(Report.STATUS_COMPLETED);
+			}
 		}else{
-			report.setStatus(Report.STATUS_COMPLETED);
+			report.setStatus(Report.STATUS_NOT_FOUND);
 		}
 	}
 	public void runProcess(){
@@ -124,7 +135,7 @@ public class ReportProcessor  implements Runnable{
 				 }
 			 }
 			 
-			 
+			 if(DEBUG){
 			 //===============print out for debug===========
 			 String output="";
 			 
@@ -146,8 +157,10 @@ public class ReportProcessor  implements Runnable{
 			 FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_"+report.getAuthor_name()+".txt");
 			 
 			 //============================================
-			 
+			 }
 		} catch (Exception e) {
+			//e.printStackTrace();
+		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
 	}

@@ -1,7 +1,7 @@
 package application.gui.controller;
 
-import application.Report;
 import javafx.scene.control.TableView;
+import report.Report;
 
 public class ReportTableViewFactory {
 

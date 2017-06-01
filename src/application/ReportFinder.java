@@ -4,15 +4,17 @@ import java.io.File;
 import java.util.ArrayList;
 
 import application.configurable.InputConfiguration;
+import report.Report;
 import util.FileUtility;
 
 public class ReportFinder {
-	
 	//get all the reports base on the input configuration from inputConfiguration
 	public ArrayList<Report> findAllReport() {
 		InputConfiguration inputDirectory=InputConfiguration.getInstance();
 		ArrayList<Report> reports = new ArrayList<Report>();
-	    for (final File fileEntry : FileUtility.getListOfFile(inputDirectory.getDirectory())) {
+		File[] files = FileUtility.getListOfFile(inputDirectory.getDirectory());
+		if(files!=null){
+	    for (final File fileEntry : files) {
 	    	String fileType = FileUtility.getFileExtension(fileEntry);
 	    	for(String type : inputDirectory.getFileType()){
 	    		if(fileType.equals(type)){
@@ -21,6 +23,7 @@ public class ReportFinder {
 	    		}
 	    	}
 	    }
+		}
 	    return reports;
 	}
 

@@ -5,7 +5,7 @@ package application.configurable;
  */
 
 public interface InputChangeListener {
-	void onUpdateInput(InputConfiguration inputDirectory);
-	void addInputListener();
-	void removeInputListener();
+	void onUpdateInput(InputConfiguration inputDirectory, String type);
+	void addListener(String type);
+	void removeListener(String type);
 }

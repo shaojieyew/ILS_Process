@@ -18,14 +18,14 @@ import reportProcessor.analysis.ReportDataReader;
 
 /*Method for extracting text data from PDF*/
 
-public class DataExtractPDF extends DataExtract{
+public class DataExtractPDF extends DataExtract {
 
 	public DataExtractPDF(File f) {
 		super(f);
 	}
 
 	@Override
-	public void processFile() {
+	public void processFile() throws OutOfMemoryError {
 		File file = getFile();
 		String text="";
 		boolean rerunByImageProcessing = false;
@@ -55,7 +55,11 @@ public class DataExtractPDF extends DataExtract{
 		if(rerunByImageProcessing){
 			BufferedImage[] bim=pdfToBufferimage(file);
 		    OCRProcessor ocr = new OCRProcessor();
-		    text = ocr.ocrImage(bim);
+		    try{
+		    	text = ocr.ocrImage(bim);
+		    }catch(OutOfMemoryError e){
+		    	
+		    }
 		}
 		setText(text);
 	}
@@ -89,6 +93,9 @@ public class DataExtractPDF extends DataExtract{
 	
 	//get text from pdf using pdfBox's stripper
 	public static String getTextFromPDF(File input){
+		if(!input.exists()){
+			return "";
+		}
     	PDDocument pd;
     	try {
     	         pd = PDDocument.load(input);
@@ -110,6 +117,9 @@ public class DataExtractPDF extends DataExtract{
 	
 	//convert all the pdf pages to bufferedImages
     public BufferedImage[] pdfToBufferimage(File file){
+    	if(!file.exists()){
+    		return null;
+    	}
     	BufferedImage[] bi=null;
         try {
 	        PDDocument document = PDDocument.load(file);
@@ -129,7 +139,7 @@ public class DataExtractPDF extends DataExtract{
     }
 
 	@Override
-	public void reProcessFile() {
+	public void reProcessFile() throws OutOfMemoryError{
 		/*
 		File file = getFile();
 		BufferedImage[] bim=pdfToBufferimage(file);

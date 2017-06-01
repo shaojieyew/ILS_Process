@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import me.xdrop.fuzzywuzzy.Applicable;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
 
@@ -42,24 +43,42 @@ public class LevenshteinDistance {
   public static int matches(String a, String b){
 	  String x=a.toLowerCase();
 	  String y=b.toLowerCase();
-	  return FuzzySearch.ratio(a, b);
+	  return FuzzySearch.ratio(x, y);
   }
   
   /*
   public static void main(String[] args) {
 	  
-	  String a = "Question";
-	  String b = "Questionnaire";
+	  String a = "Yew Shao Jie";
+	  String b = "shao jie";
+	  String c[] = {"JOHN","TAN"};
+	  String d[] = {"JOHN Tan","JOHN"};
+      List<String> c1 = Arrays.stream(c).collect(Collectors.toList());
+      List<String> d1 = Arrays.stream(d).collect(Collectors.toList());
 	  a=a.toLowerCase();
 	  b=b.toLowerCase();
-	  System.out.println(FuzzySearch.ratio(a, b));
-	  System.out.println(FuzzySearch.partialRatio(a, b));
+	 // System.out.println(FuzzySearch.ratio(a, b));
+	 // System.out.println(FuzzySearch.partialRatio(a, b));
 	  System.out.println(FuzzySearch.tokenSortRatio(a, b));
 	  System.out.println(FuzzySearch.tokenSetRatio(a, b));
 	  
 	  System.out.println(FuzzySearch.tokenSortPartialRatio(a, b));
 	  System.out.println(FuzzySearch.tokenSetPartialRatio(a, b));
 	  System.out.println(FuzzySearch.tokenSetPartialRatio(a, b));
+	  System.out.println(FuzzySearch.extractSorted(a, c1));
+	  
+	  for(String x : d1){
+		  List<ExtractedResult> f= FuzzySearch.extractSorted(x, c1);
+		  for(ExtractedResult y : f){
+			  if(x.equals(FuzzySearch.extractOne(y.getString(), d1).getString())){
+				  if(FuzzySearch.tokenSortRatio(x, y.getString())>80)
+					  System.out.println("Found: "+x+" --> "+y.getString());
+				  else
+					  System.out.println("Not Found: "+x);
+				  break;
+			  }
+		  }
+	  }
 	  printDistance(a, b);
 	  
 	  String correction= "Visual";
@@ -129,7 +148,8 @@ public class LevenshteinDistance {
 	  }
 	  
 	  System.out.println(input);
+	 
   }
-  
   */
+  
 }

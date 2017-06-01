@@ -1,10 +1,6 @@
 package application.gui.controller;
 
 import java.util.ArrayList;
-
-import java.awt.Desktop;
-import java.io.File;
-import application.Report;
 import application.ReportFinder;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
@@ -13,7 +9,10 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
+import report.Report;
+import util.FileUtility;
 
 /*
  * Class for managing the tableview.
@@ -24,11 +23,10 @@ public  class ReportTableView implements InputChangeListener{
 	private TableView<Report> tableview;
 	private ObservableList<Report> data;
 	private int totalGetReport=0;
-	private Report selectedReport = null;
 	public ReportTableView(TableView<Report> inTableview){
-		addInputListener();
+		addListener(InputConfiguration.LISTEN_InputDirectory);
 		tableview = inTableview;
-		
+		tableview.setTooltip(new Tooltip("Double click row to open file"));
 		tableview.setOnMousePressed(new EventHandler<MouseEvent>() {
 		    @Override 
 		    public void handle(MouseEvent event) {
@@ -38,40 +36,20 @@ public  class ReportTableView implements InputChangeListener{
 		            if (node instanceof TableRow) {
 		                row = (TableRow) node;
 		            } else {
-		                // clicking on text part
 		                row = (TableRow) node.getParent();
 		            }
 		            Report report = (Report) row.getItem();
-			      	  try {
-
-			      		File file = new File(report.getPath());
-			      		if (file.exists()) {
-
-			      			if (Desktop.isDesktopSupported()) {
-			      				Desktop.getDesktop().open(file);
-			      			} else {
-			      				System.out.println("Awt Desktop is not supported!");
-			      			}
-
-			      		} else {
-			      			System.out.println("File is not exists!");
-			      		}
-
-			      		System.out.println("Done");
-
-			      	  } catch (Exception ex) {
-			      		ex.printStackTrace();
-			      	  }
+		            FileUtility.openFile(report.getPath());
 		        }
 		    }
 		});
-		 
-		tableview.setSelectionModel(null);
+		//tableview.setSelectionModel(null);
 		tableview.setRowFactory(tv -> new TableRow<Report>() {
 		    @Override
 		    public void updateItem(Report item, boolean empty) {
 		        super.updateItem(item, empty) ;
 	            this.getStyleClass().clear();
+	            this.getStyleClass().add("rowStyleSelected"); 
 		        if(item!=null){
 			        switch(item.getStatus()){
 			        case Report.STATUS_NOT_PROCESSED:
@@ -84,6 +62,9 @@ public  class ReportTableView implements InputChangeListener{
 			            this.getStyleClass().add("complete"); 
 			        	break;
 			        case Report.STATUS_FAILED:
+			            this.getStyleClass().add("fail"); 
+			        	break;
+			        case Report.STATUS_NOT_FOUND:
 			            this.getStyleClass().add("fail"); 
 			        	break;
 			        default:
@@ -112,18 +93,20 @@ public  class ReportTableView implements InputChangeListener{
 	
 	//listen to input configuration change
 	@Override
-	public void addInputListener() {
-		InputConfiguration.getInstance().listenToChange(this);
+	public void addListener(String type) {
+		InputConfiguration.getInstance().listenToChange(this,type);
 	}
 
 	@Override
-	public void removeInputListener() {
-		InputConfiguration.getInstance().unlistenToChange(this);
+	public void removeListener(String type) {
+		InputConfiguration.getInstance().unlistenToChange(this,type);
 	}
 
 	@Override
-	public void onUpdateInput(InputConfiguration inputDirectory) {
-		updateListByInputDirectory();
+	public void onUpdateInput(InputConfiguration inputDirectory, String type) {
+		if(type.equals(InputConfiguration.LISTEN_InputDirectory)){
+			updateListByInputDirectory();
+		}
 	}
 
 	public int getTotalGetReport() {

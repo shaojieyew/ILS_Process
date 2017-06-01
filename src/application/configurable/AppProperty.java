@@ -47,6 +47,9 @@ public class AppProperty {
 				output = new FileOutputStream("config.properties");
 				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
 				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty("report_summary", "");
+				PROP.setProperty("report_summary_sheet", "");
+				PROP.setProperty("multi_thread", "2");
 				PROP.store(output, null);
 
 			} catch (IOException io) {
@@ -64,6 +67,12 @@ public class AppProperty {
 	}
 	 
 	 public static void setValue(String property, String value) {
+		 if(value==null){
+			 value="";
+		 }
+		 if(property==null||property.length()==0){
+			 return;
+		 }
 		OutputStream output = null;
 		try {
 			output = new FileOutputStream("config.properties");

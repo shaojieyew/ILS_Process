@@ -3,7 +3,7 @@ package reportProcessor.analysis;
 import java.util.ArrayList;
 import java.util.List;
 
-import application.AttributeIndex;
+import report.AttributeIndex;
 
 //read specific data from the data to get the author name and ILS attributes
 

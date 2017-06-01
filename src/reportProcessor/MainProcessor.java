@@ -4,21 +4,19 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import application.AttributeIndex;
-import application.Report;
-import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
-import util.FileUtility;
+import report.Report;
 
 /*
  * Main Process for managing multiple threads for processing
  */
-public class MainProcessor implements Runnable{
+public class MainProcessor extends Processor implements Runnable{
 	private static MainProcessor INSTANCE;
 	private ObservableList<Report> reports;
 	//variable keep track of the progress
 	private int totalCount = 0 ;
 	private boolean cancelProcess = false;
+	private boolean reprocessCompletedFile = false;
 	
 	/*
 	private int completedCount = 0 ;
@@ -29,19 +27,24 @@ public class MainProcessor implements Runnable{
 	*/
 	
 	//constructor setup list of reports to process
-	public MainProcessor(ObservableList<Report> data){
-		reports=data;
-		totalCount=data.size();
+	public MainProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
+		if(numberOfThread<=0){
+			numberOfThread=1;
+		}
+		this.count_thread = new Semaphore(numberOfThread);
+		this.reports=data;
+		this.totalCount=data.size();
+		this.reprocessCompletedFile = reprocessCompletedFile;
 	}
 	
 	//singleton method
-	public static MainProcessor getInstance(ObservableList<Report> data) {
-		INSTANCE = new MainProcessor(data);
+	public static MainProcessor getInstance(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile) {
+		INSTANCE = new MainProcessor(data,numberOfThread,reprocessCompletedFile);
         return INSTANCE;
     }
 	
 	//setup counting semaphore for multithreading
-	private Semaphore count_thread = new Semaphore(2);
+	private Semaphore count_thread;
 	public void releaseSemaphore(){
 		count_thread.release();
 	}
@@ -51,24 +54,63 @@ public class MainProcessor implements Runnable{
 	}
 	
 	List<Thread> listOfThreads = new ArrayList<Thread>();
+	private final Semaphore lock = new Semaphore(1);
 	
 	@Override
 	public void run() {
+		started();
+		Semaphore token = new Semaphore((totalCount-1)*-1);
 		cancelProcess = false;
 		listOfThreads.clear();
+		List<Processor> runningProcessors = new ArrayList<Processor>();
+		int count =0;
 		for(int i =0;i<totalCount;i++){
 			try {
 				count_thread.acquire();
 				if(cancelProcess){
+					for(int x=0;x<(totalCount-count);x++){
+						token.release();
+					}
 					count_thread.release();
 					break;
 				}
 				//start a sub-thread to process a report
-				Thread thread1 = new Thread(new ReportProcessor(this,reports.get(i),i));
+				ReportProcessor rp = new ReportProcessor(this,reports.get(i),i,reprocessCompletedFile);
+				rp.addListener(new ProcessorListener(){
+					@Override
+					public void onComplete(Processor processor) {
+						try {
+							lock.acquire();
+							runningProcessors.remove(processor);
+							token.release();
+							lock.release();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+					@Override
+					public void onStart(Processor processor) {
+						try {
+							lock.acquire();
+							runningProcessors.add(processor);
+							lock.release();
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					}
+				});
+				Thread thread1 = new Thread(rp);
 				thread1.start();
+				count++;
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
+		}
+		try {
+			token.acquire();
+			completed();
+		} catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -76,18 +118,5 @@ public class MainProcessor implements Runnable{
 		return cancelProcess;
 	}
 	
-	public void generateReport(){
-		String output=""; 
-		for(Report report : reports){
-			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
-				output = output+"===============Name and ILS Attributes==============";
-				 output = output+System.getProperty("line.separator").toString();
-				 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
-				 for(AttributeIndex ai : report.getAttributes()){
-					 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
-				 }
-			}
-		}
-		FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_Output.txt");
-	}
+
 }
