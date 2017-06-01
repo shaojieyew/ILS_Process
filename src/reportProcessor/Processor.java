@@ -2,8 +2,6 @@ package reportProcessor;
 
 import java.util.ArrayList;
 
-import application.configurable.InputChangeListener;
-import application.configurable.InputConfiguration;
 
 public abstract class Processor {
 	private ArrayList<ProcessorListener> listeners = new ArrayList<ProcessorListener>();

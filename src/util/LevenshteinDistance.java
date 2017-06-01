@@ -43,10 +43,10 @@ public class LevenshteinDistance {
   public static int matches(String a, String b){
 	  String x=a.toLowerCase();
 	  String y=b.toLowerCase();
-	  return FuzzySearch.ratio(a, b);
+	  return FuzzySearch.ratio(x, y);
   }
   
-  
+  /*
   public static void main(String[] args) {
 	  
 	  String a = "Yew Shao Jie";
@@ -81,7 +81,6 @@ public class LevenshteinDistance {
 	  }
 	  printDistance(a, b);
 	  
-	  /*
 	  String correction= "Visual";
 	  String input = "Reflective: 1 Intuitive: 1 Visual: 7 Sequential: 9";
 	  String input1 = "Reflective 5 > Intuitive 5 > Visual 9 > Sequential 5";
@@ -149,8 +148,8 @@ public class LevenshteinDistance {
 	  }
 	  
 	  System.out.println(input);
-	  */
+	 
   }
-  
+  */
   
 }

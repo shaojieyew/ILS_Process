@@ -2,7 +2,7 @@ package reportProcessor.analysis;
 
 import java.util.List;
 
-import application.AttributeIndex;
+import report.AttributeIndex;
 
 //common interface for multiple different ways to implement ReportDataReader
 public interface ReportDataReader {

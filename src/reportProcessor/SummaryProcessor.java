@@ -1,28 +1,16 @@
 package reportProcessor;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Semaphore;
-
-import org.apache.commons.io.FileUtils;
-
-import application.AttributeIndex;
-import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
 import report.Report;
-import report.ReportObservable;
 import reportSummary.ReportSummary;
-import reportSummary.ReportSummaryExcelLayout;
 import reportSummary.ReportSummaryFactory;
-import util.FileUtility;
 
 /*
  * Main Process for managing multiple threads for processing
  */
-public class SummaryGenerator extends Processor implements Runnable{
-	private static SummaryGenerator INSTANCE;
+public class SummaryProcessor extends Processor implements Runnable{
+	private static SummaryProcessor INSTANCE;
 	
 	private ObservableList<Report> reports;
 	private String outputDirectory;
@@ -30,7 +18,7 @@ public class SummaryGenerator extends Processor implements Runnable{
 	private Object summaryFile;
 	
 	//constructor setup list of reports to process
-	public SummaryGenerator(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile){
+	public SummaryProcessor(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile){
 
 		this.reports=data;
 		this.outputDirectory= outputDirectory;
@@ -39,15 +27,14 @@ public class SummaryGenerator extends Processor implements Runnable{
 	}
 	
 	//singleton method
-	public static SummaryGenerator getInstance(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile) {
-		INSTANCE = new SummaryGenerator(data,outputDirectory,destFile,summaryFile);
+	public static SummaryProcessor getInstance(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile) {
+		INSTANCE = new SummaryProcessor(data,outputDirectory,destFile,summaryFile);
         return INSTANCE;
     }
 	
 	@Override
 	public void run() {
 		started();
-		System.out.println("@@@@@@@@start generator");
 		/*
 		String output="";
 		for(Report report : reports){
@@ -74,12 +61,9 @@ public class SummaryGenerator extends Processor implements Runnable{
 		
 		ReportSummary reportSmmary = ReportSummaryFactory.createInstance(summaryFile);
 		if(reportSmmary!=null){
-			System.out.println("@@@@@@@@start generator process");
 			reportSmmary.process(reports);
-			System.out.println("@@@@@@@@start generator save");
-			reportSmmary.save(destFile);
+			reportSmmary.save(destFile); //slow
 		}
-		System.out.println("@@@@@@@@start generator DONE");
 		completed();
 	}
 	

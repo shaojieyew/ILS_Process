@@ -50,7 +50,8 @@ public class SideBarController extends FXMLController implements Initializable, 
 
 	public void setImportedFile(String importedFile) {
 		SideBarController.importedFile = importedFile;
-		labelImportedFile.setText(importedFile);
+		File f = new File(importedFile);
+		labelImportedFile.setText(f.getName());
 		loadExcelSheetToComboBox();
 	}
 

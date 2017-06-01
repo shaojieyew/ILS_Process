@@ -7,7 +7,7 @@ public class ReportSummaryFactory {
 		public static ReportSummary createInstance(Object o){
 			ReportSummary rs = null;
 	    	if(o instanceof XSSFSheet){
-	    		rs= new ReportSummaryExcel((XSSFSheet) o);
+	    		rs= new ReportSummaryExcelXSSF((XSSFSheet) o);
 	    	}
 	    	instance=rs;
 	    	return rs;

@@ -1,22 +1,11 @@
 package reportProcessor;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
-import org.apache.commons.io.FileUtils;
-
-import application.AttributeIndex;
-import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
 import report.Report;
-import report.ReportObservable;
-import reportSummary.ReportSummary;
-import reportSummary.ReportSummaryExcelLayout;
-import reportSummary.ReportSummaryFactory;
-import util.FileUtility;
 
 /*
  * Main Process for managing multiple threads for processing
@@ -119,7 +108,6 @@ public class MainProcessor extends Processor implements Runnable{
 		}
 		try {
 			token.acquire();
-			System.out.println("COMPLETED!!!!!@#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@");
 			completed();
 		} catch (InterruptedException e) {
 			e.printStackTrace();

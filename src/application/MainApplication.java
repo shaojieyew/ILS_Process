@@ -3,9 +3,7 @@ package application;
 import java.io.File;
 import java.nio.file.Paths;
 
-import application.configurable.AppProperty;
 import application.configurable.InputConfiguration;
-import application.configurable.OutputConfiguration;
 import application.gui.controller.FXMLController;
 import javafx.application.Application;
 import javafx.application.Platform;

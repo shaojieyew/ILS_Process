@@ -3,7 +3,6 @@ package report;
 import java.util.ArrayList;
 import java.util.List;
 
-import application.AttributeIndex;
 import javafx.beans.property.SimpleStringProperty;
 
 /*

@@ -1,9 +1,6 @@
 package application.gui.controller;
 
 import java.util.ArrayList;
-import java.awt.Desktop;
-import java.io.File;
-
 import application.ReportFinder;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
@@ -12,6 +9,7 @@ import javafx.event.EventHandler;
 import javafx.scene.Node;
 import javafx.scene.control.TableRow;
 import javafx.scene.control.TableView;
+import javafx.scene.control.Tooltip;
 import javafx.scene.input.MouseEvent;
 import report.Report;
 import util.FileUtility;
@@ -25,11 +23,10 @@ public  class ReportTableView implements InputChangeListener{
 	private TableView<Report> tableview;
 	private ObservableList<Report> data;
 	private int totalGetReport=0;
-	private Report selectedReport = null;
 	public ReportTableView(TableView<Report> inTableview){
 		addListener(InputConfiguration.LISTEN_InputDirectory);
 		tableview = inTableview;
-		
+		tableview.setTooltip(new Tooltip("Double click row to open file"));
 		tableview.setOnMousePressed(new EventHandler<MouseEvent>() {
 		    @Override 
 		    public void handle(MouseEvent event) {
@@ -46,13 +43,13 @@ public  class ReportTableView implements InputChangeListener{
 		        }
 		    }
 		});
-		 
-		tableview.setSelectionModel(null);
+		//tableview.setSelectionModel(null);
 		tableview.setRowFactory(tv -> new TableRow<Report>() {
 		    @Override
 		    public void updateItem(Report item, boolean empty) {
 		        super.updateItem(item, empty) ;
 	            this.getStyleClass().clear();
+	            this.getStyleClass().add("rowStyleSelected"); 
 		        if(item!=null){
 			        switch(item.getStatus()){
 			        case Report.STATUS_NOT_PROCESSED:

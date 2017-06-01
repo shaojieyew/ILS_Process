@@ -8,7 +8,6 @@ import report.Report;
 import util.FileUtility;
 
 public class ReportFinder {
-	
 	//get all the reports base on the input configuration from inputConfiguration
 	public ArrayList<Report> findAllReport() {
 		InputConfiguration inputDirectory=InputConfiguration.getInstance();

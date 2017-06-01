@@ -5,6 +5,7 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -24,6 +25,7 @@ public class OCRProcessor {
 	public static final boolean DEBUG = false;
 	public static int count=0;
 	   
+	private Tesseract instance;
 	public OCRProcessor(){
         String jvmBit = System.getProperty("sun.arch.data.model");
         if(jvmBit.equals("64")){
@@ -32,6 +34,10 @@ public class OCRProcessor {
         if(jvmBit.equals("32")){
             System.load(Paths.get("").toAbsolutePath().toString()+"\\opencv\\x86\\opencv_java320.dll");
         }
+
+        instance = new Tesseract();
+        instance.setDatapath(Paths.get("").toAbsolutePath().toString()+"\\tessdata");
+        instance.setLanguage("eng");
 	}
 	
 	public String doOcr(BufferedImage image){
@@ -51,20 +57,18 @@ public class OCRProcessor {
 		return ocrImage(bim);
 	}
     
-    public String ocrImage(BufferedImage[] images){
+    public String ocrImage(BufferedImage[] images)  throws OutOfMemoryError{
     	if(images==null||images.length==0){
     		return "";
     	}
          String result = "";
-         Tesseract instance = new Tesseract();
-         instance.setDatapath(Paths.get("").toAbsolutePath().toString()+"\\tessdata");
-         instance.setLanguage("eng");
        	  for(int i =0;i<images.length;i++){
 	          try {
 	             // Mat source = OpenCVUtility.img2Mat(images[i]);
 	        	  images[i] = ocrPreProcessing(images[i]);
-				  result =result+ instance.doOCR(images[i]);
-
+	        	  if(images[i]!=null){
+					  result =result+ instance.doOCR(images[i]);
+	        	  }
 			  } catch (TesseractException e) {
 						e.printStackTrace();
 			  }
@@ -73,9 +77,9 @@ public class OCRProcessor {
    }
 
     
-    public BufferedImage ocrPreProcessing(BufferedImage image){
-        float owidth = image.getWidth();
-        float oheight = image.getHeight();
+    public BufferedImage ocrPreProcessing(BufferedImage image) throws OutOfMemoryError{
+        //float owidth = image.getWidth();
+        //float oheight = image.getHeight();
         image = removeUncessarySpace(image);
         /*
         float cwidth = image.getWidth();
@@ -112,9 +116,7 @@ public class OCRProcessor {
         	//Imgproc.resize(source, source, new Size(newW,newH));
         	image = newImage;
         }
-
-        Mat source = OpenCVUtility.img2Mat(image);
-        
+    	Mat source= OpenCVUtility.img2Mat(image);
         int blurMat =3;
         int threshold_val = 195;
         blurMat = (int) ((Math.round(ratio+0.5))*2+1);
@@ -207,14 +209,81 @@ public class OCRProcessor {
     	return image;
     }
 
-    //crop out bufferedImage, remain
-	private BufferedImage removeUncessarySpace(BufferedImage image) {
-        Tesseract instance = new Tesseract();
-        instance.setDatapath(Paths.get("").toAbsolutePath().toString()+"\\tessdata");
-        instance.setLanguage("eng");
+    //crop out bufferedImage
+	private BufferedImage removeUncessarySpace(BufferedImage image)  throws OutOfMemoryError{
 
-	    List<Word> results = instance.getWords(image, TessPageIteratorLevel.RIL_BLOCK);
+	    int minX1=image.getWidth();
+	    int minY1=image.getHeight();
+	    int maxX2=0;
+	    int maxY2=0;
+        BufferedImage subImage;
+        //slice process due to not enough heap size;
+        int sliceX = (int) Math.ceil((float)image.getWidth()/2400f);
+        int sliceY = (int) Math.ceil((float)image.getHeight()/2400f);
+        double buffer = 0.1;
+	    for(int i=0;i<sliceX;i++){
+	    	for(int j=0;j<sliceY;j++){
+	    	    List<Word> results = new ArrayList<Word>();
+	    		int minX=i*(image.getWidth()/sliceX);
+	    		int minY=j*(image.getHeight()/sliceY);
+	    		//int w=image.getWidth()/slice;
+	    		//int h=image.getHeight()/slice;
 
+	    		minX=(int) (minX-(buffer*(image.getWidth()/sliceX)));
+	    		if(minX<0){
+	    			minX=0;
+	    		}
+	    		minY=(int) (minY-(buffer*(image.getHeight()/sliceY)));
+	    		if(minY<0){
+	    			minY=0;
+	    		}
+
+	    		int maxX = (int) (((i+1)*(image.getWidth()/sliceX))+(buffer*(image.getWidth()/sliceX)));
+	    		int maxY = (int) (((j+1)*(image.getHeight()/sliceY))+(buffer*(image.getHeight()/sliceY)));
+	    		if(maxX>image.getWidth()){
+	    			maxX=image.getWidth();
+	    		}
+	    		if(maxY>image.getHeight()){
+	    			maxY=image.getHeight();
+	    		}
+	    		
+	    		
+	    		int w = maxX-minX;
+	    		int h = maxY-minY;
+	    		subImage = image.getSubimage(minX,minY,w ,h );
+
+	    	    if(DEBUG) {
+		    	    File outputfile = new File(AppProperty.getValue("output")+"\\saved("+i+"-"+j+")"+".png");
+		        	try {
+		    			ImageIO.write(subImage, "png", outputfile);
+		    		} catch (IOException e) {
+		    			// TODO Auto-generated catch block
+		    			e.printStackTrace();
+		    		}
+	    	    }
+	        	results.addAll( instance.getWords(subImage, TessPageIteratorLevel.RIL_BLOCK));
+	        	
+	    	    for(Word result:results){
+	    	    	int x1 = (int) result.getBoundingBox().getX()+minX;
+	    	    	int y1 = (int) result.getBoundingBox().getY()+minY;
+	    	    	int x2 = (int) (x1+result.getBoundingBox().getWidth());
+	    	    	int y2 = (int) (y1+result.getBoundingBox().getHeight());
+	    	    	if(x1<minX1){
+	    	    		minX1=x1;
+	    	    	}
+	    	    	if(y1<minY1){
+	    	    		minY1=y1;
+	    	    	}
+	    	    	if(x2>maxX2){
+	    	    		maxX2=x2;
+	    	    	}
+	    	    	if(y2>maxY2){
+	    	    		maxY2=y2;
+	    	    	}
+	    	    }
+	    	}
+	    }
+	    
 	    /*System.out.println("=====================================");
 	    List<Word> results1 = instance.getWords(image, TessPageIteratorLevel.RIL_WORD);
 	    System.out.println(results1);
@@ -228,28 +297,6 @@ public class OCRProcessor {
 	    results1 = instance.getWords(image, TessPageIteratorLevel.RIL_BLOCK);
 	    System.out.println(results1);*/
 	    
-	    int minX1=image.getWidth();
-	    int minY1=image.getHeight();
-	    int maxX2=0;
-	    int maxY2=0;
-	    for(Word result:results){
-	    	int x1 = (int) result.getBoundingBox().getX();
-	    	int y1 = (int) result.getBoundingBox().getY();
-	    	int x2 = (int) (x1+result.getBoundingBox().getWidth());
-	    	int y2 = (int) (y1+result.getBoundingBox().getHeight());
-	    	if(x1<minX1){
-	    		minX1=x1;
-	    	}
-	    	if(y1<minY1){
-	    		minY1=y1;
-	    	}
-	    	if(x2>maxX2){
-	    		maxX2=x2;
-	    	}
-	    	if(y2>maxY2){
-	    		maxY2=y2;
-	    	}
-	    }
 	    //System.out.println(results);
 	    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
         return image;

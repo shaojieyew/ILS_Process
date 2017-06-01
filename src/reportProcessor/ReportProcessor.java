@@ -2,8 +2,8 @@ package reportProcessor;
 
 import java.io.File;
 
-import application.AttributeIndex;
 import application.configurable.AppProperty;
+import report.AttributeIndex;
 import report.Report;
 import reportProcessor.analysis.DataCorrection;
 import reportProcessor.analysis.ReportDataReader;
@@ -159,6 +159,8 @@ public class ReportProcessor extends Processor implements Runnable{
 			 //============================================
 			 }
 		} catch (Exception e) {
+			//e.printStackTrace();
+		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}
 	}

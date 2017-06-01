@@ -14,7 +14,7 @@ public class DataExtractImage extends DataExtract{
 	}
 
 	@Override
-	public void processFile() {
+	public void processFile() throws OutOfMemoryError{
 		OCRProcessor ocr = new OCRProcessor();
 		BufferedImage in = null;
 		BufferedImage newImage = null;
@@ -33,7 +33,7 @@ public class DataExtractImage extends DataExtract{
 	}
 
 	@Override
-	public void reProcessFile() {
+	public void reProcessFile() throws OutOfMemoryError{
 	}
 
 }

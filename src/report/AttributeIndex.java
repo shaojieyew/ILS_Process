@@ -1,5 +1,5 @@
 
-package application;
+package report;
 
 /*
  * Entity Class for Learning Style 

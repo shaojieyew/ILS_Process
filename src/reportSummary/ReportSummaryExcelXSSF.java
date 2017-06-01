@@ -20,19 +20,16 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
-
-import application.AttributeIndex;
-import application.configurable.InputConfiguration;
 import javafx.collections.ObservableList;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
+import report.AttributeIndex;
 import report.Report;
-import util.AppDialog;
 
-public class ReportSummaryExcel implements ReportSummary {
+public class ReportSummaryExcelXSSF implements ReportSummary {
 	private XSSFSheet sheet;
 	
-	public ReportSummaryExcel(XSSFSheet o) {
+	public ReportSummaryExcelXSSF(XSSFSheet o) {
 		sheet=o;
 	}
 
@@ -45,7 +42,7 @@ public class ReportSummaryExcel implements ReportSummary {
 	@Override
 	public void process(ObservableList<Report> reports) {
 		if(!verify()){
-			System.out.println("Invalid format");
+			//System.out.println("Invalid format");
 			ReportSummaryExcelLayout.createNewLayout(sheet);	
 		}
 		System.out.println("Writing data to file");
@@ -146,14 +143,14 @@ public class ReportSummaryExcel implements ReportSummary {
 						  thresholdScore=55;
 					  }
 					  if(thresholdScore<score){
-						  System.out.println("Found: ["+score+"] "+x+" --> "+y.getString());
+					//	  System.out.println("Found: ["+score+"] "+x+" --> "+y.getString());
 						  writeAttributeToList(x,y.getString(), reportList);
 					  }
 				  }
 			 }
 		}
 		
-		System.out.println(endOfstudentRow);
+		//System.out.println(endOfstudentRow);
 		if(endOfstudentRow>-1){
 			cleanSheet(endOfstudentRow,sheet.getLastRowNum(),0,bandColIndex+3);
 			
@@ -556,6 +553,7 @@ public class ReportSummaryExcel implements ReportSummary {
 		
 	}
 	
+	/*
 	private void createSpaceforLeftOverStudent(int endOfstudentRow){
 		int lastRow = sheet.getLastRowNum();
 		int minCol = 0;
@@ -571,7 +569,8 @@ public class ReportSummaryExcel implements ReportSummary {
 			}
 		}
 	}
-	
+	*/
+	/*
 	private Cell copyCell(Cell newCell, Cell oldCell){
 		newCell.setCellStyle(oldCell.getCellStyle());
 		//newCell.setCellFormula(oldCell.getCellFormula());
@@ -583,7 +582,7 @@ public class ReportSummaryExcel implements ReportSummary {
 		}
 		return newCell;
 	}
-	
+	*/
 	private void writeAttributeToList(String x, String y, List<Report> reports ){
 		Iterator<Row> itr = sheet.iterator(); 
 		while (itr.hasNext()) { 
