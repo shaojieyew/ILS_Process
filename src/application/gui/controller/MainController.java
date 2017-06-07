@@ -24,12 +24,14 @@ import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
-
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser.ExtensionFilter;
 import report.Report;
 import report.ReportChangeListener;
@@ -40,6 +42,7 @@ import reportProcessor.ProcessorListener;
 import reportProcessor.SummaryProcessor;
 import reportSummary.ReportSummaryFactory;
 import util.AppDialog;
+import util.FileUtility;
 import util.FilesChooser;
 import util.FolderChooser;
 
@@ -51,7 +54,10 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	private TextField inputTextfield;
 	@FXML
-	private TextField outputTextfield;
+	private TextField textField_outputFile;
+	@FXML 
+	private GridPane importedFilePane;
+	
 	@FXML
 	private TableView<Report> tableview;
 	@FXML
@@ -64,7 +70,35 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	private ProgressBar progressBar;
 	@FXML
 	private BorderPane rootPane;
-	private Node leftPane=null;
+	@FXML
+	private Button importBtn;
+	@FXML
+	private ComboBox<String> comboBoxSheets;
+
+
+	public String getImportedFile() {
+		return InputConfiguration.getInstance().getReportSummaryFile();
+	}
+
+	public void setImportedFile(String importedFile) {
+        textField_outputFile.setText(importedFile);
+		File f = new File(importedFile);
+		if(importedFile!=null&&importedFile.length()>0&&f.exists()){
+			/* LOL
+			rootPane.setLeft(leftLayout);
+			*/
+			importedFilePane.visibleProperty().set(true);
+			loadExcelSheetToComboBox();
+		}else{
+			/* LOL
+	        rootPane.setLeft(null);
+	        */
+			importedFilePane.visibleProperty().set(false);
+	        //textField_outputFile.setText("");
+	        //ReportSummaryFactory.deleteInstance();
+		}
+	}
+
 
 	public static final String defaultFileName = "ILS-Result";
 	
@@ -82,34 +116,13 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		//setup initial input folder
 		String inputPath = InputConfiguration.getInstance().getDirectory();
 		inputTextfield.setText(inputPath);
-		//setup initial output folder
-		String outputPath = OutputConfiguration.getInstance().getDirectory();
-		outputTextfield.setText(outputPath);
 		//initialize tableview 
 		ReportTableViewFactory.getInstance(tableview).updateListByInputDirectory();
 		updateProgressBar("");
-		
-		//initialize leftPane;
-		try {
-	        FXMLLoader sideBarLoader = new FXMLLoader();
-	        sideBarLoader.setLocation(MainApplication.class.getResource("gui/SideBar.fxml"));
-	        Node sideBarRootLayout = sideBarLoader.load();
-	        FXMLController controller = (FXMLController)sideBarLoader.getController();
-	        controller.setStageAndSetupListeners(getStage());
-	        leftPane=sideBarRootLayout;
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-		InputConfiguration.getInstance().setReportSummaryFile(InputConfiguration.getInstance().getReportSummaryFile());
+		textField_outputFile.setText(getImportedFile());
+		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
 	}
 
-	public Node getLeftPane() {
-		return leftPane;
-	}
-	public void setLeftPane(Node leftPane) {
-		this.leftPane = leftPane;
-	}
 	
 	@FXML
 	public void selectInputAction(){
@@ -121,15 +134,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			failedCount = 0;
 			inProcessCount = 0;
 			updateProgressBar("");
-		}
-	}
-	@FXML
-	public void selectOutputAction(){
-		//select output directory
-		File f = FolderChooser.show(getStage(), "Select Output Directory",outputTextfield.getText());
-		if(f!=null){
-			OutputConfiguration.getInstance().setDirectory(f.getPath());
-			outputTextfield.setText(f.getPath());
 		}
 	}
 	
@@ -181,37 +185,42 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	private void diableAllControls(boolean disable){
 		startBtn.getParent().setDisable(disable);
-		leftPane.setDisable(disable);
-		rootPane.getTop().setDisable(disable);
+
+		/* LOL
+		leftLayout.setDisable(disable);
+		*/
+		importedFilePane.setDisable(disable);
 		cancelBtn.setDisable(disable);
 	}
 	
 	@FXML
-	public void cancelProcess(){
+	public void onCancelProcess(){
+		updateProgressBar("Cancelling, please wait.");
+		cancelProcess();
+	}
+	
+	private void cancelProcess(){
 		cancelBtn.setDisable(true);
 		if(mainProcessor!=null){
-			updateProgressBar("Cancelling, please wait.");
 			mainProcessor.forceStopProcess();
 		}
-		//finish touch up and generate report
-		//if(mainProcessor==null||nonInProcess){
-		//	diableAllControls(false);
-		//	cancelBtn.setDisable(true);
-		//}
 	}
+	
 	
 
 	private void generateSummary() {
 		File destFile = null;
 		XSSFWorkbook book;
 		XSSFSheet sheet = null;
+		String importedFilePath= getImportedFile();
 		
-		if(InputConfiguration.getInstance().getReportSummaryFile().length()>0){
+		if(importedFilePath.length()>0){
 			
-			File file = new File(InputConfiguration.getInstance().getReportSummaryFile());
+			File file = new File(importedFilePath);
 			if(!file.exists()){
-				InputConfiguration.getInstance().setReportSummaryFile("");
-				InputConfiguration.getInstance().setReportSummaryFile_sheet("");
+				book = new XSSFWorkbook();	
+				sheet = book.createSheet();	
+				destFile = new File(importedFilePath);
 			}else{
 				destFile=file;
 				String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
@@ -236,16 +245,16 @@ public class MainController extends FXMLController implements Initializable,Inpu
 						e.printStackTrace();
 					} 
 			}
-		}
-		if(InputConfiguration.getInstance().getReportSummaryFile().length()<=0){
-
-			book = new XSSFWorkbook();	
-			sheet = book.createSheet();	
-			destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+".xlsx");
-			int count = 1;
-			while(destFile.exists()){
-				destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+" ("+count+").xlsx");
-				count++;
+		}else{
+			if(importedFilePath.length()<=0){
+				book = new XSSFWorkbook();	
+				sheet = book.createSheet();	
+				destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+".xlsx");
+				int count = 1;
+				while(destFile.exists()){
+					destFile = new File(OutputConfiguration.getInstance().getDirectory()+"\\"+defaultFileName+" ("+count+").xlsx");
+					count++;
+				}
 			}
 		}
 		SummaryProcessor summaryProcess = new SummaryProcessor(tableview.getItems(), OutputConfiguration.getInstance().getDirectory(),destFile, sheet);
@@ -289,16 +298,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 					inputTextfield.setText(inputDirectory.getDirectory());
 				}
 				if(type.equals(InputConfiguration.LISTEN_ReportSummaryFile)){
-					if(inputDirectory.getReportSummaryFile()!=null&&inputDirectory.getReportSummaryFile().length()>0){
-				        if(new File(inputDirectory.getReportSummaryFile()).exists()){
-							rootPane.setLeft(leftPane);
-				        }else{
-				        	inputDirectory.setReportSummaryFile("");
-				        }
-					}else{
-				        rootPane.setLeft(null);
-				        ReportSummaryFactory.deleteInstance();
-					}
+					
+					setImportedFile(inputDirectory.getReportSummaryFile());
 				}
 			}
 			
@@ -383,19 +384,35 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	public void onImportExcel(){
 		ExtensionFilter filters[] = {FilesChooser.FORMAT_EXCEL};
-		File file = FilesChooser.show(getStage(), "Select Excel file", OutputConfiguration.getInstance().getDirectory(), filters);
+		File f = new File(getImportedFile());
+		File file = null;
+		if(f.exists()){
+			 file = FilesChooser.show(getStage(), "Select Excel file", f.getParent(), filters);
+		}else{
+			 file = FilesChooser.show(getStage(), "Select Excel file", OutputConfiguration.getInstance().getDirectory(), filters);
+		}
 		//setImportedFile(file);
 		if(file!=null){
 			InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+			textField_outputFile.setText(file.getAbsolutePath());
 		}
 	}
 
 	@FXML
 	public void onClickNewExcel(){
 		ExtensionFilter [] filters = {FilesChooser.FORMAT_EXCEL};
-		File file = FilesChooser.save(getStage(), "Save new excel file",OutputConfiguration.getInstance().getDirectory(),filters );
+		File f = new File(getImportedFile());
+		File file = null;
+		if(f.exists()){
+			 file = FilesChooser.save(getStage(), "Save new excel file",f.getParent(),filters );
+		}else{
+			 file = FilesChooser.save(getStage(), "Save new excel file",OutputConfiguration.getInstance().getDirectory(),filters );
+		}
+		
 		if(file != null){
-			 try {
+			 InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+			
+			/* try {
 				 XSSFWorkbook workbook = new XSSFWorkbook();
 				 XSSFSheet sheet = workbook.createSheet();
 				 String sheetName = sheet.getSheetName();
@@ -406,7 +423,112 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				 InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
 				 InputConfiguration.getInstance().setReportSummaryFile_sheet(sheetName);
 		        } catch (IOException ex) {
-		    }
+		    }*/
 		}
 	}
+	
+	@FXML
+	public void openImportedFile(){
+		if(getImportedFile()!=null&&getImportedFile().length()>0){
+			FileUtility.openFile(getImportedFile());
+		}
+	}
+
+	@FXML
+	public void loadExcelSheetToComboBox(){
+		//ReportSummaryFactory.deleteInstance();
+		if(getImportedFile()!=null&&getImportedFile().length()>0){
+			FileInputStream fis;
+			try {
+				if(new File(getImportedFile()).exists()){
+					fis = new FileInputStream(getImportedFile());
+					XSSFWorkbook book = new XSSFWorkbook(fis); 
+					int totalSheet = book.getNumberOfSheets();
+					comboBoxSheets.getItems().clear();
+					comboBoxSheets.getItems().add("***New Sheet***");
+					String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
+					int pos = 0;
+					for(int i=0;i<totalSheet;i++){
+						String sheetname = book.getSheetAt(i).getSheetName();
+						comboBoxSheets.getItems().add(sheetname);
+						if(sheetname.equals(sheetName)){
+							pos=i+1;
+						}
+					}
+					if(pos==0){
+						InputConfiguration.getInstance().setReportSummaryFile_sheet("");
+					}
+					comboBoxSheets.getSelectionModel().select(pos);
+				}
+			} catch ( IOException e) {
+				e.printStackTrace();
+			} 
+		}
+	}
+
+	@FXML
+	public void onComboBoxSheetsSelectedChange(){
+		if(getImportedFile()!=null){
+			try {
+				FileInputStream fis = new FileInputStream(getImportedFile());
+				XSSFWorkbook book = new XSSFWorkbook(fis); 
+				int totalSheet = book.getNumberOfSheets();
+				
+				String selectedsheet="";
+				if(comboBoxSheets.getValue()!=null){
+					if(comboBoxSheets.getSelectionModel().getSelectedIndex()>0){	
+						selectedsheet=comboBoxSheets.getValue();
+					}
+					InputConfiguration.getInstance().setReportSummaryFile_sheet(selectedsheet);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
+	/*
+	@FXML
+	public void onClickNewSheet(){
+		if(getImportedFile()!=null){
+			try {
+				FileInputStream fis = new FileInputStream(getImportedFile());
+				XSSFWorkbook book = new XSSFWorkbook(fis); 
+				int totalSheet = book.getNumberOfSheets();
+				
+				//create sheet and layout for imported file;
+				XSSFSheet sheet=book.createSheet();
+				//ReportSummaryExcelLayout.createNewLayout(sheet);
+
+				//save file
+				try{
+					FileOutputStream out =  new FileOutputStream(getImportedFile());
+					sheet.getWorkbook().write(out);
+					out.close();
+
+					//update combo box
+					comboBoxSheets.getItems().add(sheet.getSheetName());
+					comboBoxSheets.setValue(sheet.getSheetName());
+				}catch(FileNotFoundException ex){
+					//labelVerifyFormat.setText(ex.getMessage());
+					AppDialog.alert("Cannot create new sheet!",ex.getMessage());
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+			
+		}
+	}
+	*/
+
+	/*
+	@FXML
+	public void onRemoveFile(){
+		InputConfiguration.getInstance().setReportSummaryFile("");
+	}
+	*/
+	
 }
