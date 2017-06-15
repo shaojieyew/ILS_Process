@@ -36,7 +36,7 @@ import javafx.stage.FileChooser.ExtensionFilter;
 import report.Report;
 import report.ReportChangeListener;
 import report.ReportObservable;
-import reportProcessor.MainProcessor;
+import reportProcessor.MainDataExtractProcessor;
 import reportProcessor.Processor;
 import reportProcessor.ProcessorListener;
 import reportProcessor.SummaryProcessor;
@@ -75,6 +75,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	private ComboBox<String> comboBoxSheets;
 
+	public static final String defaultFileName = "ILS-Result";
+	
+	public MainDataExtractProcessor mainProcessor;
 
 	public String getImportedFile() {
 		return InputConfiguration.getInstance().getReportSummaryFile();
@@ -99,10 +102,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 	}
 
-
-	public static final String defaultFileName = "ILS-Result";
-	
-	public MainProcessor mainProcessor;
 	
 	public MainController() {
 		addListener(InputConfiguration.LISTEN_InputDirectory);
@@ -167,7 +166,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}catch(Exception ex){
 			
 		}
-		mainProcessor = MainProcessor.getInstance(data,multi_thread_count,rerunProcess);
+		mainProcessor = MainDataExtractProcessor.getInstance(data,multi_thread_count,rerunProcess);
 		mainProcessor.addListener(new ProcessorListener(){
 			@Override
 			public void onComplete(Processor process) {
@@ -276,7 +275,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 
 			@Override
 			public void onStart(Processor process) {
-
 				Platform.runLater(new Runnable() {
 	                 @Override public void run() {
 	     				updateProgressBar("Generating Summary");

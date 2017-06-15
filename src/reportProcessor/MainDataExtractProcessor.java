@@ -10,8 +10,8 @@ import report.Report;
 /*
  * Main Process for managing multiple threads for processing
  */
-public class MainProcessor extends Processor implements Runnable{
-	private static MainProcessor INSTANCE;
+public class MainDataExtractProcessor extends Processor implements Runnable{
+	private static MainDataExtractProcessor INSTANCE;
 	private ObservableList<Report> reports;
 	//variable keep track of the progress
 	private int totalCount = 0 ;
@@ -27,7 +27,7 @@ public class MainProcessor extends Processor implements Runnable{
 	*/
 	
 	//constructor setup list of reports to process
-	public MainProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
+	public MainDataExtractProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
 		if(numberOfThread<=0){
 			numberOfThread=1;
 		}
@@ -38,8 +38,8 @@ public class MainProcessor extends Processor implements Runnable{
 	}
 	
 	//singleton method
-	public static MainProcessor getInstance(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile) {
-		INSTANCE = new MainProcessor(data,numberOfThread,reprocessCompletedFile);
+	public static MainDataExtractProcessor getInstance(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile) {
+		INSTANCE = new MainDataExtractProcessor(data,numberOfThread,reprocessCompletedFile);
         return INSTANCE;
     }
 	
@@ -75,7 +75,7 @@ public class MainProcessor extends Processor implements Runnable{
 					break;
 				}
 				//start a sub-thread to process a report
-				ReportProcessor rp = new ReportProcessor(this,reports.get(i),i,reprocessCompletedFile);
+				DataExtractProcessor rp = new DataExtractProcessor(this,reports.get(i),i,reprocessCompletedFile);
 				rp.addListener(new ProcessorListener(){
 					@Override
 					public void onComplete(Processor processor) {

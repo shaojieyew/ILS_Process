@@ -15,16 +15,16 @@ import util.FileUtility;
  * Class for processing the report
  * Make call to data extraction, data correction and reading
  */
-public class ReportProcessor extends Processor implements Runnable{
+public class DataExtractProcessor extends Processor implements Runnable{
 	private static final boolean DEBUG=false;
 	
 	private boolean reprocessCompletedFile=false;
-	private MainProcessor mainProcess;  //the parent thread that create the thread of this class.
+	private MainDataExtractProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
 	
 	//constructor
-	public ReportProcessor(MainProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
+	public DataExtractProcessor(MainDataExtractProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
 		this.mainProcess =mainProcess;
 		this.index = index;
 		this.report = report;
