@@ -1,9 +1,12 @@
 package report;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.configurable.InputConfiguration;
 import javafx.beans.property.SimpleStringProperty;
+import util.FileUtility;
 
 /*
  * Entity Class for ILS Report 
@@ -89,5 +92,22 @@ public class Report extends ReportObservable{
 	public void setStatus(String fstatus) {
 		this.status.set(fstatus);
 		super.notifyChange();
+	}
+	
+	public static ArrayList<Report> findAllReport(String inputDirectory, String fileType[]) {
+		ArrayList<Report> reports = new ArrayList<Report>();
+		File[] files = FileUtility.getListOfFile(inputDirectory);
+		if(files!=null){
+		    for (final File fileEntry : files) {
+		    	String fileType1 = FileUtility.getFileExtension(fileEntry);
+		    	for(String type : fileType){
+		    		if(fileType1.equals(type)){
+		    	      	reports.add(new Report(fileEntry.getName(),fileType1,fileEntry.getPath()));
+		    			break;
+		    		}
+		    	}
+		    }
+		}
+	    return reports;
 	}
 }

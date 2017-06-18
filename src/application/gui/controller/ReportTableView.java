@@ -1,7 +1,6 @@
 package application.gui.controller;
 
 import java.util.ArrayList;
-import application.ReportFinder;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
 import javafx.collections.ObservableList;
@@ -79,11 +78,10 @@ public  class ReportTableView implements InputChangeListener{
 	
 	
 	//update the list in the tableview
-	public void updateListByInputDirectory(){
+	public void updateListByInputDirectory(InputConfiguration inputDirectory){
 		data=tableview.getItems();
         data.removeAll(data);
-        ReportFinder reportFinder = new ReportFinder();
-        ArrayList<Report> reports = reportFinder.findAllReport();
+        ArrayList<Report> reports = Report.findAllReport(inputDirectory.getDirectory(),inputDirectory.getFileType());
         for(Report report : reports){
             data.add(report);
         }
@@ -105,7 +103,7 @@ public  class ReportTableView implements InputChangeListener{
 	@Override
 	public void onUpdateInput(InputConfiguration inputDirectory, String type) {
 		if(type.equals(InputConfiguration.LISTEN_InputDirectory)){
-			updateListByInputDirectory();
+			updateListByInputDirectory(inputDirectory);
 		}
 	}
 

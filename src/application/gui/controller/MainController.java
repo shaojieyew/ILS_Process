@@ -116,7 +116,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		String inputPath = InputConfiguration.getInstance().getDirectory();
 		inputTextfield.setText(inputPath);
 		//initialize tableview 
-		ReportTableViewFactory.getInstance(tableview).updateListByInputDirectory();
+		ReportTableViewFactory.getInstance(tableview).updateListByInputDirectory(InputConfiguration.getInstance());
 		updateProgressBar("");
 		textField_outputFile.setText(getImportedFile());
 		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
