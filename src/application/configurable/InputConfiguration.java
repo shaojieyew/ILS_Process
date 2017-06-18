@@ -158,7 +158,7 @@ public final class InputConfiguration {
 	/**
 	 * This method gets the selected sheet for the summary file. This method is used for excel workbook 
 	 * 
-	 * @param return the selected sheet from the application property
+	 * @return return the selected sheet from the application property
 	 */
 	public String getReportSummaryFile_sheet() {
 		return reportSummaryFile_sheet;
