@@ -9,12 +9,22 @@ import java.io.OutputStream;
 import java.nio.file.Paths;
 import java.util.Properties;
 
+/**
+ * This class manage the config.properties file for the application
+ * 
+ * @author YEW SHAO JIE
+ */
 public class AppProperty {
-	 public static final Properties PROP = new Properties();
-	 public static final String CONFIG_FIlE="config.properties";
+	private static final Properties PROP = new Properties();
+	private static final String CONFIG_FIlE="config.properties";
 	
-	 
-	 public static String getValue(String property) {
+	 /**
+	  * Get the value of an application property. Initialize new config.properties file if file not exist.
+	  * 
+	  * @param  property  the property of application
+	  * @return      the value
+	  */
+	public static String getValue(String property) {
 		String value ="";
 		InputStream input = null;
 		try {
@@ -40,32 +50,14 @@ public class AppProperty {
 		}
 		return value;
 	}
-	 
-	 public static void initialize() {
-			OutputStream output = null;
-			try {
-				output = new FileOutputStream("config.properties");
-				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
-				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
-				PROP.setProperty("report_summary", "");
-				PROP.setProperty("report_summary_sheet", "");
-				PROP.setProperty("multi_thread", "2");
-				PROP.store(output, null);
 
-			} catch (IOException io) {
-				io.printStackTrace();
-			} finally {
-				if (output != null) {
-					try {
-						output.close();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-
-			}
-	}
 	 
+	 /**
+	  * Set the value of an application property 
+	  * 
+	  * @param  property  the property of application
+	  * @param  value  value to set for the application property
+	  */
 	 public static void setValue(String property, String value) {
 		 if(value==null){
 			 value="";
@@ -89,5 +81,34 @@ public class AppProperty {
 				}
 			}
 		}
+	}
+	 
+
+	 /**
+	  * Create a new config.properties file for the application, initialized with default value for application properties 
+	  */
+	 public static void initialize() {
+			OutputStream output = null;
+			try {
+				output = new FileOutputStream("config.properties");
+				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty("report_summary", "");
+				PROP.setProperty("report_summary_sheet", "");
+				PROP.setProperty("multi_thread", "2");
+				PROP.store(output, null);
+
+			} catch (IOException io) {
+				io.printStackTrace();
+			} finally {
+				if (output != null) {
+					try {
+						output.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
 	}
 }
