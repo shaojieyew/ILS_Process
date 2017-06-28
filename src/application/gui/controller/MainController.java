@@ -115,6 +115,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		//setup initial input folder
 		String inputPath = InputConfiguration.getInstance().getDirectory();
 		inputTextfield.setText(inputPath);
+		
 		//initialize tableview 
 		ReportTableViewFactory.getInstance(tableview).updateListByInputDirectory(InputConfiguration.getInstance());
 		updateProgressBar("");
@@ -340,34 +341,36 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-			//update UI
-			if((Report.STATUS_IN_PROCESSING).equals(reportObservable.getStatus())){
+		completedCount = 0;
+		failedCount = 0;
+		inProcessCount = 0;
+		for(Report r : tableview.getItems()){
+			if((Report.STATUS_IN_PROCESSING).equals(r.getStatus())){
 				inProcessCount++;
 			}
-			if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())){
-				inProcessCount--;
+			if((Report.STATUS_COMPLETED).equals(r.getStatus())){
 				completedCount++;
 			}
-			if((Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
-				inProcessCount--;
+			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())){
 				failedCount++;
 			}
-			lockStatCounter.release();
-			Platform.runLater(new Runnable() {
-                 @Override public void run() {
-         			tableview.getColumns().get(0).setVisible(false);
-         			tableview.getColumns().get(0).setVisible(true);
-     			
-         				if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
-    	         			double percentageProcess= updateProgressBar("");
-    	         			if(percentageProcess==1||mainProcessor.isCancelProcess()){
-    	             			cancelProcess();
-    	         			}
-         				}
-         				
-                 }
-             });
-			
+		}
+		lockStatCounter.release();
+		Platform.runLater(new Runnable() {
+             @Override 
+             public void run() {
+        		tableview.getColumns().get(0).setVisible(false);
+        		tableview.getColumns().get(0).setVisible(true);
+         		if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
+    	        	double percentageProcess= updateProgressBar("");
+    	        	if(mainProcessor!=null){
+    	        		if(percentageProcess==1||mainProcessor.isCancelProcess()){
+    	        			cancelProcess();
+    	        		}
+    	        	}
+         		}		
+             }
+        });
 	}
 	
 	public double updateProgressBar(String message){
