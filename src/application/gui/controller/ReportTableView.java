@@ -35,7 +35,7 @@ public  class ReportTableView implements InputChangeListener{
 		addListener(InputConfiguration.LISTEN_InputDirectory);
         tableview = inTableview;
         
-		
+		/*
 		TableColumn col_action = new TableColumn<>("Edit");
 		tableview.getColumns().add(3,col_action);
         
@@ -58,8 +58,8 @@ public  class ReportTableView implements InputChangeListener{
                 return new ButtonCell();
             }
         
-        });
-        tableview.setTooltip(new Tooltip("Double click row to open file"));
+        });*/
+        tableview.setTooltip(new Tooltip("Single click to view processed information, Double click to open file"));
 		tableview.setOnMousePressed(new EventHandler<MouseEvent>() {
 		    @Override 
 		    public void handle(MouseEvent event) {
@@ -76,6 +76,21 @@ public  class ReportTableView implements InputChangeListener{
 			            FileUtility.openFile(report.getPath());
 		            }
 		        }
+		        if (event.isPrimaryButtonDown() && event.getClickCount() == 1&tableview.getSelectionModel()!=null) {
+		            Node node = ((Node) event.getTarget()).getParent();
+		            TableRow row;
+		            if (node instanceof TableRow) {
+		                row = (TableRow) node;
+		            } else {
+		                row = (TableRow) node.getParent();
+		            }
+		            Report report = (Report) row.getItem();
+		            if(report!=null){
+		            	new SidebarUpdateReportLoader((BorderPane) tableview.getParent(),report);
+		          
+		            }
+		        }
+		     
 		    }
 		});
 		//tableview.setSelectionModel(null);

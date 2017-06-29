@@ -1,25 +1,38 @@
 package application.gui.controller;
 
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import application.MainApplication;
+import application.configurable.InputConfiguration;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import report.AttributeIndex;
 import report.Report;
+import report.ReportChangeListener;
+import report.ReportObservable;
+import util.FileUtility;
 
-public class SidebarUpdateReportController implements Initializable {
+public class SidebarUpdateReportController implements Initializable, ReportChangeListener {
 	
 	@FXML
 	private BorderPane rootPane;
+	@FXML
+	private ComboBox<String> combobox_status;
 	@FXML
 	private TextField textfield_name;
 	@FXML
@@ -39,16 +52,20 @@ public class SidebarUpdateReportController implements Initializable {
 	@FXML
 	private TextField textfield_ILS_Global;
 	@FXML
-	private Button button_close;
+	private Label filename_label;
 	
-    
+
+	public SidebarUpdateReportController() {
+		 addReportProcessListener();
+	}
 	public Report report;
 	public void setReport(Report report) {
 		this.report = report;
+		filename_label.setText(report.getFileName());
+		filename_label.setTooltip(new Tooltip("Open "+report.getPath()));
 		textfield_name.setText(report.getAuthor_name());
 		textfield_name.textProperty().addListener((observable, oldValue, newValue) -> {
 			report.setAuthor_name(newValue);
-			System.out.println(newValue);
 		});
 		TextField attributesTextField[] = {textfield_ILS_Active,
 				textfield_ILS_Sensing,
@@ -70,26 +87,107 @@ public class SidebarUpdateReportController implements Initializable {
 			AttributeIndex attributeIndex = report.getAttributeIndexByAttribute(attributesName[i]);
 			if(attributeIndex!=null){
 				attributesTextField[i].setText(attributeIndex.getIndex()+"");
-			}else{
-				attributesTextField[i].setText("0");
 			}
 			
 			attributesTextField[i].textProperty().addListener((observable, oldValue, newValue) -> {
-				attributeIndex.setIndex(Integer.parseInt(newValue));
+				try{
+					newValue = newValue.replaceAll("[^\\d.]", "");
+					if(newValue.length()==0||Integer.parseInt(newValue)<0){
+						newValue="0";
+					}
+					attributeIndex.setIndex(Integer.parseInt(newValue));
+					if(attributeIndex.getIndex()>0){
+						AttributeIndex ai =null;
+						switch(attributeIndex.getAttribute()){
+						case AttributeIndex.KEYWORD_ILS_ACTIVE:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_REFLECTIVE);
+							break;
+						case AttributeIndex.KEYWORD_ILS_SENSING:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_INTUITIVE);
+							break;
+						case AttributeIndex.KEYWORD_ILS_VISUAL:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_VERBAL);
+							break;
+						case AttributeIndex.KEYWORD_ILS_SEQUENTIAL:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_GLOBAL);
+							break;
+						case AttributeIndex.KEYWORD_ILS_REFLECTIVE:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_ACTIVE);
+							break;
+						case AttributeIndex.KEYWORD_ILS_INTUITIVE:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_SENSING);
+							break;
+						case AttributeIndex.KEYWORD_ILS_VERBAL:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_VISUAL);
+							break;
+						case AttributeIndex.KEYWORD_ILS_GLOBAL:
+							ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_SEQUENTIAL);
+							break;
+						}
+						if(ai!=null){
+							if(ai.getIndex()>0){
+								ai.setIndex(0);
+								setReport(report);
+							}
+						}
+					}
+				}catch(Exception ex){
+					
+				}
 			});
 		}
+		combobox_status.setValue(report.getStatus());
+		if(combobox_status.getSelectionModel().getSelectedIndex()<0){	
+			combobox_status.setValue(report.STATUS_NOT_PROCESSED);
+		}
+	}
+
+	@FXML
+	public void onComboBoxSelectedChange(){
+		if(combobox_status.getValue()!=null){
+			if(combobox_status.getSelectionModel().getSelectedIndex()>=0){	
+				report.setStatus(combobox_status.getValue());
+				setReport(report);
+			}
+		}
+	}
 	
-	}
-
-	public SidebarUpdateReportController() {
-	}
-
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		combobox_status.getItems().add(Report.STATUS_COMPLETED);
+		combobox_status.getItems().add(Report.STATUS_NOT_PROCESSED);
 	}
 
 	@FXML
 	public void closeSidebar(){
 		new SidebarLoader((BorderPane) rootPane.getParent(), null);
+	}
+	
+	@FXML
+	public void openFile(){
+        FileUtility.openFile(report.getPath());
+	}
+	
+	@Override
+	public void onUpdateReport(ReportObservable reportObservable) {
+
+		Platform.runLater(new Runnable() {
+             @Override 
+             public void run() {
+				if(report.equals((Report)reportObservable)){
+					setReport((Report)reportObservable);
+				}
+             }
+		});
+	}
+
+	@Override
+	public void addReportProcessListener() {
+		ReportObservable.listenToChange(this);
+	}
+
+	@Override
+	public void removeReportProcessListener() {
+		ReportObservable.unlistenToChange(this);
 	}
 }

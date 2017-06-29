@@ -12,7 +12,7 @@ import util.FileUtility;
  * Entity Class for ILS Report 
  */
 public class Report extends ReportObservable{
-	public static  final  String STATUS_NOT_PROCESSED = "Ready";
+	public static  final  String STATUS_NOT_PROCESSED = "Ready to Process";
 	public static  final  String STATUS_IN_PROCESSING = "In Process";
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
@@ -41,6 +41,10 @@ public class Report extends ReportObservable{
 					attribute=a;
 					break;
 			}
+		}
+		if(attribute==null){
+			attribute = new AttributeIndex(arg,0);
+			attributes.add(attribute);
 		}
 		return attribute;
 	}
@@ -109,5 +113,29 @@ public class Report extends ReportObservable{
 		    }
 		}
 	    return reports;
+	}
+	
+	public  boolean verifyInformation(){
+		boolean fail=false;
+
+		String attributesName1[] = {
+				AttributeIndex.KEYWORD_ILS_ACTIVE,
+				AttributeIndex.KEYWORD_ILS_SENSING,
+				AttributeIndex.KEYWORD_ILS_VISUAL,
+				AttributeIndex.KEYWORD_ILS_SEQUENTIAL};
+		String attributesName2[] = {
+				AttributeIndex.KEYWORD_ILS_REFLECTIVE,
+				AttributeIndex.KEYWORD_ILS_INTUITIVE,
+				AttributeIndex.KEYWORD_ILS_VERBAL,
+				AttributeIndex.KEYWORD_ILS_GLOBAL};
+		for(int i =0;i<attributesName1.length;i++){
+			AttributeIndex attribute1 = getAttributeIndexByAttribute(attributesName1[i]);
+			AttributeIndex attribute2 = getAttributeIndexByAttribute(attributesName2[i]);
+			if(attribute1.getIndex()==attribute2.getIndex() || (attribute1.getIndex()!=0&&attribute2.getIndex()!=0)){
+				fail=true;
+				break;
+			}
+		}
+		return fail;
 	}
 }

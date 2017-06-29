@@ -49,27 +49,10 @@ public class DataExtractProcessor extends Processor implements Runnable{
 
 	private void postProcess() {
 		mainProcess.releaseSemaphore();
-		int zeroCount = 0;
-		int nonZeroCount = 0;
-		boolean fail= false;
 		if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
-			 //fail=true;
 			report.setAuthor_name(report.getFileName());
 		} 
-		 for(AttributeIndex ai : report.getAttributes()){
-			 if(ai.getIndex()==0){
-				 zeroCount++;
-			 }else{
-				 nonZeroCount++;
-			 }
-			 if(zeroCount>4||nonZeroCount>4){
-				 break;
-			 }
-		 }
-		 	//check if learning index have scores for 4 attributes
-		 if(zeroCount!=4&&nonZeroCount!=4){
-			 fail=true;
-		 }
+		boolean fail =report.verifyInformation();
 
 		if(new File(report.getPath()).exists()){
 			if(fail){

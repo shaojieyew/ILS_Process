@@ -28,6 +28,7 @@ import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TableView;
+import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -183,12 +184,20 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		cancelBtn.setDisable(false);
 	}
 	
+	TableViewSelectionModel<Report> tableviewSelectionModel = null;
 	private void diableAllControls(boolean disable){
 		startBtn.getParent().setDisable(disable);
-
-		/* LOL
-		leftLayout.setDisable(disable);
-		*/
+		if(tableview.getSelectionModel()!=null){
+			tableviewSelectionModel=tableview.getSelectionModel();
+		}
+		if(disable){
+			tableview.setSelectionModel(null);
+		}else{
+			tableview.setSelectionModel(tableviewSelectionModel);
+		}
+		if(rootPane.getRight()!=null){
+			rootPane.getRight().setDisable(disable);
+		}
 		importedFilePane.setDisable(disable);
 		cancelBtn.setDisable(disable);
 	}
@@ -361,14 +370,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
              public void run() {
         		tableview.getColumns().get(0).setVisible(false);
         		tableview.getColumns().get(0).setVisible(true);
-         		if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
+         		//if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
     	        	double percentageProcess= updateProgressBar("");
     	        	if(mainProcessor!=null){
     	        		if(percentageProcess==1||mainProcessor.isCancelProcess()){
     	        			cancelProcess();
     	        		}
     	        	}
-         		}		
+         		//}		
              }
         });
 	}
