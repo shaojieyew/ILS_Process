@@ -11,20 +11,20 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="244.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarUpdateReportController">
+<BorderPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarUpdateReportController">
    <center>
       <VBox prefHeight="312.0" prefWidth="226.0" style="-fx-border-width: 1; -fx-border-color: #888888;" BorderPane.alignment="CENTER">
          <children>
             <GridPane prefHeight="281.0" prefWidth="210.0">
               <columnConstraints>
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" percentWidth="32.0" prefWidth="73.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="100.0" minWidth="10.0" percentWidth="30.0" prefWidth="73.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="93.0" minWidth="0.0" percentWidth="18.0" prefWidth="28.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="93.0" minWidth="10.0" percentWidth="5.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="0.0" percentWidth="32.0" prefWidth="67.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="0.0" percentWidth="30.0" prefWidth="67.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="89.0" minWidth="10.0" percentWidth="18.0" prefWidth="32.0" />
               </columnConstraints>
               <rowConstraints>
-                  <RowConstraints minHeight="10.0" percentHeight="15.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                  <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                   <RowConstraints minHeight="10.0" percentHeight="13.0" prefHeight="30.0" vgrow="SOMETIMES" />
                 <RowConstraints maxHeight="38.0" minHeight="10.0" percentHeight="13.0" prefHeight="31.0" vgrow="SOMETIMES" />
@@ -58,12 +58,13 @@
                         <Font name="System Bold" size="17.0" />
                      </font>
                   </Label>
-                  <ComboBox fx:id="combobox_status" maxWidth="1.7976931348623157E308" onAction="#onComboBoxSelectedChange" prefHeight="30.0" prefWidth="210.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
+                  <ComboBox fx:id="combobox_status" maxWidth="1.7976931348623157E308" onAction="#onComboBoxSelectedChange" prefHeight="30.0" prefWidth="195.0" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.rowIndex="7" />
                   <Label fx:id="filename_label" onMouseClicked="#openFile" style="-fx-cursor: hand;" text="filename" textFill="#416cc3" underline="true" GridPane.columnSpan="4">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
+                  <Label text="Status:" GridPane.rowIndex="7" />
                </children>
             </GridPane>
          </children>
@@ -73,6 +74,6 @@
       </VBox>
    </center>
    <padding>
-      <Insets bottom="10.0" left="20.0" right="10.0" top="10.0" />
+      <Insets bottom="10.0" left="10.0" top="10.0" />
    </padding>
 </BorderPane>

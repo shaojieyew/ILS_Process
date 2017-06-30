@@ -3,9 +3,10 @@ package reportProcessor.analysis;
 import java.util.List;
 
 import report.AttributeIndex;
+import report.Report;
 
 //common interface for multiple different ways to implement ReportDataReader
-public interface ReportDataReader {
+public abstract class ReportDataReader {
 
 	public final static String KEYWORD_RESULT = "Results";
 	public final static String KEYWORD_QUESTIONNAIRE = "Questionnaire";
@@ -23,6 +24,11 @@ public interface ReportDataReader {
 			KEYWORD_ILS_SEQUENTIAL,KEYWORD_ILS_GLOBAL};
 	
 
-	public String getReport_name();
-	public List<AttributeIndex> getAttributeList();
+	protected Report report;
+	public Report getReport() {
+		return report;
+	}
+	public void setReport(Report report) {
+		this.report = report;
+	}
 }

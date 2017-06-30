@@ -19,7 +19,7 @@ public class AttributeIndex{
 	public final static String KEYWORD_ILS_GLOBAL = "Global";
 	
 	
-	public AttributeIndex(String attribute, int index) {
+	protected AttributeIndex(String attribute, int index) {
 		super();
 		this.attribute = attribute;
 		this.index = index;

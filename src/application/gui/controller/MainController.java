@@ -444,6 +444,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 	}
 
+	
+	@FXML
+	public void viewSummary(){
+		new SidebarSummaryLoader(rootPane, tableview.getItems());
+	}
+	
 	@FXML
 	public void loadExcelSheetToComboBox(){
 		//ReportSummaryFactory.deleteInstance();

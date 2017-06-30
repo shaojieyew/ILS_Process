@@ -79,9 +79,8 @@ public class DataExtractProcessor extends Processor implements Runnable{
 				
 			 
 			 //Read the specific data from the extracted data
-			 ReportDataReader rdr = new ReportDataReaderBySplit(text);
-			 report.setAuthor_name(rdr.getReport_name());
-			 report.setAttributes(rdr.getAttributeList());
+			 ReportDataReader rdr = new ReportDataReaderBySplit(text,report);
+			 report = rdr.getReport();
 			 //Check if the data is good enough
 			 boolean retry=false;
 			 int nonZeroCount=0;
@@ -112,9 +111,8 @@ public class DataExtractProcessor extends Processor implements Runnable{
 					 dc = new DataCorrection(text);
 					 text=dc.getCorrectedText(DataCorrection.STRICTNESS_LESS_STRICT,DataCorrection.STRICTNESS_STRICT);
 					 /*re-read data*/
-					 rdr = new ReportDataReaderBySplit(text);
-					 report.setAuthor_name(rdr.getReport_name());
-					 report.setAttributes(rdr.getAttributeList());
+					 rdr = new ReportDataReaderBySplit(text,report);
+					 report = rdr.getReport();
 				 }
 			 }
 			 
