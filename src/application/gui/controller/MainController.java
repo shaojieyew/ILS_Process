@@ -196,7 +196,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			tableview.setSelectionModel(tableviewSelectionModel);
 		}
 		if(rootPane.getRight()!=null){
-			rootPane.getRight().setDisable(disable);
+			if(rootPane.getRight().getId().equals(SidebarUpdateReportController.PANE_ID)){
+				rootPane.getRight().setDisable(disable);
+			}
 		}
 		importedFilePane.setDisable(disable);
 		cancelBtn.setDisable(disable);

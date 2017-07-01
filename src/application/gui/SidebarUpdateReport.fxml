@@ -11,9 +11,9 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarUpdateReportController">
+<BorderPane fx:id="updateReportPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarUpdateReportController">
    <center>
-      <VBox prefHeight="312.0" prefWidth="226.0" style="-fx-border-width: 1; -fx-border-color: #888888;" BorderPane.alignment="CENTER">
+      <VBox prefHeight="312.0" prefWidth="226.0" style="-fx-border-width: 1; -fx-border-color: #cccccc;" BorderPane.alignment="CENTER">
          <children>
             <GridPane prefHeight="281.0" prefWidth="210.0">
               <columnConstraints>

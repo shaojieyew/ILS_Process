@@ -1,17 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarSummaryController">
+<BorderPane fx:id="summaryPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarSummaryController">
    <center>
-      <VBox prefHeight="292.0" prefWidth="65.0" style="-fx-border-width: 1; -fx-border-color: #888888;" BorderPane.alignment="CENTER">
+      <VBox prefHeight="292.0" prefWidth="65.0" style="-fx-border-width: 1; -fx-border-color: #cccccc;" BorderPane.alignment="CENTER">
          <children>
             <GridPane prefHeight="281.0" prefWidth="210.0">
               <columnConstraints>
@@ -20,8 +22,8 @@
               </columnConstraints>
               <rowConstraints>
                   <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="169.0" minHeight="10.0" percentHeight="60.0" prefHeight="152.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="102.0" minHeight="10.0" percentHeight="30.0" prefHeight="102.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="169.0" minHeight="10.0" percentHeight="65.0" prefHeight="152.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="102.0" minHeight="10.0" percentHeight="25.0" prefHeight="102.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label onMouseClicked="#closeSidebar" text="X" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
@@ -29,12 +31,36 @@
                         <Font name="System Bold" size="17.0" />
                      </font>
                   </Label>
-                  <Label fx:id="filename_label" style="-fx-cursor: hand;" text="Summary">
+                  <Label fx:id="filename_label" text="Summary">
                      <font>
                         <Font name="System Bold" size="13.0" />
                      </font>
                   </Label>
-                  <BorderPane fx:id="borderPane_graphic" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
+                  <BorderPane fx:id="borderPane_graphic" GridPane.columnSpan="2147483647" GridPane.rowIndex="1">
+                     <bottom>
+                        <HBox prefHeight="10.0" prefWidth="343.0" BorderPane.alignment="CENTER" />
+                     </bottom>
+                     <top>
+                        <GridPane prefHeight="40.0" prefWidth="187.0" BorderPane.alignment="CENTER">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                            <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <children>
+                              <Button mnemonicParsing="false" onAction="#onclick_mean" prefHeight="25.0" prefWidth="60.0" text="Mean" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                            <Button mnemonicParsing="false" onAction="#onclick_median" prefHeight="25.0" prefWidth="60.0" text="Median" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                              <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="25.0" prefWidth="60.0" text="Save" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                           </children>
+                           <BorderPane.margin>
+                              <Insets left="35.0" right="35.0" />
+                           </BorderPane.margin>
+                        </GridPane>
+                     </top></BorderPane>
                   <GridPane GridPane.rowIndex="2">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />

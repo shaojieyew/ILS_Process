@@ -28,9 +28,9 @@ import report.ReportObservable;
 import util.FileUtility;
 
 public class SidebarUpdateReportController implements Initializable, ReportChangeListener {
-	
+	public final static String PANE_ID = "updateReportPane";
 	@FXML
-	private BorderPane rootPane;
+	private BorderPane updateReportPane;
 	@FXML
 	private ComboBox<String> combobox_status;
 	@FXML
@@ -160,7 +160,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 
 	@FXML
 	public void closeSidebar(){
-		new SidebarLoader((BorderPane) rootPane.getParent(), null);
+		new SidebarLoader((BorderPane) updateReportPane.getParent(), null);
 	}
 	
 	@FXML
