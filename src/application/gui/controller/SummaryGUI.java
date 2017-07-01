@@ -125,31 +125,59 @@ public class SummaryGUI extends BorderPane {
         this.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
-                BorderPane summaryGUI = (BorderPane) mouseEvent.getSource();
-        		int barMarginX=14;
-        		int barMarginY=14;
-        		DoubleBinding bindingX = widthProperty().divide(barMarginX);
-        		DoubleBinding bindingY = heightProperty().divide(barMarginY);
-        		if(mouseEvent.getX()>=bindingX.get()&&mouseEvent.getX()<=(summaryGUI.widthProperty().subtract(bindingX).get())){
-        			int selectedIndex = (int) Math.round((mouseEvent.getX()-(mouseEvent.getX()%bindingX.get()))/bindingX.get());
-        			for(int i =0;i<4;i++){
-            			if(mouseEvent.getY()>=bindingY.multiply(i*3+2).get()&&mouseEvent.getY()<=bindingY.multiply(i*3+4).get()){
-            				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex));
-            				selectors[i].widthProperty().bind(bindingX);
-            				selectors[i].yProperty().bind(bindingY.multiply(2+(i*3)));
-            				selectors[i].heightProperty().bind(bindingY.add(bindingY));
-            				selectors[i].setStroke(Color.RED);
-            				selectors[i].setFill(Color.TRANSPARENT);
-            				selectors[i].setStrokeWidth(1);
-            				summaryGUI.getChildren().remove(selectors[i]);
-            				summaryGUI.getChildren().addAll(selectors[i]);
-            			}
-        			}
-        		}
+            	setSelector(mouseEvent);
+            }
+        });
+        this.addEventFilter(MouseEvent.MOUSE_DRAGGED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+            	setSelector(mouseEvent);
+            }
+        });
+        this.addEventFilter(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent mouseEvent) {
+            	setSelector(mouseEvent);
             }
         });
 	}
 	Rectangle []selectors = {new Rectangle(),new Rectangle(),new Rectangle(),new Rectangle()};
+	public void setSelector(MouseEvent mouseEvent){
+		BorderPane summaryGUI = (BorderPane) mouseEvent.getSource();
+		int barMarginX=14;
+		int barMarginY=14;
+		DoubleBinding bindingX = widthProperty().divide(barMarginX);
+		DoubleBinding bindingY = heightProperty().divide(barMarginY);
+		if(mouseEvent.getX()>=bindingX.get()&&mouseEvent.getX()<=(summaryGUI.widthProperty().subtract(bindingX).get())){
+			int leftCenterRight=0;
+			int selectedIndex = (int) Math.round((mouseEvent.getX()-(mouseEvent.getX()%bindingX.get()))/bindingX.get());
+			if(((mouseEvent.getX()%bindingX.get())/bindingX.get())>0.8f){
+				leftCenterRight=1;
+			}if(((mouseEvent.getX()%bindingX.get())/bindingX.get())<0.2f){
+				leftCenterRight=-1;
+			}
+			for(int i =0;i<4;i++){
+    			if(mouseEvent.getY()>=bindingY.multiply(i*3+2).get()&&mouseEvent.getY()<=bindingY.multiply(i*3+4).get()){
+    				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex));
+    				if(leftCenterRight==-1&&selectedIndex>1){
+        				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex-0.5));
+    				}	
+    				if(leftCenterRight==1&&selectedIndex<12){
+        				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex+0.5));
+    				}	
+    				selectors[i].widthProperty().bind(bindingX);
+    				selectors[i].yProperty().bind(bindingY.multiply(2+(i*3)));
+    				selectors[i].heightProperty().bind(bindingY.add(bindingY));
+    				selectors[i].setStroke(Color.RED);
+    				selectors[i].setFill(Color.TRANSPARENT);
+    				selectors[i].setStrokeWidth(1);
+    				summaryGUI.getChildren().remove(selectors[i]);
+    				summaryGUI.getChildren().addAll(selectors[i]);
+    			}
+			}
+		}
+	}
+	
 	
 private int[][] computeSummary(ObservableList<Report> observableList){
 	int indices[][]= new int[12][4];
@@ -212,4 +240,47 @@ private int[][] computeSummary(ObservableList<Report> observableList){
 	return indices;
 }
 
+	public static void main(String arg[]){
+		int arr[] = {2,0,0,0,0,0,0,1};
+		
+		//get median
+		float median1Loc=-1;
+		float median2Loc=-1;
+		int total =0;
+		for(int i=0;i<arr.length;i++){
+			total = total + arr[i];
+		}
+		if((total%2)==0){
+			median1Loc =  (float)total/2f;
+			median2Loc =  ((float)total/2f)+1f;
+		}
+		if((total%2)==1){
+			median1Loc =  ((float)total+1f)/2f;
+			median2Loc =  ((float)total+1f)/2f;
+		}
+		float median1Index = -1;
+		float median2Index = -1;
+		int count = 0;
+		for(int i=0;i<arr.length;i++){
+			count = count + arr[i];
+			if(count>=median1Loc){
+				if(median1Index==-1){
+					median1Index=i;
+				}
+			}
+			if(count>=median2Loc){
+				median2Index=i;
+				break;
+			}
+		}
+		float median = (median1Index+median2Index)/2;
+		System.out.println("median: "+median);
+		
+		count = 0;
+		for(int i=0;i<arr.length;i++){
+			count = count + arr[i]*i;
+		}
+		float mean = (float)count/(float)total;
+		System.out.println("mean: "+mean);
+	}
 }
