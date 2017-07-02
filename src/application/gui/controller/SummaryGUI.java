@@ -261,6 +261,7 @@ public class SummaryGUI extends BorderPane {
 			if(statMode.equals(StatMode.MEDIAN)){
 				indexLoc = getMedianLoc(indices[i]);
 			}
+			selectorsLoc[i][0]=-1;
 			if(indexLoc>=0){
 				selectors[i].xProperty().bind(bindingX.multiply(((int)indexLoc)+1));
 				selectorsLoc[i][1]=0;

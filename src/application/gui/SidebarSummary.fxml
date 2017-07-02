@@ -10,6 +10,7 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
+<?import javafx.scene.text.TextFlow?>
 
 <BorderPane fx:id="summaryPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="312.0" prefWidth="375.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.SidebarSummaryController">
    <center>
@@ -22,8 +23,8 @@
               </columnConstraints>
               <rowConstraints>
                   <RowConstraints minHeight="10.0" percentHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="169.0" minHeight="10.0" percentHeight="65.0" prefHeight="152.0" vgrow="SOMETIMES" />
-                  <RowConstraints maxHeight="102.0" minHeight="10.0" percentHeight="25.0" prefHeight="102.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="169.0" minHeight="10.0" percentHeight="64.0" prefHeight="152.0" vgrow="SOMETIMES" />
+                  <RowConstraints maxHeight="102.0" minHeight="10.0" percentHeight="26.0" prefHeight="102.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
                   <Label onMouseClicked="#closeSidebar" text="X" GridPane.columnIndex="1" GridPane.halignment="RIGHT">
@@ -70,8 +71,8 @@
                       <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Label fx:id="label_summary" wrapText="true" GridPane.valignment="TOP" />
-                        <Label fx:id="label_summary1" wrapText="true" GridPane.columnIndex="1" GridPane.valignment="TOP" />
+                        <TextFlow fx:id="label_summary" prefHeight="200.0" prefWidth="200.0" />
+                        <TextFlow fx:id="label_summary1" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="1" />
                      </children>
                      <GridPane.margin>
                         <Insets />

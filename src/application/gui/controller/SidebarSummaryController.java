@@ -42,6 +42,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
+import javafx.scene.text.TextFlow;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -58,9 +59,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	@FXML
 	private BorderPane summaryPane;
 	@FXML
-	private Label label_summary;
+	private TextFlow label_summary;
 	@FXML
-	private Label label_summary1;
+	private TextFlow label_summary1;
 	@FXML
 	private BorderPane borderPane_graphic;
 	
@@ -74,7 +75,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 
 	public void setReportList(ObservableList<Report> observableList) {
 		this.observableList= observableList;
-		String summary = "";
+		//String summary = "";
 		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND};
 		int countStatus[] = {0,0,0,0,0};
 		for(Report r: observableList){
@@ -94,13 +95,26 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 				countStatus[1]++;
 			}
 		}
+		label_summary.getChildren().clear();
 		for(int i=0;i<countStatus.length;i++){
 			if(countStatus[i]>0){
-				summary=summary+status[i]+": "+ countStatus[i]+"\n";
+				Text text1=new Text(status[i]+": "+ countStatus[i]+"\n");
+				text1.setFill(Color.BLACK);
+				if(status[i].equals(Report.STATUS_COMPLETED)){
+					text1.setStyle("-fx-font-weight: bold");
+					text1.setFill(Color.GREEN);
+				}
+				if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)){
+					text1.setStyle("-fx-font-weight: bold");
+					text1.setFill(Color.RED);
+				}
+				
+	            label_summary.getChildren().addAll(text1);
 			}
 		}
-		label_summary.setText(summary);
-		label_summary1.setText("Total ILS Report: "+ observableList.size());
+		label_summary1.getChildren().clear();
+		Text text2=new Text("Total ILS Report: "+ observableList.size());
+		label_summary1.getChildren().addAll(text2);
 		
 
 		 //Filled rectangle
