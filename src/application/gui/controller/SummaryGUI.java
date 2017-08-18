@@ -13,6 +13,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
@@ -26,23 +27,24 @@ public class SummaryGUI extends BorderPane {
 
 	private DoubleBinding bindingX = widthProperty().divide(14);
 	private DoubleBinding bindingY = heightProperty().divide(14);
-	private Rectangle []selectors = {new Rectangle(),new Rectangle(),new Rectangle(),new Rectangle()};
-	int selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
+	private Line []selectors = {new Line(),new Line(),new Line(),new Line()};
+	private Line []selectorsJoiner = {new Line(),new Line(),new Line()};
+	float selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
 	
 	
-	public int[][] getSelectorsLoc() {
+	public float[][] getSelectorsLoc() {
 		return selectorsLoc;
 	}
 
 
-	public Rectangle[] getSelectors() {
+	public Line[] getSelectors() {
 		return selectors;
 	}
 
-	public void setSelectors(Rectangle[] selectors) {
+	public void setSelectors(Line[] selectors) {
 		this.selectors = selectors;
 	}
-	public void showSelectors(Rectangle[] selectors) {
+	public void showSelectors(Line[] selectors) {
 		this.selectors = selectors;
         this.getChildren().addAll(selectors);
 	}
@@ -62,9 +64,18 @@ public class SummaryGUI extends BorderPane {
 	public SummaryGUI() {
 		super();
 		for(int i =0;i<selectors.length;i++){
-			selectors[i].setStroke(Color.web("0xff000066"));
+			selectors[i].setStroke(Color.web("0xff0000bb"));
 			selectors[i].setFill(Color.TRANSPARENT);
 			selectors[i].setStrokeWidth(2);
+			selectors[i].startYProperty().bind(bindingY.multiply(1.50+(i*3)));
+			selectors[i].endYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
+			//selectors[i].setStrokeDashOffset(bindingY.get()/10);
+		}
+		for(int i =0;i<selectorsJoiner.length;i++){
+			selectorsJoiner[i].setStroke(Color.web("0xff0000bb"));
+			selectorsJoiner[i].setFill(Color.TRANSPARENT);
+			selectorsJoiner[i].setStrokeWidth(2);
+			selectorsJoiner[i].getStrokeDashArray().addAll(2d);
 		}
 	}
 	public void setObservableList(ObservableList<Report> observableList) {
@@ -197,21 +208,17 @@ public class SummaryGUI extends BorderPane {
         setSelector(this.statMode, indices);
 	}
 
-	public void setSelectorsLoc(int[][] selectorsLoc) {
+	public void setSelectorsLoc(float[][] selectorsLoc) {
 		this.selectorsLoc = selectorsLoc;
 		for(int i =0;i<4;i++){
 			getChildren().remove(selectors[i]);
 			if(selectorsLoc[i][0]>=0){
-				selectors[i].xProperty().bind(bindingX.multiply(selectorsLoc[i][0]));
-				if(selectorsLoc[i][1]==1)
-					selectors[i].xProperty().bind(bindingX.multiply((float)selectorsLoc[i][0]+0.5));
-				
-				selectors[i].widthProperty().bind(bindingX);
-				selectors[i].yProperty().bind(bindingY.multiply(2+(i*3)));
-				selectors[i].heightProperty().bind(bindingY.add(bindingY));
+				selectors[i].startXProperty().bind(bindingX.multiply((float)selectorsLoc[i][0]+selectorsLoc[i][1]%1));
+				selectors[i].endXProperty().bind(bindingX.multiply((float)selectorsLoc[i][0]+selectorsLoc[i][1]%1));
 				getChildren().addAll(selectors[i]);
 			}
 		}
+		setSelectorJoiner();
 	}
 	private void setSelector(MouseEvent mouseEvent){
 		BorderPane summaryGUI = (BorderPane) mouseEvent.getSource();
@@ -220,38 +227,40 @@ public class SummaryGUI extends BorderPane {
 		DoubleBinding bindingX = widthProperty().divide(barMarginX);
 		DoubleBinding bindingY = heightProperty().divide(barMarginY);
 		if(mouseEvent.getX()>=bindingX.get()&&mouseEvent.getX()<=(summaryGUI.widthProperty().subtract(bindingX).get())){
-			int leftCenterRight=0;
+			float leftCenterRight=0;
 			int selectedIndex = (int) Math.round((mouseEvent.getX()-(mouseEvent.getX()%bindingX.get()))/bindingX.get());
+			/*
 			if(((mouseEvent.getX()%bindingX.get())/bindingX.get())>0.8f){
 				leftCenterRight=1;
 			}if(((mouseEvent.getX()%bindingX.get())/bindingX.get())<0.2f){
 				leftCenterRight=-1;
-			}
+			}*/
+			leftCenterRight=(float) ((mouseEvent.getX()%bindingX.get())/bindingX.get());
+			System.out.println(leftCenterRight);
 			for(int i =0;i<4;i++){
     			if(mouseEvent.getY()>=bindingY.multiply(i*3+2).get()&&mouseEvent.getY()<=bindingY.multiply(i*3+4).get()){
-    				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex));
-    				selectorsLoc[i][0]=(int)selectedIndex;
-    				selectorsLoc[i][1]=0;
-    				if(leftCenterRight==-1&&selectedIndex>1){
-        				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex-0.5));
-        				selectorsLoc[i][0]=(int)selectedIndex-1;
-        				selectorsLoc[i][1]=1;
-    				}	
-    				if(leftCenterRight==1&&selectedIndex<12){
-        				selectors[i].xProperty().bind(bindingX.multiply(selectedIndex+0.5));
-        				selectorsLoc[i][0]=(int)selectedIndex;
-        				selectorsLoc[i][1]=1;
-    				}	
-    				selectors[i].widthProperty().bind(bindingX);
-    				selectors[i].yProperty().bind(bindingY.multiply(2+(i*3)));
-    				selectors[i].heightProperty().bind(bindingY.add(bindingY));
-    				summaryGUI.getChildren().remove(selectors[i]);
-    				summaryGUI.getChildren().addAll(selectors[i]);
+    				selectorsLoc[i][0]=selectedIndex;
+    				selectorsLoc[i][1]=leftCenterRight;
+    				setSelectorsLoc(selectorsLoc);
     			}
 			}
+			setSelectorJoiner();
 		}
 	}
-
+	
+	private void setSelectorJoiner(){
+		for(int i=0;i<3;i++){
+			if(selectorsLoc[i][0]!=-1&&selectorsLoc[i+1][0]!=-1){
+				selectorsJoiner[i].startXProperty().bind(bindingX.multiply((float)selectorsLoc[i][0]+selectorsLoc[i][1]%1));
+				selectorsJoiner[i].startYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
+				selectorsJoiner[i].endXProperty().bind(bindingX.multiply((float)selectorsLoc[i+1][0]+selectorsLoc[i+1][1]%1));
+				selectorsJoiner[i].endYProperty().bind(bindingY.multiply(1.50+((i+1)*3)));
+				getChildren().remove(selectorsJoiner[i]);
+				getChildren().addAll(selectorsJoiner[i]);
+				}
+		}
+	}
+	
 	private void setSelector(StatMode statMode, int[][]indices){
 		for(int i =0;i<4;i++){
 			float indexLoc = -1; 
@@ -263,21 +272,12 @@ public class SummaryGUI extends BorderPane {
 			}
 			selectorsLoc[i][0]=-1;
 			if(indexLoc>=0){
-				selectors[i].xProperty().bind(bindingX.multiply(((int)indexLoc)+1));
-				selectorsLoc[i][1]=0;
-				if(indexLoc%1>0.1f){
-	    			selectors[i].xProperty().bind(bindingX.multiply(((int)indexLoc)+1.5));
-					selectorsLoc[i][1]=1;	
-				}
-				selectors[i].widthProperty().bind(bindingX);
-				selectors[i].yProperty().bind(bindingY.multiply(2+(i*3)));
-				selectors[i].heightProperty().bind(bindingY.add(bindingY));
-				getChildren().remove(selectors[i]);
-				getChildren().addAll(selectors[i]);
-				
+				selectorsLoc[i][1]=(float) (0.5+(indexLoc%1));	
 				selectorsLoc[i][0]=(int)indexLoc+1;
+				setSelectorsLoc(selectorsLoc);
 			}
 		}
+		setSelectorJoiner();
 	}
 	
 	private int[][] computeSummary(ObservableList<Report> observableList){
@@ -342,6 +342,9 @@ public class SummaryGUI extends BorderPane {
 		for(int i=0;i<arr.length;i++){
 			total = total + arr[i];
 		}
+		if(total==0){
+			return -1;
+		}
 		int count = 0;
 		for(int i=0;i<arr.length;i++){
 			count = count + arr[i]*i;
@@ -360,6 +363,9 @@ public class SummaryGUI extends BorderPane {
 		int total =0;
 		for(int i=0;i<arr.length;i++){
 			total = total + arr[i];
+		}
+		if(total==0){
+			return -1;
 		}
 		if((total%2)==0){
 			median1Loc =  (float)total/2f;
