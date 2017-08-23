@@ -16,6 +16,7 @@ import javafx.stage.Stage;
 
 public class FilesChooser {
 	public static final ExtensionFilter FORMAT_EXCEL = new FileChooser.ExtensionFilter("Excel (.xlsx)", "*.xlsx");
+	public static final ExtensionFilter FORMAT_TEXT = new FileChooser.ExtensionFilter("Text (.txt)", "*.txt");
 	
 	public static File show(Stage stage, String title, String initialLocation, ExtensionFilter filters[]){
 		File init = null;

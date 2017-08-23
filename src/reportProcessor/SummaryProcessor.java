@@ -1,10 +1,14 @@
 package reportProcessor;
 
 import java.io.File;
+
+import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
+import report.AttributeIndex;
 import report.Report;
 import reportSummary.ReportSummary;
 import reportSummary.ReportSummaryFactory;
+import util.FileUtility;
 
 /*
  * Main Process for managing multiple threads for processing
@@ -35,11 +39,23 @@ public class SummaryProcessor extends Processor implements Runnable{
 	@Override
 	public void run() {
 		started();
+		String output = "";
+		for(Report report: reports){
+			 output = output+"===============Name and ILS Attributes==============";
+			 output = output+System.getProperty("line.separator").toString();
+			 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
+			 for(AttributeIndex ai : report.getAttributes()){
+				 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
+			 }
+		}
+		FileUtility.writeWordsToText(output,destFile.getAbsolutePath());
+		 
+		/*
 		ReportSummary reportSmmary = ReportSummaryFactory.createInstance(summaryFile);
 		if(reportSmmary!=null){
 			reportSmmary.process(reports);
 			reportSmmary.save(destFile); //slow
-		}
+		}*/
 		completed();
 	}
 	

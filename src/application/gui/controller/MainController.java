@@ -91,7 +91,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			rootPane.setLeft(leftLayout);
 			*/
 			importedFilePane.visibleProperty().set(true);
-			loadExcelSheetToComboBox();
+			//loadExcelSheetToComboBox();
 		}else{
 			/* LOL
 	        rootPane.setLeft(null);
@@ -223,27 +223,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				destFile = new File(importedFilePath);
 			}else{
 				destFile=file;
-				String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
-				
-					FileInputStream fis;
-					try {
-						fis = new FileInputStream(file.getAbsolutePath());
-						book = new XSSFWorkbook(fis);
-						if(sheetName.length()>0){
-							sheet = book.getSheet(sheetName);
-							if(sheet==null){
-								book.createSheet(sheetName);
-								sheet=book.getSheet(sheetName);
-							}
-						}else{
-							sheet = book.createSheet();
-							sheetName = sheet.getSheetName();
-						}
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					} 
 			}
 		}else{
 			if(importedFilePath.length()<=0){
@@ -265,7 +244,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			public void onComplete(Processor process) {
 				Platform.runLater(new Runnable() {
 	                 @Override public void run() {
-	                		InputConfiguration.getInstance().setReportSummaryFile_sheet(((XSSFSheet)((SummaryProcessor)process).getSummaryFile()).getSheetName());
+	                		//InputConfiguration.getInstance().setReportSummaryFile_sheet(((XSSFSheet)((SummaryProcessor)process).getSummaryFile()).getSheetName());
 	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryProcessor)process).getDestFile().getAbsolutePath());
 	        				diableAllControls(false);
 	        				cancelBtn.setDisable(true);
@@ -384,7 +363,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 
 	@FXML
 	public void onImportExcel(){
-		ExtensionFilter filters[] = {FilesChooser.FORMAT_EXCEL};
+		ExtensionFilter filters[] = {FilesChooser.FORMAT_TEXT};
 		File f = new File(getImportedFile());
 		File file = null;
 		if(f.exists()){
@@ -395,13 +374,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		//setImportedFile(file);
 		if(file!=null){
 			InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+			System.out.println(InputConfiguration.getInstance().getReportSummaryFile());
 			textField_outputFile.setText(file.getAbsolutePath());
 		}
 	}
 
 	@FXML
 	public void onClickNewExcel(){
-		ExtensionFilter [] filters = {FilesChooser.FORMAT_EXCEL};
+		ExtensionFilter [] filters = {FilesChooser.FORMAT_TEXT};
 		File f = new File(getImportedFile());
 		File file = null;
 		if(f.exists()){
@@ -412,7 +392,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		
 		if(file != null){
 			 InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
-			
+			 System.out.println(InputConfiguration.getInstance().getReportSummaryFile());
 			/* try {
 				 XSSFWorkbook workbook = new XSSFWorkbook();
 				 XSSFSheet sheet = workbook.createSheet();
