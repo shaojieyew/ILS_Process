@@ -38,27 +38,28 @@ public class DataExtractProcessor extends Processor implements Runnable{
 		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
 			preProcess();
 			runProcess();
+			postProcess();
 		}
-		postProcess();
+		mainProcess.releaseSemaphore();
 		completed();
 	}
 
+	
+	
 	private void preProcess() {
 		report.setStatus(Report.STATUS_IN_PROCESSING);
 	}
 
 	private void postProcess() {
-		mainProcess.releaseSemaphore();
-		if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
-			report.setAuthor_name(report.getFileName());
-		} 
-		boolean fail =report.verifyInformation();
-
 		if(new File(report.getPath()).exists()){
-			if(fail){
-				report.setStatus(Report.STATUS_FAILED);
+			if(report.validateFile()){
+				if(report.validateData()){
+					report.setStatus(Report.STATUS_COMPLETED);
+				}else{
+					report.setStatus(Report.STATUS_FAILED);
+				}
 			}else{
-				report.setStatus(Report.STATUS_COMPLETED);
+				report.setStatus(Report.STATUS_FAILED);
 			}
 		}else{
 			report.setStatus(Report.STATUS_NOT_FOUND);

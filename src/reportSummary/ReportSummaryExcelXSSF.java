@@ -101,7 +101,9 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 				}
 			}
 		}
-		
+		if(StudentList.size()==0)
+			includeUnknownStudentInCounting = true;
+				
 		for(Report report : reports){
 			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
 				NewStudentList.add(report.getAuthor_name());

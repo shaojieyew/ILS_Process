@@ -17,6 +17,7 @@ public class Report extends ReportObservable{
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
 	public static  final  String STATUS_NOT_FOUND = "Not Found";
+	public static  final  String STATUS_INVALID_FILE = "Invalid File";
 	
 	private final SimpleStringProperty fileName = new SimpleStringProperty("");
 	private final SimpleStringProperty fileType = new SimpleStringProperty("");
@@ -115,27 +116,59 @@ public class Report extends ReportObservable{
 	    return reports;
 	}
 	
-	public  boolean verifyInformation(){
-		boolean fail=false;
-
-		String attributesName1[] = {
-				AttributeIndex.KEYWORD_ILS_ACTIVE,
-				AttributeIndex.KEYWORD_ILS_SENSING,
-				AttributeIndex.KEYWORD_ILS_VISUAL,
-				AttributeIndex.KEYWORD_ILS_SEQUENTIAL};
-		String attributesName2[] = {
-				AttributeIndex.KEYWORD_ILS_REFLECTIVE,
-				AttributeIndex.KEYWORD_ILS_INTUITIVE,
-				AttributeIndex.KEYWORD_ILS_VERBAL,
-				AttributeIndex.KEYWORD_ILS_GLOBAL};
-		for(int i =0;i<attributesName1.length;i++){
-			AttributeIndex attribute1 = getAttributeIndexByAttribute(attributesName1[i]);
-			AttributeIndex attribute2 = getAttributeIndexByAttribute(attributesName2[i]);
-			if(attribute1.getIndex()==attribute2.getIndex() || (attribute1.getIndex()!=0&&attribute2.getIndex()!=0)){
-				fail=true;
-				break;
+	public boolean validateData(){
+		boolean fail= false;
+		if(this.getAuthor_name()==null||this.getAuthor_name().length()==0){
+			 fail=true;
+			//report.setAuthor_name(report.getFileName());
+		} 
+		for(int i =0;i<AttributeIndex.LEFT_ILS_INDEX.length;i++){
+			AttributeIndex leftIndex =this.getAttributeIndexByAttribute(AttributeIndex.LEFT_ILS_INDEX[i]);
+			AttributeIndex rightIndex =this.getAttributeIndexByAttribute(AttributeIndex.RIGHT_ILS_INDEX[i]);
+			int leftIndexValue=0,rightIndexValue=0;
+			if(leftIndex!=null){
+				leftIndexValue = leftIndex.getIndex();
+			}
+			if(rightIndex!=null){
+				rightIndexValue = rightIndex.getIndex();
+			}
+			
+			if(leftIndexValue==0&&rightIndexValue==0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0&&rightIndexValue!=0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0){
+				if(leftIndexValue%2==0||leftIndexValue<0||leftIndexValue>11){
+					 fail=true;
+					 break;
+				}
+			}
+			if(rightIndexValue!=0){
+				if(rightIndexValue%2==0||rightIndexValue<0||rightIndexValue>11){
+					 fail=true;
+					 break;
+				}
 			}
 		}
-		return fail;
+		return !fail;
+	}
+	
+	public boolean validateFile(){
+		boolean no_name=false;
+		if(this.getAuthor_name()==null||this.getAuthor_name().length()==0){
+			no_name=true;
+		}
+		int totalIndex = 0;
+		for(AttributeIndex ai : this.getAttributes()){
+			totalIndex = totalIndex+ai.getIndex();
+		}
+		if(totalIndex==0 && no_name){
+			return false;
+		}
+		return true;
 	}
 }
