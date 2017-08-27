@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
 
@@ -59,6 +61,10 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML 
 	private GridPane importedFilePane;
 	
+	@FXML
+	private Button removeInvalidBtn;
+	@FXML
+	private Button refreshBtn;
 	@FXML
 	private TableView<Report> tableview;
 	@FXML
@@ -187,6 +193,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	TableViewSelectionModel<Report> tableviewSelectionModel = null;
 	private void diableAllControls(boolean disable){
 		startBtn.getParent().setDisable(disable);
+		removeInvalidBtn.setDisable(disable);
+		refreshBtn.setDisable(disable);
 		if(tableview.getSelectionModel()!=null){
 			tableviewSelectionModel=tableview.getSelectionModel();
 		}
@@ -362,7 +370,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			if((Report.STATUS_COMPLETED).equals(r.getStatus())){
 				completedCount++;
 			}
-			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())){
+			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())||(Report.STATUS_INVALID_FILE).equals(r.getStatus())){
 				failedCount++;
 			}
 		}
@@ -445,11 +453,37 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			FileUtility.openFile(getImportedFile());
 		}
 	}
-
 	
 	@FXML
 	public void viewSummary(){
 		new SidebarSummaryLoader(rootPane, tableview.getItems());
+	}
+	@FXML
+	public void refreshList(){	
+		InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
+	}
+	@FXML
+	public void removeInvalidFile(){
+		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
+		String formattedDate = formatter.format(new Date());
+		int count =0;
+		String movedToDir = "";
+		ObservableList<Report> data = tableview.getItems();
+		for(Report report : data){
+			if(report.getStatus().equals(Report.STATUS_INVALID_FILE)){
+				  File afile =new File(report.getPath());
+				  movedToDir = afile.getParent()+"\\"+formattedDate+"_INVALID_FILE";
+				  FileUtility.moveFiles(afile, movedToDir);
+				  count++;
+			}
+		}
+		if(count>0){
+			String []buttons = {"Open Folder"};
+			if(0==AppDialog.multiButtonDialog(buttons, "Problem Files Removed", "The problematic files are moved to "+movedToDir+".")){
+				FileUtility.openFile(movedToDir);
+			}
+		}
+		InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
 	}
 	
 	@FXML

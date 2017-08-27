@@ -35,7 +35,7 @@ public class DataExtractProcessor extends Processor implements Runnable{
 	@Override
 	public void run() {
 		started();
-		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
+		if((!report.getStatus().equals(Report.STATUS_INVALID_FILE))&&(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile)){
 			preProcess();
 			runProcess();
 			postProcess();
@@ -48,6 +48,8 @@ public class DataExtractProcessor extends Processor implements Runnable{
 	
 	private void preProcess() {
 		report.setStatus(Report.STATUS_IN_PROCESSING);
+		report.getAttributes().clear();
+		report.setAuthor_name(null);
 	}
 
 	private void postProcess() {
@@ -59,7 +61,7 @@ public class DataExtractProcessor extends Processor implements Runnable{
 					report.setStatus(Report.STATUS_FAILED);
 				}
 			}else{
-				report.setStatus(Report.STATUS_FAILED);
+				report.setStatus(Report.STATUS_INVALID_FILE);
 			}
 		}else{
 			report.setStatus(Report.STATUS_NOT_FOUND);

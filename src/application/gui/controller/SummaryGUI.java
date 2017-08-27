@@ -273,7 +273,7 @@ public class SummaryGUI extends BorderPane {
 			selectorsLoc[i][0]=-1;
 			if(indexLoc>=0){
 				selectorsLoc[i][1]=(float) (0.49+(indexLoc%1));	
-				selectorsLoc[i][0]=(int)indexLoc+1;
+				selectorsLoc[i][0]=(int)indexLoc+1+(int)selectorsLoc[i][1];
 				setSelectorsLoc(selectorsLoc);
 			}
 		}

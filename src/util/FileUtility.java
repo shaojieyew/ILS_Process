@@ -103,4 +103,18 @@ public class FileUtility {
 		    }
 		}
 	}
+	
+	public static boolean moveFiles(File file,String newDir){
+	  File dir = new File(newDir);
+	  if(!dir.exists()){
+		  boolean successful = dir.mkdir();
+		  if (!successful){
+			   return false;
+		  }
+	  }
+	  if(!file.renameTo(new File(newDir+"\\"+file.getName()))){
+    		 return false;
+	  }
+	  return true;
+	}
 }

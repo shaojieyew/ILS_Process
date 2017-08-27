@@ -5,6 +5,7 @@ import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
@@ -117,6 +118,9 @@ public  class ReportTableView implements InputChangeListener{
 			        case Report.STATUS_NOT_FOUND:
 			            this.getStyleClass().add("fail"); 
 			        	break;
+			        case Report.STATUS_INVALID_FILE:
+			            this.getStyleClass().add("fail"); 
+			        	break;
 			        default:
 			        	break;
 			        }
@@ -156,10 +160,21 @@ public  class ReportTableView implements InputChangeListener{
 	//update the list in the tableview
 	public void updateListByInputDirectory(InputConfiguration inputDirectory){
 		data=tableview.getItems();
+		ObservableList<Report> backup = FXCollections.observableArrayList(data);
         data.removeAll(data);
+		System.out.println(backup.size());
         ArrayList<Report> reports = Report.findAllReport(inputDirectory.getDirectory(),inputDirectory.getFileType());
         for(Report report : reports){
             data.add(report);
+            for(Report oldReport : backup){
+            	if(oldReport.getPath().equals(report.getPath())){
+            		report.setAttributes(oldReport.getAttributes());
+            		report.setAuthor_name(oldReport.getAuthor_name());
+            		report.setStatus(oldReport.getStatus());
+            		backup.remove(oldReport);
+            		break;
+            	}
+            }
         }
         totalGetReport=data.size();
 	}
@@ -186,5 +201,4 @@ public  class ReportTableView implements InputChangeListener{
 	public int getTotalGetReport() {
 		return totalGetReport;
 	}
-
 }

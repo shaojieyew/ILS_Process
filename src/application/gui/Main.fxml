@@ -141,6 +141,8 @@
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
           <Button mnemonicParsing="false" onAction="#viewSummary" text="Summary" />
+          <Button mnemonicParsing="false" fx:id="removeInvalidBtn"  onAction="#removeInvalidFile" text="Remove Problem Files" />
+          <Button mnemonicParsing="false" fx:id="refreshBtn"  onAction="#refreshList" text="Refresh File List" />
         </items>
          <BorderPane.margin>
             <Insets left="-20.0" right="-20.0" />

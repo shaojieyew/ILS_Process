@@ -185,7 +185,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 							
 
 					    	if(!report.validateData()){
-					    		report.setStatus(Report.STATUS_FAILED);
+					    		report.setStatus(Report.STATUS_NOT_PROCESSED);
 							}else{
 								report.setStatus(Report.STATUS_COMPLETED);
 							}
@@ -225,6 +225,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		combobox_status.getItems().add(Report.STATUS_COMPLETED);
 		combobox_status.getItems().add(Report.STATUS_NOT_PROCESSED);
+		combobox_status.getItems().add(Report.STATUS_INVALID_FILE);
 	}
 
 	@FXML

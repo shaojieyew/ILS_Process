@@ -125,7 +125,11 @@ public class DataExtractPDF extends DataExtract {
 	        PDDocument document = PDDocument.load(file);
 	        PDFRenderer pdfRenderer = new PDFRenderer(document);
 	        bi = new BufferedImage[document.getNumberOfPages()];
-	        for (int page = 0; page < document.getNumberOfPages(); ++page)
+	        int maxPageLimit = document.getNumberOfPages();
+	        if(maxPageLimit>4){
+	        	maxPageLimit=4;
+	        }
+	        for (int page = 0; page < maxPageLimit; ++page)
 	        { 
 	            BufferedImage bim = pdfRenderer.renderImageWithDPI(page, 300, ImageType.RGB);
 	            bi[page]=bim;

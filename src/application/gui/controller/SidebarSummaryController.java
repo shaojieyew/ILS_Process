@@ -76,8 +76,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void setReportList(ObservableList<Report> observableList) {
 		this.observableList= observableList;
 		//String summary = "";
-		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND};
-		int countStatus[] = {0,0,0,0,0};
+		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND,Report.STATUS_INVALID_FILE};
+		int countStatus[] = {0,0,0,0,0,0};
 		for(Report r: observableList){
 			if(r.getStatus().equals(Report.STATUS_COMPLETED)){
 				countStatus[2]++;
@@ -94,6 +94,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			if(r.getStatus().equals(Report.STATUS_IN_PROCESSING)){
 				countStatus[1]++;
 			}
+			if(r.getStatus().equals(Report.STATUS_INVALID_FILE)){
+				countStatus[5]++;
+			}
 		}
 		label_summary.getChildren().clear();
 		for(int i=0;i<countStatus.length;i++){
@@ -104,7 +107,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 					text1.setStyle("-fx-font-weight: bold");
 					text1.setFill(Color.GREEN);
 				}
-				if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)){
+				if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)||status[i].equals(Report.STATUS_INVALID_FILE)){
 					text1.setStyle("-fx-font-weight: bold");
 					text1.setFill(Color.RED);
 				}
