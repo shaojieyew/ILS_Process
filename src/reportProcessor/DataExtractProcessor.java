@@ -15,16 +15,16 @@ import util.FileUtility;
  * Class for processing the report
  * Make call to data extraction, data correction and reading
  */
-public class ReportProcessor extends Processor implements Runnable{
+public class DataExtractProcessor extends Processor implements Runnable{
 	private static final boolean DEBUG=false;
 	
 	private boolean reprocessCompletedFile=false;
-	private MainProcessor mainProcess;  //the parent thread that create the thread of this class.
+	private MainDataExtractProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
 	
 	//constructor
-	public ReportProcessor(MainProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
+	public DataExtractProcessor(MainDataExtractProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
 		this.mainProcess =mainProcess;
 		this.index = index;
 		this.report = report;
@@ -35,47 +35,33 @@ public class ReportProcessor extends Processor implements Runnable{
 	@Override
 	public void run() {
 		started();
-		if(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile){
+		if((!report.getStatus().equals(Report.STATUS_INVALID_FILE))&&(!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile)){
 			preProcess();
 			runProcess();
+			postProcess();
 		}
-		postProcess();
+		mainProcess.releaseSemaphore();
 		completed();
 	}
 
+	
+	
 	private void preProcess() {
 		report.setStatus(Report.STATUS_IN_PROCESSING);
+		report.getAttributes().clear();
+		report.setAuthor_name(null);
 	}
 
 	private void postProcess() {
-		mainProcess.releaseSemaphore();
-		int zeroCount = 0;
-		int nonZeroCount = 0;
-		boolean fail= false;
-		if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
-			 //fail=true;
-			report.setAuthor_name(report.getFileName());
-		} 
-		 for(AttributeIndex ai : report.getAttributes()){
-			 if(ai.getIndex()==0){
-				 zeroCount++;
-			 }else{
-				 nonZeroCount++;
-			 }
-			 if(zeroCount>4||nonZeroCount>4){
-				 break;
-			 }
-		 }
-		 	//check if learning index have scores for 4 attributes
-		 if(zeroCount!=4&&nonZeroCount!=4){
-			 fail=true;
-		 }
-
 		if(new File(report.getPath()).exists()){
-			if(fail){
-				report.setStatus(Report.STATUS_FAILED);
+			if(report.validateFile()){
+				if(report.validateData()){
+					report.setStatus(Report.STATUS_COMPLETED);
+				}else{
+					report.setStatus(Report.STATUS_FAILED);
+				}
 			}else{
-				report.setStatus(Report.STATUS_COMPLETED);
+				report.setStatus(Report.STATUS_INVALID_FILE);
 			}
 		}else{
 			report.setStatus(Report.STATUS_NOT_FOUND);
@@ -96,9 +82,8 @@ public class ReportProcessor extends Processor implements Runnable{
 				
 			 
 			 //Read the specific data from the extracted data
-			 ReportDataReader rdr = new ReportDataReaderBySplit(text);
-			 report.setAuthor_name(rdr.getReport_name());
-			 report.setAttributes(rdr.getAttributeList());
+			 ReportDataReader rdr = new ReportDataReaderBySplit(text,report);
+			 report = rdr.getReport();
 			 //Check if the data is good enough
 			 boolean retry=false;
 			 int nonZeroCount=0;
@@ -129,9 +114,8 @@ public class ReportProcessor extends Processor implements Runnable{
 					 dc = new DataCorrection(text);
 					 text=dc.getCorrectedText(DataCorrection.STRICTNESS_LESS_STRICT,DataCorrection.STRICTNESS_STRICT);
 					 /*re-read data*/
-					 rdr = new ReportDataReaderBySplit(text);
-					 report.setAuthor_name(rdr.getReport_name());
-					 report.setAttributes(rdr.getAttributeList());
+					 rdr = new ReportDataReaderBySplit(text,report);
+					 report = rdr.getReport();
 				 }
 			 }
 			 

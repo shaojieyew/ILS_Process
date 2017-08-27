@@ -1,19 +1,23 @@
 package report;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.configurable.InputConfiguration;
 import javafx.beans.property.SimpleStringProperty;
+import util.FileUtility;
 
 /*
  * Entity Class for ILS Report 
  */
 public class Report extends ReportObservable{
-	public static  final  String STATUS_NOT_PROCESSED = "Ready";
+	public static  final  String STATUS_NOT_PROCESSED = "Ready to Process";
 	public static  final  String STATUS_IN_PROCESSING = "In Process";
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
 	public static  final  String STATUS_NOT_FOUND = "Not Found";
+	public static  final  String STATUS_INVALID_FILE = "Invalid File";
 	
 	private final SimpleStringProperty fileName = new SimpleStringProperty("");
 	private final SimpleStringProperty fileType = new SimpleStringProperty("");
@@ -38,6 +42,10 @@ public class Report extends ReportObservable{
 					attribute=a;
 					break;
 			}
+		}
+		if(attribute==null){
+			attribute = new AttributeIndex(arg,0);
+			attributes.add(attribute);
 		}
 		return attribute;
 	}
@@ -89,5 +97,78 @@ public class Report extends ReportObservable{
 	public void setStatus(String fstatus) {
 		this.status.set(fstatus);
 		super.notifyChange();
+	}
+	
+	public static ArrayList<Report> findAllReport(String inputDirectory, String fileType[]) {
+		ArrayList<Report> reports = new ArrayList<Report>();
+		File[] files = FileUtility.getListOfFile(inputDirectory);
+		if(files!=null){
+		    for (final File fileEntry : files) {
+		    	String fileType1 = FileUtility.getFileExtension(fileEntry);
+		    	for(String type : fileType){
+		    		if(fileType1.equals(type)){
+		    	      	reports.add(new Report(fileEntry.getName(),fileType1,fileEntry.getPath()));
+		    			break;
+		    		}
+		    	}
+		    }
+		}
+	    return reports;
+	}
+	
+	public boolean validateData(){
+		boolean fail= false;
+		if(this.getAuthor_name()==null||this.getAuthor_name().length()==0){
+			 fail=true;
+			//report.setAuthor_name(report.getFileName());
+		} 
+		for(int i =0;i<AttributeIndex.LEFT_ILS_INDEX.length;i++){
+			AttributeIndex leftIndex =this.getAttributeIndexByAttribute(AttributeIndex.LEFT_ILS_INDEX[i]);
+			AttributeIndex rightIndex =this.getAttributeIndexByAttribute(AttributeIndex.RIGHT_ILS_INDEX[i]);
+			int leftIndexValue=0,rightIndexValue=0;
+			if(leftIndex!=null){
+				leftIndexValue = leftIndex.getIndex();
+			}
+			if(rightIndex!=null){
+				rightIndexValue = rightIndex.getIndex();
+			}
+			
+			if(leftIndexValue==0&&rightIndexValue==0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0&&rightIndexValue!=0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0){
+				if(leftIndexValue%2==0||leftIndexValue<0||leftIndexValue>11){
+					 fail=true;
+					 break;
+				}
+			}
+			if(rightIndexValue!=0){
+				if(rightIndexValue%2==0||rightIndexValue<0||rightIndexValue>11){
+					 fail=true;
+					 break;
+				}
+			}
+		}
+		return !fail;
+	}
+	
+	public boolean validateFile(){
+		boolean no_name=false;
+		if(this.getAuthor_name()==null||this.getAuthor_name().length()==0){
+			no_name=true;
+		}
+		int totalIndex = 0;
+		for(AttributeIndex ai : this.getAttributes()){
+			totalIndex = totalIndex+ai.getIndex();
+		}
+		if(totalIndex==0 && no_name){
+			return false;
+		}
+		return true;
 	}
 }

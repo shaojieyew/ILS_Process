@@ -19,7 +19,6 @@
    -fx-light-text-color: #005500;
    -fx-background-color: #99cc99;
 }
-
 .rowStyleSelected:filled:selected { 
   -fx-font-weight:bold;
 }

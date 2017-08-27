@@ -35,30 +35,6 @@ public class SummaryProcessor extends Processor implements Runnable{
 	@Override
 	public void run() {
 		started();
-		/*
-		String output="";
-		for(Report report : reports){
-			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
-				output = output+"===============Name and ILS Attributes==============";
-				 output = output+System.getProperty("line.separator").toString();
-				 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
-				 for(AttributeIndex ai : report.getAttributes()){
-					 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
-				 }
-			}
-		}
-		File folder = new File(outputDirectory);
-		if(!folder.exists()){
-			try {
-				FileUtils.forceMkdir(folder);
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-		}
-		FileUtility.writeWordsToText(output,outputDirectory+"\\ILS_Output.txt");
-		*/
-		
 		ReportSummary reportSmmary = ReportSummaryFactory.createInstance(summaryFile);
 		if(reportSmmary!=null){
 			reportSmmary.process(reports);

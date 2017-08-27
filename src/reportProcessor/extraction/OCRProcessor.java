@@ -218,8 +218,8 @@ public class OCRProcessor {
 	    int maxY2=0;
         BufferedImage subImage;
         //slice process due to not enough heap size;
-        int sliceX = (int) Math.ceil((float)image.getWidth()/2400f);
-        int sliceY = (int) Math.ceil((float)image.getHeight()/2400f);
+        int sliceX = (int) Math.ceil((float)image.getWidth()/1000f);
+        int sliceY = (int) Math.ceil((float)image.getHeight()/1000f);
         double buffer = 0.1;
 	    for(int i=0;i<sliceX;i++){
 	    	for(int j=0;j<sliceY;j++){

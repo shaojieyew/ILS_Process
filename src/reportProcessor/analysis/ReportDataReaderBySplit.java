@@ -4,14 +4,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import report.AttributeIndex;
+import report.Report;
 
 //read specific data from the data to get the author name and ILS attributes
 
-public class ReportDataReaderBySplit implements ReportDataReader {
+public class ReportDataReaderBySplit extends ReportDataReader {
 	public final static String NEWLINE = "\\r?\\n";
 	private String text;
-	private List<AttributeIndex> attributeList = new ArrayList<AttributeIndex>();
-	private String report_name="";
+	
 	
 	public String getText() {
 		return text;
@@ -21,24 +21,9 @@ public class ReportDataReaderBySplit implements ReportDataReader {
 		this.text = text;
 	}
 
-	public String getReport_name() {
-		return report_name;
-	}
-
-	public void setReport_name(String report_name) {
-		this.report_name = report_name;
-	}
-
-	public List<AttributeIndex> getAttributeList() {
-		return attributeList;
-	}
-
-	public void setAttributeList(List<AttributeIndex> attributeList) {
-		this.attributeList = attributeList;
-	}
-
 	
-	public ReportDataReaderBySplit(String text){
+	public ReportDataReaderBySplit(String text, Report report){
+		setReport(report);
 		this.text = text;
 
 		String name = text;
@@ -61,12 +46,12 @@ public class ReportDataReaderBySplit implements ReportDataReader {
 				if(name.indexOf(KEYWORD_ILS_REFLECTIVE)>=0){
 						name = name.split(KEYWORD_ILS_REFLECTIVE)[0];
 				}
-				report_name=name;
+				report.setAuthor_name(name);
 			}else{
-				report_name="";
+				report.setAuthor_name("");
 			}
 		}else{
-			report_name="";
+			report.setAuthor_name("");
 		}
 
 		text=text.replace(":", "");
@@ -75,37 +60,35 @@ public class ReportDataReaderBySplit implements ReportDataReader {
 			if(text.indexOf(attribute)>=0){
 				String attributeText = text;
 				attributeText = attributeText.split(attribute)[1];
-				//if(attribute.indexOf(NEWLINE)>=0){
-					String arr[] = attributeText.split(NEWLINE);
-					if(arr.length>0){
-						attributeText = arr[0];
-					}
-				//}
-				//if(attributeText.indexOf(".")>=0){
-					 arr = attributeText.split(".");
-						if(arr.length>0){
-							attributeText = arr[0];
-						}
-				//}
+				String arr[] = attributeText.split(NEWLINE);
+				if(arr.length>0){
+					attributeText = arr[0];
+				}
+				arr = attributeText.split(".");
+				if(arr.length>0){
+					attributeText = arr[0];
+				}
 				boolean digitExist = false;
 				for(int i =0;i<attributeText.length();i++){
 					if(Character.isDigit(attributeText.charAt(i))){
 						digitExist = true;
 						digits=digits+attributeText.charAt(i);
 					}else{
+						if(Character.isAlphabetic(attributeText.charAt(i))){
+							break;
+						}
 						if(digitExist){
 							break;
 						}
 					}
 				}
 			}
-
 			int index = 0;
 			if(digits.length()>0){
 				index = Integer.parseInt(digits);
 			}
-			AttributeIndex ai = new AttributeIndex(attribute,index);
-			attributeList.add(ai);
+			AttributeIndex ai = report.getAttributeIndexByAttribute(attribute);
+			ai.setIndex(index);
 		}
 	}
 }
