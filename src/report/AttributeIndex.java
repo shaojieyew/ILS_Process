@@ -17,7 +17,9 @@ public class AttributeIndex{
 	public final static String KEYWORD_ILS_VERBAL = "Verbal";
 	public final static String KEYWORD_ILS_SEQUENTIAL = "Sequential";
 	public final static String KEYWORD_ILS_GLOBAL = "Global";
-	
+
+	public final static String[]LEFT_ILS_INDEX = {KEYWORD_ILS_ACTIVE,KEYWORD_ILS_SENSING,KEYWORD_ILS_VISUAL,KEYWORD_ILS_SEQUENTIAL};
+	public final static String[]RIGHT_ILS_INDEX = {KEYWORD_ILS_REFLECTIVE,KEYWORD_ILS_INTUITIVE,KEYWORD_ILS_VERBAL,KEYWORD_ILS_GLOBAL};
 	
 	public AttributeIndex(String attribute, int index) {
 		super();

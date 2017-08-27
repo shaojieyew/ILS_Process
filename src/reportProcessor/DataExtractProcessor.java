@@ -47,35 +47,87 @@ public class DataExtractProcessor extends Processor implements Runnable{
 		report.setStatus(Report.STATUS_IN_PROCESSING);
 	}
 
-	private void postProcess() {
-		mainProcess.releaseSemaphore();
+	private boolean validateDataExtracted(){
 		int zeroCount = 0;
 		int nonZeroCount = 0;
 		boolean fail= false;
 		if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
-			 //fail=true;
-			report.setAuthor_name(report.getFileName());
-		} 
-		 for(AttributeIndex ai : report.getAttributes()){
-			 if(ai.getIndex()==0){
-				 zeroCount++;
-			 }else{
-				 nonZeroCount++;
-			 }
-			 if(zeroCount>4||nonZeroCount>4){
-				 break;
-			 }
-		 }
-		 	//check if learning index have scores for 4 attributes
-		 if(zeroCount!=4&&nonZeroCount!=4){
 			 fail=true;
-		 }
-
+			//report.setAuthor_name(report.getFileName());
+		} 
+		for(int i =0;i<AttributeIndex.LEFT_ILS_INDEX.length;i++){
+			AttributeIndex leftIndex =report.getAttributeIndexByAttribute(AttributeIndex.LEFT_ILS_INDEX[i]);
+			AttributeIndex rightIndex =report.getAttributeIndexByAttribute(AttributeIndex.RIGHT_ILS_INDEX[i]);
+			int leftIndexValue=0,rightIndexValue=0;
+			if(leftIndex!=null){
+				leftIndexValue = leftIndex.getIndex();
+			}
+			if(rightIndex!=null){
+				rightIndexValue = rightIndex.getIndex();
+			}
+			
+			if(leftIndexValue==0&&rightIndexValue==0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0&&rightIndexValue!=0){
+				 fail=true;
+				 break;
+			}
+			if(leftIndexValue!=0){
+				if(leftIndexValue%2==0||leftIndexValue<0||leftIndexValue>11){
+					 fail=true;
+					 break;
+				}
+			}
+			if(rightIndexValue!=0){
+				if(rightIndexValue%2==0||rightIndexValue<0||rightIndexValue>11){
+					 fail=true;
+					 break;
+				}
+			}
+		}
+		return !fail;
+	}
+	
+	private boolean validateFile(){
+		boolean no_name=false;
+		if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
+			no_name=true;
+		}
+		int totalIndex = 0;
+		for(AttributeIndex ai : report.getAttributes()){
+			totalIndex = totalIndex+ai.getIndex();
+		}
+		if(totalIndex==0 && no_name){
+			return false;
+		}
+		return true;
+	}
+	
+	private void postProcess() {
+		mainProcess.releaseSemaphore();
+		
+		
+		/*report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_ACTIVE);
+		for(AttributeIndex ai : report.getAttributes()){
+			 if(ai.getIndex()%2==0||ai.getIndex()<0||ai.getIndex()>11){
+				 fail=true;
+				 break;
+			 }else{
+				 
+			 }
+		}*/
+		 
 		if(new File(report.getPath()).exists()){
-			if(fail){
-				report.setStatus(Report.STATUS_FAILED);
+			if(validateFile()){
+				if(validateDataExtracted()){
+					report.setStatus(Report.STATUS_COMPLETED);
+				}else{
+					report.setStatus(Report.STATUS_FAILED);
+				}
 			}else{
-				report.setStatus(Report.STATUS_COMPLETED);
+				report.setStatus(Report.STATUS_FAILED);
 			}
 		}else{
 			report.setStatus(Report.STATUS_NOT_FOUND);

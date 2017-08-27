@@ -75,24 +75,23 @@ public class ReportDataReaderBySplit implements ReportDataReader {
 			if(text.indexOf(attribute)>=0){
 				String attributeText = text;
 				attributeText = attributeText.split(attribute)[1];
-				//if(attribute.indexOf(NEWLINE)>=0){
-					String arr[] = attributeText.split(NEWLINE);
-					if(arr.length>0){
-						attributeText = arr[0];
-					}
-				//}
-				//if(attributeText.indexOf(".")>=0){
-					 arr = attributeText.split(".");
-						if(arr.length>0){
-							attributeText = arr[0];
-						}
-				//}
+				String arr[] = attributeText.split(NEWLINE);
+				if(arr.length>0){
+					attributeText = arr[0];
+				}
+				arr = attributeText.split(".");
+				if(arr.length>0){
+					attributeText = arr[0];
+				}
 				boolean digitExist = false;
 				for(int i =0;i<attributeText.length();i++){
 					if(Character.isDigit(attributeText.charAt(i))){
 						digitExist = true;
 						digits=digits+attributeText.charAt(i);
 					}else{
+						if(Character.isAlphabetic(attributeText.charAt(i))){
+							break;
+						}
 						if(digitExist){
 							break;
 						}

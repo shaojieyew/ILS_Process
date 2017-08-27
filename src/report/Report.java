@@ -17,6 +17,7 @@ public class Report extends ReportObservable{
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
 	public static  final  String STATUS_NOT_FOUND = "Not Found";
+	public static  final  String STATUS_INVALID_FILE = "Invalid File";
 	
 	private final SimpleStringProperty fileName = new SimpleStringProperty("");
 	private final SimpleStringProperty fileType = new SimpleStringProperty("");
