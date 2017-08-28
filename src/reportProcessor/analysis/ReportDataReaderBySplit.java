@@ -54,7 +54,7 @@ public class ReportDataReaderBySplit extends ReportDataReader {
 			report.setAuthor_name("");
 		}
 
-		text=text.replace(":", "");
+		text=text.replace(":", " ");
 		for(String attribute : ILS_ATTRIBUTES){
 			String digits = "";
 			if(text.indexOf(attribute)>=0){

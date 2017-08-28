@@ -16,7 +16,7 @@ import util.FileUtility;
  * Make call to data extraction, data correction and reading
  */
 public class DataExtractProcessor extends Processor implements Runnable{
-	private static final boolean DEBUG=false;
+	private static final boolean DEBUG=true;
 	
 	private boolean reprocessCompletedFile=false;
 	private MainDataExtractProcessor mainProcess;  //the parent thread that create the thread of this class.
@@ -138,12 +138,12 @@ public class DataExtractProcessor extends Processor implements Runnable{
 			 for(AttributeIndex ai : report.getAttributes()){
 				 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
 			 }
-			 FileUtility.writeWordsToText(output,AppProperty.getValue("output")+"\\ILS_"+report.getAuthor_name()+".txt");
+			 FileUtility.writeWordsToText(output,AppProperty.getValue("input")+"\\"+report.getFileName()+"_ILS.txt");
 			 
 			 //============================================
 			 }
 		} catch (Exception e) {
-			//e.printStackTrace();
+			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
 		}

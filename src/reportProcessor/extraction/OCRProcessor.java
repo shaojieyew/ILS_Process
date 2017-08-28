@@ -298,7 +298,9 @@ public class OCRProcessor {
 	    System.out.println(results1);*/
 	    
 	    //System.out.println(results);
-	    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
+	    if(!(minX1>maxX2||minY1>maxY2)){
+		    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
+	    }
         return image;
 	}
 }
