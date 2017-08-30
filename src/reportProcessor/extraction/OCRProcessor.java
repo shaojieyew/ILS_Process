@@ -15,15 +15,18 @@ import org.opencv.imgproc.Imgproc;
 
 
 import application.configurable.AppProperty;
+import application.configurable.DebugClass;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 import net.sourceforge.tess4j.Word;
+import report.Report;
+import util.FileUtility;
 import util.OpenCVUtility;
 import net.sourceforge.tess4j.ITessAPI.TessPageIteratorLevel;
 
-public class OCRProcessor {
-	public static final boolean DEBUG = false;
-	public static int count=0;
+public class OCRProcessor extends DebugClass {
+	private  File file;
+	
 	   
 	private Tesseract instance;
 	public OCRProcessor(){
@@ -40,24 +43,26 @@ public class OCRProcessor {
         instance.setLanguage("eng");
 	}
 	
-	public String doOcr(BufferedImage image){
-		String str = ocrImage(image);
+	/*
+	public String doOcr(BufferedImage image, Report report){
+		String str = ocrImage(image,report);
 		return str;
 	}
-
-    public String ocrImage(BufferedImage image){
+*/
+    public String ocrImage(BufferedImage image,File file){
     	BufferedImage[] bim = {image};
-    	return ocrImage(bim);
+    	return ocrImage(bim,file);
     }
 
 
-	public String ocrImage(List<BufferedImage> bims) {
+	public String ocrImage(List<BufferedImage> bims,File file) {
 		BufferedImage[] bim = new BufferedImage[bims.size()];
 		bim = bims.toArray(bim);
-		return ocrImage(bim);
+		return ocrImage(bim,file);
 	}
     
-    public String ocrImage(BufferedImage[] images)  throws OutOfMemoryError{
+    public String ocrImage(BufferedImage[] images,File file)  throws OutOfMemoryError{
+		this.file=file;
     	if(images==null||images.length==0){
     		return "";
     	}
@@ -194,13 +199,15 @@ public class OCRProcessor {
 
         image = OpenCVUtility.mat2Img(source);
 
-	    if(DEBUG) {
-	         count++;
+	    if(isDebug()) {
 	                //Imgcodecs.imwrite("C:\\Users\\YSJ laptop\\Desktop\\FYP\\ILS\\test\\saved"+count+".png",source);
-	                
-	         File outputfile = new File(AppProperty.getValue("output")+"\\saved("+ratio+")"+count+".png");
+
+	         //File outputfile = new File(AppProperty.getValue("output")+"\\saved("+ratio+")"+count+".png");
 	            	try {
-						ImageIO.write(image, "png", outputfile);
+	            		if(FileUtility.makeFolder(file.getParent()+"\\debug")){
+		            	    File outputfile = new File(file.getParent()+"\\debug\\"+file.getName()+"_processed.png");
+							ImageIO.write(image, "png", outputfile);
+	            		}
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -252,8 +259,9 @@ public class OCRProcessor {
 	    		int h = maxY-minY;
 	    		subImage = image.getSubimage(minX,minY,w ,h );
 
-	    	    if(DEBUG) {
-		    	    File outputfile = new File(AppProperty.getValue("output")+"\\saved("+i+"-"+j+")"+".png");
+	    	    if(false) {
+	    	    	//System.out.println(FileUtility.makeFolder(file.getParent()+"\\"+file.getName()));
+		    	    File outputfile = new File(file.getParent()+"\\"+file.getName()+"_analysed("+i+"-"+j+")"+".png");
 		        	try {
 		    			ImageIO.write(subImage, "png", outputfile);
 		    		} catch (IOException e) {
@@ -298,7 +306,9 @@ public class OCRProcessor {
 	    System.out.println(results1);*/
 	    
 	    //System.out.println(results);
-	    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
+	    if(!(minX1>maxX2||minY1>maxY2)){
+		    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
+	    }
         return image;
 	}
 }

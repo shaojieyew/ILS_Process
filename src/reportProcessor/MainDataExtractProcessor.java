@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Semaphore;
 
+import application.configurable.AppProperty;
 import javafx.collections.ObservableList;
 import report.Report;
 
@@ -17,7 +18,6 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 	private int totalCount = 0 ;
 	private boolean cancelProcess = false;
 	private boolean reprocessCompletedFile = false;
-	
 	/*
 	private int completedCount = 0 ;
 	//get process of the processing
@@ -25,7 +25,7 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 		return (int)(((float)completedCount/(float)totalCount)*100f);
 	}
 	*/
-	
+
 	//constructor setup list of reports to process
 	public MainDataExtractProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
 		if(numberOfThread<=0){

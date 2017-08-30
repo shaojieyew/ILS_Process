@@ -87,7 +87,7 @@ public  class ReportTableView implements InputChangeListener{
 		            }
 		            Report report = (Report) row.getItem();
 		            if(report!=null){
-		            	new SidebarUpdateReportLoader((BorderPane) tableview.getParent(),report);
+		            	//new SidebarUpdateReportLoader((BorderPane) tableview.getParent(),report);
 		          
 		            }
 		        }

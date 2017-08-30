@@ -28,7 +28,7 @@ public class DataExtractImage extends DataExtract{
 		}
 		
 		//ocr the bufferedImage and get text
-		String text = ocr.ocrImage(newImage);
+		String text = ocr.ocrImage(newImage,getFile());
 		setText(text);
 	}
 
