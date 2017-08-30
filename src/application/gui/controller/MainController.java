@@ -16,6 +16,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import application.MainApplication;
 import application.configurable.AppProperty;
+import application.configurable.DebugClass;
 import application.configurable.InputChangeListener;
 import application.configurable.InputConfiguration;
 import application.configurable.OutputConfiguration;
@@ -128,6 +129,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		updateProgressBar("");
 		textField_outputFile.setText(getImportedFile());
 		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
+		
+		DebugClass.setDebug(AppProperty.getValue("debug").equals("true")?true:false);
 	}
 
 	

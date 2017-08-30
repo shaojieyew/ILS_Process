@@ -16,8 +16,7 @@ import util.FileUtility;
  * Make call to data extraction, data correction and reading
  */
 public class DataExtractProcessor extends Processor implements Runnable{
-	private static final boolean DEBUG=true;
-	
+
 	private boolean reprocessCompletedFile=false;
 	private MainDataExtractProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
@@ -119,27 +118,28 @@ public class DataExtractProcessor extends Processor implements Runnable{
 				 }
 			 }
 			 
-			 if(DEBUG){
+			 if(isDebug()){
 			 //===============print out for debug===========
-			 String output="";
-			 
-			 output = output+"==================Data Extracted====================";
-			 output = output+System.getProperty("line.separator").toString();
-			 output=output+org;
-			 output = output+System.getProperty("line.separator").toString();
-			 output = output+"==================Data Corrected====================";
-			 output = output+System.getProperty("line.separator").toString();
-			 output=output+text;
-			 output = output+System.getProperty("line.separator").toString();
-			 
-			 output = output+"===============Name and ILS Attributes==============";
-			 output = output+System.getProperty("line.separator").toString();
-			 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
-			 for(AttributeIndex ai : report.getAttributes()){
-				 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
-			 }
-			 FileUtility.writeWordsToText(output,AppProperty.getValue("input")+"\\"+report.getFileName()+"_ILS.txt");
-			 
+				 String output="";
+				 
+				 output = output+"==================Data Extracted====================";
+				 output = output+System.getProperty("line.separator").toString();
+				 output=output+org;
+				 output = output+System.getProperty("line.separator").toString();
+				 output = output+"==================Data Corrected====================";
+				 output = output+System.getProperty("line.separator").toString();
+				 output=output+text;
+				 output = output+System.getProperty("line.separator").toString();
+				 
+				 output = output+"===============Name and ILS Attributes==============";
+				 output = output+System.getProperty("line.separator").toString();
+				 output = output+ "NAME: "+report.getAuthor_name()+ System.getProperty("line.separator").toString();
+				 for(AttributeIndex ai : report.getAttributes()){
+					 output = output + ai.getAttribute()+": "+ai.getIndex()+System.getProperty("line.separator").toString();
+				 }
+     			if(FileUtility.makeFolder(file.getParent()+"\\debug")){
+     			FileUtility.writeWordsToText(output,AppProperty.getValue("input")+"\\debug\\"+report.getFileName()+"_ILS.txt");
+     			}
 			 //============================================
 			 }
 		} catch (Exception e) {

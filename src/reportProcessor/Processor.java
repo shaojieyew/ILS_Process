@@ -2,8 +2,10 @@ package reportProcessor;
 
 import java.util.ArrayList;
 
+import application.configurable.DebugClass;
 
-public abstract class Processor {
+
+public abstract class Processor extends DebugClass {
 	private ArrayList<ProcessorListener> listeners = new ArrayList<ProcessorListener>();
 	public static  final String TYPE_ON_COMPLETE="Completed";
 	public static  final String TYPE_ON_START="Started";

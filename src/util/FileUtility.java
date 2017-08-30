@@ -79,6 +79,11 @@ public class FileUtility {
 	      		ex.printStackTrace();
 	      	  }
 	}
+
+	public static boolean makeFolder(String filename){
+		  File dir = new File(filename);
+		  return dir.mkdir();
+	}
 	
 	public static void writeWordsToText(String text,String filename){
 		BufferedWriter writer = null;

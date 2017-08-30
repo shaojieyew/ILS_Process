@@ -43,6 +43,8 @@ public class DataCorrection {
 			text="";
 			return "";
 		}
+		
+		text=text.replace(":", " ");
 		String lines[] =text.split("\\r?\\n");
 		for(String line : lines){
 

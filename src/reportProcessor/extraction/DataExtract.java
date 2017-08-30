@@ -1,10 +1,11 @@
 package reportProcessor.extraction;
 
 import java.io.File;
+
+import application.configurable.DebugClass;
 /*Common interface for different DataExtract implementation for different format*/
 /*Data extracted from processFile() are stored in text attribute*/
-public abstract class DataExtract {
-
+public abstract class DataExtract extends DebugClass{
 	private String text;
 	
 	private File file;

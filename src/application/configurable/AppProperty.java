@@ -96,6 +96,7 @@ public class AppProperty {
 				PROP.setProperty("report_summary", "");
 				PROP.setProperty("report_summary_sheet", "");
 				PROP.setProperty("multi_thread", "2");
+				PROP.setProperty("debug", "false");
 				PROP.store(output, null);
 
 			} catch (IOException io) {

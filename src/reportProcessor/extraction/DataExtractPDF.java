@@ -56,7 +56,7 @@ public class DataExtractPDF extends DataExtract {
 			BufferedImage[] bim=pdfToBufferimage(file);
 		    OCRProcessor ocr = new OCRProcessor();
 		    try{
-		    	text = ocr.ocrImage(bim);
+		    	text = ocr.ocrImage(bim,file);
 		    }catch(OutOfMemoryError e){
 		    	
 		    }
