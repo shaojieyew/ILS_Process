@@ -26,6 +26,7 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
@@ -36,6 +37,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
 import report.Report;
 import report.ReportChangeListener;
@@ -450,6 +452,22 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 	}
 	
+	@FXML
+	public void viewImportedFileStatistic(){
+		if(getImportedFile()!=null&&getImportedFile().length()>0){
+		     SummaryGUI summaryGUI = new SummaryGUI();
+		     summaryGUI.setObservableList(tableview.getItems());
+			 BorderPane bp = new BorderPane();
+			 bp.setCenter(summaryGUI);
+			 bp.setMaxWidth(100);
+			 bp.setMaxHeight(100);
+			 Scene scene2 = new Scene(bp, 400, 550);
+			 Stage stage = new Stage();
+			 stage.setTitle("Statistic");
+			 stage.setScene(scene2);
+			 stage.show();
+		}
+	}
 	@FXML
 	public void openImportedFile(){
 		if(getImportedFile()!=null&&getImportedFile().length()>0){
