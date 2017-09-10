@@ -78,26 +78,30 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		//String summary = "";
 		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND,Report.STATUS_INVALID_FILE};
 		int countStatus[] = {0,0,0,0,0,0};
-		for(Report r: observableList){
-			if(r.getStatus().equals(Report.STATUS_COMPLETED)){
-				countStatus[2]++;
-			}
-			if(r.getStatus().equals(Report.STATUS_FAILED)){
-				countStatus[3]++;
-			}
-			if(r.getStatus().equals(Report.STATUS_NOT_FOUND)){
-				countStatus[4]++;
-			}
-			if(r.getStatus().equals(Report.STATUS_NOT_PROCESSED)){
-				countStatus[0]++;
-			}
-			if(r.getStatus().equals(Report.STATUS_IN_PROCESSING)){
-				countStatus[1]++;
-			}
-			if(r.getStatus().equals(Report.STATUS_INVALID_FILE)){
-				countStatus[5]++;
+
+		if(observableList!=null){
+			for(Report r: observableList){
+				if(r.getStatus().equals(Report.STATUS_COMPLETED)){
+					countStatus[2]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_FAILED)){
+					countStatus[3]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_NOT_FOUND)){
+					countStatus[4]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_NOT_PROCESSED)){
+					countStatus[0]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_IN_PROCESSING)){
+					countStatus[1]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_INVALID_FILE)){
+					countStatus[5]++;
+				}
 			}
 		}
+		
 		label_summary.getChildren().clear();
 		for(int i=0;i<countStatus.length;i++){
 			if(countStatus[i]>0){
@@ -116,8 +120,10 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			}
 		}
 		label_summary1.getChildren().clear();
-		Text text2=new Text("Total ILS Report: "+ observableList.size());
-		label_summary1.getChildren().addAll(text2);
+		if(observableList!=null){
+			Text text2=new Text("Total ILS Report: "+ observableList.size());
+			label_summary1.getChildren().addAll(text2);
+		}
 		
 
 		 //Filled rectangle
