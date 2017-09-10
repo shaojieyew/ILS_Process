@@ -12,10 +12,10 @@ import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import report.Report;
 
-public class SidebarUpdateReportLoader extends SidebarLoader   {
+public class SidebarUpdateReportLoader extends SidebarContentLoader   {
 
 	public SidebarUpdateReportLoader(Parent parent, Report report) {
-		super((BorderPane) parent,getSidePane(report));
+		super((BorderPane) parent,getSidePane(report),"ILS Data");
 		//report.setStatus(Report.STATUS_COMPLETED);
 	}
 	

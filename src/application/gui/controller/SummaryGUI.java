@@ -1,9 +1,10 @@
 package application.gui.controller;
 
+import java.util.List;
+
 import javafx.beans.binding.Bindings;
 import javafx.beans.binding.DoubleBinding;
 import javafx.beans.binding.ObjectExpression;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.scene.input.MouseEvent;
@@ -11,7 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
-import javafx.scene.paint.Paint;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
@@ -23,14 +23,15 @@ import report.AttributeIndex;
 import report.Report;
 
 public class SummaryGUI extends BorderPane {
-	private ObservableList<Report> observableList = null;
+	private List<Report> observableList = null;
 
 	private DoubleBinding bindingX = widthProperty().divide(14);
 	private DoubleBinding bindingY = heightProperty().divide(14);
 	private Line []selectors = {new Line(),new Line(),new Line(),new Line()};
 	private Line []selectorsJoiner = {new Line(),new Line(),new Line()};
 	float selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
-	
+	boolean hideShade = true;
+	boolean hideSelector = true;
 	
 	public float[][] getSelectorsLoc() {
 		return selectorsLoc;
@@ -78,7 +79,7 @@ public class SummaryGUI extends BorderPane {
 			selectorsJoiner[i].getStrokeDashArray().addAll(2d);
 		}
 	}
-	public void setObservableList(ObservableList<Report> observableList) {
+	public void setReportList(List<Report> observableList) {
 		this.observableList = observableList;
 		loadGraphic();
 	}
@@ -98,7 +99,8 @@ public class SummaryGUI extends BorderPane {
 		border.setStrokeWidth(1);
         this.getChildren().addAll(border);
 
-		ObjectExpression<Font> fontTracking = Bindings.createObjectBinding(() -> Font.font(null,FontWeight.BOLD,getWidth()/28), widthProperty()) ;
+        ObjectExpression<Font> fontTracking = Bindings.createObjectBinding(() -> Font.font(null,FontWeight.NORMAL,getWidth()/28), widthProperty()) ;
+        ObjectExpression<Font> fontTrackingBold = Bindings.createObjectBinding(() -> Font.font(null,FontWeight.BOLD,getWidth()/28), widthProperty()) ;
         
 
         String yLabel[] = {"11","9","7","5","3","1","1","3","5","7","9","11"};
@@ -109,7 +111,7 @@ public class SummaryGUI extends BorderPane {
         	//draw labelY
             Text textYLabel = new Text(yLabel[j]);
             textYLabel.setTextAlignment(TextAlignment.CENTER);
-            textYLabel.fontProperty().bind(fontTracking);
+            textYLabel.fontProperty().bind(fontTrackingBold);
             textYLabel.xProperty().bind(bindingX.multiply(j+1));
             textYLabel.wrappingWidthProperty().bind(bindingX);
             textYLabel.yProperty().bind(bindingY.multiply(1.4));
@@ -156,22 +158,27 @@ public class SummaryGUI extends BorderPane {
                 }
                 totalCount=totalCount+indices[i][j];
         	}
+        	
+        	
         	for(int j=0;j<12;j++){
                 Text textIndex = new Text(indices[i][j]+"");
                 textIndex.setTextAlignment(TextAlignment.CENTER);
                 textIndex.fontProperty().bind(fontTracking);
                 if(indices[i][j]==highestIndices[i] || (((float)indices[i][j]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f){
-                	textIndex.setFill(Color.WHITE);
-                	Color shading = Color.web("0x333333");
-                	if((((float)indices[i][j]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f&&indices[i][j]!=highestIndices[i]){
-                		shading = Color.web("0x888888");
-                	}
-                	Stop[] stops = new Stop[] { 
-                            new Stop(0, (j!=0&&indices[i][j]==indices[i][j-1])?shading:((j!=0&&(((float)indices[i][j-1]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f)?Color.web("0x888888"):Color.TRANSPARENT) ), 
-                            new Stop(0.4, shading), 
-                            new Stop(0.6, shading), 
-                            new Stop(1, (j!=11&&indices[i][j]==indices[i][j+1])?shading:((j!=11&&(((float)indices[i][j+1]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f)?Color.web("0x888888"):Color.TRANSPARENT) )};
-                    LinearGradient linearGradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+                	LinearGradient linearGradient = null;
+                   	if(!hideShade){
+                		textIndex.setFill(Color.WHITE);
+                		Color shading = Color.web("0x333333");
+	                	if((((float)indices[i][j]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f&&indices[i][j]!=highestIndices[i]){
+	                		shading = Color.web("0x888888");
+	                	}
+	                	Stop[] stops = new Stop[] { 
+	                            new Stop(0, (j!=0&&indices[i][j]==indices[i][j-1])?shading:((j!=0&&(((float)indices[i][j-1]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f)?Color.web("0x888888"):Color.TRANSPARENT) ), 
+	                            new Stop(0.4, shading), 
+	                            new Stop(0.6, shading), 
+	                            new Stop(1, (j!=11&&indices[i][j]==indices[i][j+1])?shading:((j!=11&&(((float)indices[i][j+1]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f)?Color.web("0x888888"):Color.TRANSPARENT) )};
+	                    linearGradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+                   	}
                     Rectangle rect1 = new Rectangle();
                     rect1.setStroke(linearGradient);
                     rect1.xProperty().bind(bindingX.multiply(j+1));
@@ -221,6 +228,9 @@ public class SummaryGUI extends BorderPane {
 		setSelectorJoiner();
 	}
 	private void setSelector(MouseEvent mouseEvent){
+		if(hideSelector){
+			return;
+		}
 		BorderPane summaryGUI = (BorderPane) mouseEvent.getSource();
 		int barMarginX=14;
 		int barMarginY=14;
@@ -262,6 +272,9 @@ public class SummaryGUI extends BorderPane {
 	}
 	
 	private void setSelector(StatMode statMode, int[][]indices){
+		if(hideSelector){
+			return;
+		}
 		for(int i =0;i<4;i++){
 			float indexLoc = -1; 
 			if(statMode.equals(StatMode.MEAN)){
@@ -280,7 +293,7 @@ public class SummaryGUI extends BorderPane {
 		setSelectorJoiner();
 	}
 	
-	private int[][] computeSummary(ObservableList<Report> observableList){
+	private int[][] computeSummary(List<Report> observableList2){
 		int indices[][]= new int[4][12];
 		for(int y = 0; y<indices.length;y++){
 			for(int x = 0; x<indices[y].length;x++){
@@ -288,7 +301,7 @@ public class SummaryGUI extends BorderPane {
 			}
 		}
 		
-		for(Report report: observableList){
+		for(Report report: observableList2){
 			if(report.getStatus().equals(Report.STATUS_COMPLETED)){
 				for(AttributeIndex ai : report.getAttributes()){
 					if(ai.getIndex()>0&&ai.getIndex()%2==1&&ai.getIndex()<=11){

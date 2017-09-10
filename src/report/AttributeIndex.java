@@ -14,8 +14,8 @@ public class AttributeIndex{
 	public final static String KEYWORD_ILS_SENSING = "Sensing";
 	public final static String KEYWORD_ILS_INTUITIVE = "Intuitive";
 	public final static String KEYWORD_ILS_VISUAL = "Visual";
-	public final static String KEYWORD_ILS_VERBAL = "Verbal";
-	public final static String KEYWORD_ILS_SEQUENTIAL = "Sequential";
+	public final static String KEYWORD_ILS_VERBAL = "Verbal";//B
+	public final static String KEYWORD_ILS_SEQUENTIAL = "Sequential";//Q
 	public final static String KEYWORD_ILS_GLOBAL = "Global";
 	
 	public final static String[]LEFT_ILS_INDEX = {KEYWORD_ILS_ACTIVE,KEYWORD_ILS_SENSING,KEYWORD_ILS_VISUAL,KEYWORD_ILS_SEQUENTIAL};
@@ -52,5 +52,40 @@ public class AttributeIndex{
 				return attribute.substring(0, 1);
 			}
 		}
+	}
+	
+	public static AttributeIndex getAttributeFromInitial(char c,int index){
+		String attribute = null;
+		switch (c){
+		case 'A':
+			attribute = KEYWORD_ILS_ACTIVE;
+			break;
+		case 'R':
+			attribute = KEYWORD_ILS_REFLECTIVE;
+			break;
+		case 'S':
+			attribute = KEYWORD_ILS_SENSING;
+			break;
+		case 'I':
+			attribute = KEYWORD_ILS_INTUITIVE;
+			break;
+		case 'V':
+			attribute = KEYWORD_ILS_VISUAL;
+			break;
+		case 'B':
+			attribute = KEYWORD_ILS_VERBAL;
+			break;
+		case 'Q':
+			attribute = KEYWORD_ILS_SEQUENTIAL;
+			break;
+		case 'G':
+			attribute = KEYWORD_ILS_GLOBAL;
+			break;
+		}
+		
+		if(attribute==null)
+			return null;
+		
+		return  new AttributeIndex(attribute,index);
 	}
 }

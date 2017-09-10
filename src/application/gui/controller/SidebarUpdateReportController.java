@@ -55,8 +55,8 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 	private TextField textfield_ILS_Global;
 	@FXML
 	private Label filename_label;
-	ChangeListener indexChangeListeners[] = new ChangeListener[8];
-	ChangeListener<String> nameChangeListeners = null;
+	private ChangeListener indexChangeListeners[] = new ChangeListener[8];
+	private ChangeListener<String> nameChangeListeners = null;
 	
 	public SidebarUpdateReportController() {
 		 addReportProcessListener();
@@ -69,18 +69,17 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 		if(report.getAuthor_name()==null||!report.getAuthor_name().equals(textfield_name.getText())){
 			textfield_name.setText(report.getAuthor_name());
 		}
-		if(nameChangeListeners!=null)
+		if(nameChangeListeners!=null){
 			textfield_name.textProperty().removeListener(nameChangeListeners);
+		}
 		nameChangeListeners = new ChangeListener<String>() {
 			@Override
 			public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 				report.setAuthor_name(newValue);
-				if(!report.validateData()){
-		    		report.setStatus(Report.STATUS_FAILED);
-				}else{
-					report.setStatus(Report.STATUS_COMPLETED);
-				}
+				validate_form(report);
+				verify_data(report);
 			}
+			
 		};
 		textfield_name.textProperty().addListener(nameChangeListeners);
 		TextField attributesTextField[] = {textfield_ILS_Active,
@@ -91,7 +90,6 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 				textfield_ILS_Intuitive,
 				textfield_ILS_Verbal,
 				textfield_ILS_Global};
-		
 		String attributesName[] = {AttributeIndex.KEYWORD_ILS_ACTIVE,
 				AttributeIndex.KEYWORD_ILS_SENSING,
 				AttributeIndex.KEYWORD_ILS_VISUAL,
@@ -110,11 +108,12 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 			indexChangeListeners[i] = new ChangeListener<String>() {
 				@Override
 				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
-
 					try{
 						newValue = newValue.replaceAll("[^\\d.]", "");
 						if(!newValue.equals("11")){
-							newValue=newValue.charAt(newValue.length()-1)+"";
+							newValue=newValue.replaceAll("0", "");
+							if(newValue.length()>0)
+								newValue=newValue.charAt(0)+"";
 						}
 						if(newValue.length()==0||Integer.parseInt(newValue)<0||Integer.parseInt(newValue)%2==0||Integer.parseInt(newValue)>11){
 							newValue="0";
@@ -172,32 +171,9 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 							if(attributeIndex.getIndex()!=0){
 								ai.setIndex(0);
 							}
+							validate_form(report);
+							verify_data(report);
 							
-							/*
-							if(!newValue.equals("0")){
-								if(!oppositeTextField.getText().equals("0")){
-									oppositeTextField.setText("0");
-								}
-							}
-							if(!changedTextField.getText().equals(newValue)){
-								changedTextField.setText(newValue);
-							}*/
-							
-
-					    	if(!report.validateData()){
-					    		report.setStatus(Report.STATUS_NOT_PROCESSED);
-							}else{
-								report.setStatus(Report.STATUS_COMPLETED);
-							}
-							
-							/*
-							if(ai!=null){
-								if(ai.getIndex()>0){
-									ai.setIndex(0);
-									setReport(report);
-								}
-							}*/
-						//}
 					}catch(Exception ex){
 						System.out.println(ex.getMessage());
 					}
@@ -209,8 +185,54 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 		if(combobox_status.getSelectionModel().getSelectedIndex()<0){	
 			combobox_status.setValue(report.STATUS_NOT_PROCESSED);
 		}
+		validate_form(report);
 	}
 
+	public void verify_data(Report report){
+		if(!report.validateData()){
+			if(!report.getStatus().equals(Report.STATUS_FAILED)&&!report.getStatus().equals(Report.STATUS_NOT_FOUND)){
+				report.setStatus(Report.STATUS_NOT_PROCESSED);
+			}else{
+				report.setStatus(report.getStatus());
+			}
+		}else{
+			report.setStatus(Report.STATUS_COMPLETED);
+		}
+	}
+	
+	public void validate_form(Report report){
+		String invalid = "invalid";
+		String zero_input = "zero_input";
+		String valid = "valid";
+		String classes []= {invalid,valid,zero_input};
+		textfield_name.getStyleClass().removeAll(classes);
+		if(textfield_name.getText()==null||textfield_name.getText().length()==0){
+            textfield_name.getStyleClass().add(invalid); 
+		}else{
+            textfield_name.getStyleClass().add(valid); 
+		}
+		TextField attributesTextField[] = {textfield_ILS_Active,	textfield_ILS_Sensing,	textfield_ILS_Visual,	textfield_ILS_Sequential,		textfield_ILS_Reflective,	textfield_ILS_Intuitive,	textfield_ILS_Verbal,textfield_ILS_Global};
+		for(int i =0;i<4;i++){
+			TextField tf1 = attributesTextField[i];
+			TextField tf2 = attributesTextField[i+4];
+			tf1.getStyleClass().removeAll(classes);
+			tf2.getStyleClass().removeAll(classes);
+			tf1.getStyleClass().add(zero_input);
+			tf2.getStyleClass().add(zero_input);
+			if(((tf1.getText().equals("0") && tf2.getText().equals("0")) ||( !tf1.getText().equals("0") && !tf2.getText().equals("0")))){
+				tf1.getStyleClass().add(invalid); 
+				tf2.getStyleClass().add(invalid); 
+			}else{
+				if(!tf1.getText().equals("0")){
+					tf1.getStyleClass().add(valid); 
+				}
+				if(!tf2.getText().equals("0")){
+					tf2.getStyleClass().add(valid); 
+				}
+			}
+		}
+	}
+	
 	@FXML
 	public void onComboBoxSelectedChange(){
 		if(combobox_status.getValue()!=null){
@@ -225,14 +247,9 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		combobox_status.getItems().add(Report.STATUS_COMPLETED);
 		combobox_status.getItems().add(Report.STATUS_NOT_PROCESSED);
-		combobox_status.getItems().add(Report.STATUS_INVALID_FILE);
+		combobox_status.getItems().add(Report.STATUS_FAILED);
 	}
 
-	@FXML
-	public void closeSidebar(){
-		new SidebarLoader((BorderPane) updateReportPane.getParent(), null);
-	}
-	
 	@FXML
 	public void openFile(){
         FileUtility.openFile(report.getPath());

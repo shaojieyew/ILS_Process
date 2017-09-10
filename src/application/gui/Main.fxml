@@ -17,19 +17,19 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="870.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.MainController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="559.0" prefWidth="1102.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.MainController">
    <padding>
-      <Insets bottom="30.0" left="20.0" right="20.0" />
+      <Insets bottom="35.0" left="20.0" right="20.0" />
    </padding>
    <bottom>
-      <VBox prefHeight="129.0" prefWidth="760.0" BorderPane.alignment="CENTER">
+      <VBox prefHeight="130.0" prefWidth="1062.0" BorderPane.alignment="CENTER">
          <children>
-            <GridPane hgap="5.0" vgap="5.0">
+            <GridPane hgap="5.0" prefHeight="107.0" prefWidth="1062.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints />
@@ -47,9 +47,9 @@
                      <font>
                         <Font size="13.0" />
                      </font></Label>
-                  <Button fx:id="startBtn" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startProcess" prefHeight="14.0" prefWidth="68.0" text="Start Process" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                  <Button fx:id="startBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startProcess" prefHeight="14.0" prefWidth="68.0" text="Start Process" textAlignment="CENTER" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1" />
                   <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onImportExcel" text="Import Excel" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNewExcel" text="New Excel" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNewExcel" prefWidth="151.0" text="New Excel" GridPane.columnIndex="3" GridPane.rowIndex="2" />
                   <TextField fx:id="textField_outputFile" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="2" />
                </children>
                <padding>
@@ -60,8 +60,8 @@
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
               </columnConstraints>
                <children>
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openImportedFile" text="Open Excel" GridPane.columnIndex="2" />
@@ -71,7 +71,7 @@
                </GridPane.margin>
             </ComboBox>
                   <Label prefHeight="17.0" prefWidth="84.0" text="Select Sheet: " GridPane.halignment="RIGHT" />
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" text="View Statistic" GridPane.columnIndex="3" />
+                  <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" text="View Summary" GridPane.columnIndex="3" />
                </children>
                <VBox.margin>
                   <Insets />
@@ -82,12 +82,15 @@
                <padding>
                   <Insets top="5.0" />
                </padding>
+               <opaqueInsets>
+                  <Insets />
+               </opaqueInsets>
             </GridPane>
             <GridPane hgap="5.0" vgap="5.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints />
@@ -117,9 +120,9 @@
       </VBox>
    </bottom>
    <center>
-      <TableView fx:id="tableview" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" BorderPane.alignment="CENTER">
+      <TableView fx:id="tableview" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-radius: 5; -fx-border-width: 1; -fx-border-color: #cccccc; -fx-background-color: #ffffff;" styleClass="box" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn prefWidth="162.0" sortable="true" text="Name">
+          <TableColumn prefWidth="162.0" sortable="true" style="-fx-border-radius: 4;" text="Name">
 	         <cellValueFactory><PropertyValueFactory property="fileName" />
 	         </cellValueFactory>
 	          </TableColumn>
@@ -131,7 +134,7 @@
 	         <cellValueFactory><PropertyValueFactory property="status" />
 	         </cellValueFactory>
 	          </TableColumn>
-	          <TableColumn prefWidth="427.0" sortable="false" text="Path">
+	          <TableColumn prefWidth="430.0" sortable="false" text="Path">
 	         <cellValueFactory><PropertyValueFactory property="path" />
 	         </cellValueFactory>
 	          </TableColumn>

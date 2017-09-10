@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
 
@@ -67,20 +68,20 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	
 	private SummaryGUI summary_graphic = new SummaryGUI();
 	
-	private ObservableList<Report> observableList;
+	private List<Report> reportList;
 	
 	public SidebarSummaryController() {
 		 addReportProcessListener();
 	}
 
-	public void setReportList(ObservableList<Report> observableList) {
-		this.observableList= observableList;
+	public void setReportList(List<Report> reportList) {
+		this.reportList= reportList;
 		//String summary = "";
-		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND,Report.STATUS_INVALID_FILE};
-		int countStatus[] = {0,0,0,0,0,0};
+		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND};
+		int countStatus[] = {0,0,0,0,0};
 
-		if(observableList!=null){
-			for(Report r: observableList){
+		if(reportList!=null){
+			for(Report r: reportList){
 				if(r.getStatus().equals(Report.STATUS_COMPLETED)){
 					countStatus[2]++;
 				}
@@ -96,38 +97,39 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 				if(r.getStatus().equals(Report.STATUS_IN_PROCESSING)){
 					countStatus[1]++;
 				}
-				if(r.getStatus().equals(Report.STATUS_INVALID_FILE)){
-					countStatus[5]++;
+			}
+		}
+		
+
+		if(reportList instanceof ObservableList){
+			label_summary.getChildren().clear();
+			for(int i=0;i<countStatus.length;i++){
+				if(countStatus[i]>0){
+					Text text1=new Text(status[i]+": "+ countStatus[i]+"\n");
+					text1.setFill(Color.BLACK);
+					if(status[i].equals(Report.STATUS_COMPLETED)){
+						text1.setStyle("-fx-font-weight: bold");
+						text1.setFill(Color.GREEN);
+					}
+					if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)){
+						text1.setStyle("-fx-font-weight: bold");
+						text1.setFill(Color.RED);
+					}
+					
+		            label_summary.getChildren().addAll(text1);
 				}
 			}
 		}
 		
-		label_summary.getChildren().clear();
-		for(int i=0;i<countStatus.length;i++){
-			if(countStatus[i]>0){
-				Text text1=new Text(status[i]+": "+ countStatus[i]+"\n");
-				text1.setFill(Color.BLACK);
-				if(status[i].equals(Report.STATUS_COMPLETED)){
-					text1.setStyle("-fx-font-weight: bold");
-					text1.setFill(Color.GREEN);
-				}
-				if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)||status[i].equals(Report.STATUS_INVALID_FILE)){
-					text1.setStyle("-fx-font-weight: bold");
-					text1.setFill(Color.RED);
-				}
-				
-	            label_summary.getChildren().addAll(text1);
-			}
-		}
 		label_summary1.getChildren().clear();
-		if(observableList!=null){
-			Text text2=new Text("Total ILS Report: "+ observableList.size());
+		if(reportList!=null){
+			Text text2=new Text("Total ILS Report: "+ reportList.size());
 			label_summary1.getChildren().addAll(text2);
 		}
 		
 
 		 //Filled rectangle
-		summary_graphic.setObservableList(observableList);
+		summary_graphic.setReportList(reportList);
         borderPane_graphic.setCenter(summary_graphic);
 	}
 	
@@ -135,10 +137,6 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void initialize(URL arg0, ResourceBundle arg1) {
 	}
 	
-	@FXML
-	public void closeSidebar(){
-		new SidebarLoader((BorderPane) summaryPane.getParent(), null);
-	}
 	@FXML
 	public void onclick_mean(){
 		summary_graphic.setStatMode(StatMode.MEAN);
@@ -154,7 +152,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void onclick_save(){
 		BorderPane bp = new BorderPane();
 		SummaryGUI summaryGUI = new SummaryGUI();
-		summaryGUI.setObservableList(observableList);
+		summaryGUI.setReportList(reportList);
 		summaryGUI.setSelectorsLoc(summary_graphic.getSelectorsLoc());
 		bp.setCenter(summaryGUI);
 		Scene scene2 = new Scene(bp, 800, 500);
@@ -183,20 +181,21 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	static  Semaphore mutex = new Semaphore(1);
 	@Override
 	public void onUpdateReport(ReportObservable reportObservable) {
-
-		Platform.runLater(new Runnable() {
-             @Override 
-             public void run() {
-            	 try {
-					mutex.acquire();
-					setReportList(observableList);
-	            	mutex.release();
-				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-             }
-		});
+		if(reportList instanceof ObservableList){
+			Platform.runLater(new Runnable() {
+	             @Override 
+	             public void run() {
+	            	 try {
+						mutex.acquire();
+						setReportList(reportList);
+		            	mutex.release();
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+	             }
+			});
+		}
 	}
 
 	@Override

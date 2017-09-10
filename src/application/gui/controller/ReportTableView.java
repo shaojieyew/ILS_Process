@@ -35,7 +35,6 @@ public  class ReportTableView implements InputChangeListener{
 	public ReportTableView(TableView<Report> inTableview){
 		addListener(InputConfiguration.LISTEN_InputDirectory);
         tableview = inTableview;
-        
 		/*
 		TableColumn col_action = new TableColumn<>("Edit");
 		tableview.getColumns().add(3,col_action);
@@ -85,10 +84,12 @@ public  class ReportTableView implements InputChangeListener{
 		            } else {
 		                row = (TableRow) node.getParent();
 		            }
-		            Report report = (Report) row.getItem();
-		            if(report!=null){
-		            	//new SidebarUpdateReportLoader((BorderPane) tableview.getParent(),report);
-		          
+		            if(row!=null){
+			            Report report = (Report) row.getItem();
+			            if(report!=null){
+			            	new SidebarUpdateReportLoader((BorderPane) tableview.getParent(),report);
+			          
+			            }
 		            }
 		        }
 		     
@@ -116,9 +117,6 @@ public  class ReportTableView implements InputChangeListener{
 			            this.getStyleClass().add("fail"); 
 			        	break;
 			        case Report.STATUS_NOT_FOUND:
-			            this.getStyleClass().add("fail"); 
-			        	break;
-			        case Report.STATUS_INVALID_FILE:
 			            this.getStyleClass().add("fail"); 
 			        	break;
 			        default:

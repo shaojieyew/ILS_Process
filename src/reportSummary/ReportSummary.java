@@ -9,4 +9,5 @@ public interface  ReportSummary {
 
 	public void process(ObservableList<Report> reports);
 	public  boolean save(File destFile);
+	public boolean verify();
 }
