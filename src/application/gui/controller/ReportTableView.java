@@ -170,7 +170,11 @@ public  class ReportTableView implements InputChangeListener{
             	if(oldReport.getPath().equals(report.getPath())){
             		report.setAttributes(oldReport.getAttributes());
             		report.setAuthor_name(oldReport.getAuthor_name());
-            		report.setStatus(oldReport.getStatus());
+            		if(oldReport.getStatus().equals(Report.STATUS_NOT_FOUND)){
+                		report.setStatus(Report.STATUS_NOT_PROCESSED);
+            		}else{
+                		report.setStatus(oldReport.getStatus());
+            		}
             		backup.remove(oldReport);
             		break;
             	}

@@ -4,6 +4,7 @@ public abstract class DebugClass {
 	private static boolean debug=false;
 
 	public static boolean isDebug() {
+		//return true;
 		return debug;
 	}
 

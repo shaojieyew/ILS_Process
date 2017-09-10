@@ -473,7 +473,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		String movedToDir = "";
 		ObservableList<Report> data = tableview.getItems();
 		for(Report report : data){
-			if(report.getStatus().equals(Report.STATUS_INVALID_FILE)){
+			if(report.getStatus().equals(Report.STATUS_INVALID_FILE)||report.getStatus().equals(Report.STATUS_FAILED)){
 				  File afile =new File(report.getPath());
 				  movedToDir = afile.getParent()+"\\"+formattedDate+"_INVALID_FILE";
 				  FileUtility.moveFiles(afile, movedToDir);
