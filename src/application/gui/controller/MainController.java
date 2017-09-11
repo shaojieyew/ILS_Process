@@ -7,6 +7,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.URL;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
@@ -46,7 +47,10 @@ import reportProcessor.MainDataExtractProcessor;
 import reportProcessor.Processor;
 import reportProcessor.ProcessorListener;
 import reportProcessor.SummaryProcessor;
+import reportSummary.ReportSummary;
 import reportSummary.ReportSummaryFactory;
+import reportSummary.reader.ReportSummaryReader;
+import reportSummary.reader.ReportSummaryReaderFactory;
 import util.AppDialog;
 import util.FileUtility;
 import util.FilesChooser;
@@ -83,10 +87,16 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	private Button importBtn;
 	@FXML
+	private Button importedSummaryBtn;
+	
+	@FXML
 	private ComboBox<String> comboBoxSheets;
 
 	public static final String defaultFileName = "ILS-Result";
-	
+	private static final Semaphore lockStatCounter = new Semaphore(1);
+	public int completedCount = 0;
+	public int failedCount = 0;
+	public int inProcessCount = 0;
 	public MainDataExtractProcessor mainProcessor;
 
 	public String getImportedFile() {
@@ -352,11 +362,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		ReportObservable.unlistenToChange(this);
 	}
 
-	private static final Semaphore lockStatCounter = new Semaphore(1);
-	
-	public int completedCount = 0;
-	public int failedCount = 0;
-	public int inProcessCount = 0;
 	@Override
 	public void onUpdateReport(ReportObservable reportObservable) {
 		try {
@@ -375,7 +380,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			if((Report.STATUS_COMPLETED).equals(r.getStatus())){
 				completedCount++;
 			}
-			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())||(Report.STATUS_INVALID_FILE).equals(r.getStatus())){
+			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())){
 				failedCount++;
 			}
 		}
@@ -454,18 +459,39 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void viewImportedFileStatistic(){
+		if(true){
+			return;
+		}
 		if(getImportedFile()!=null&&getImportedFile().length()>0){
-		     SummaryGUI summaryGUI = new SummaryGUI();
-		     summaryGUI.setObservableList(tableview.getItems());
-			 BorderPane bp = new BorderPane();
-			 bp.setCenter(summaryGUI);
-			 bp.setMaxWidth(100);
-			 bp.setMaxHeight(100);
-			 Scene scene2 = new Scene(bp, 400, 550);
-			 Stage stage = new Stage();
-			 stage.setTitle("Statistic");
-			 stage.setScene(scene2);
-			 stage.show();
+			FileInputStream fis;
+			try {
+				if(new File(getImportedFile()).exists()){
+					fis = new FileInputStream(getImportedFile());
+					String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
+					XSSFWorkbook book = new XSSFWorkbook(fis); 
+					XSSFSheet sheet = book.getSheet(sheetName);
+					ReportSummaryReader reader =ReportSummaryReaderFactory.createInstance(sheet);
+					if(reader!=null){
+						ReportSummary summary =ReportSummaryFactory.createInstance(sheet);
+						if(summary.verify()){
+							
+							ArrayList<Report> reports = reader.read();
+							new SidebarSummaryLoader(rootPane,reports, "Excel Sheet Summary ("+sheetName+")");
+							 
+						}else{
+							AppDialog.alert("Error", "Invalid file format");
+						}
+					}else{
+						AppDialog.alert("Error", "Invalid file format");
+					}
+				}else{
+					AppDialog.alert("Error", "File does not exist");
+				}
+			} catch ( IOException e) {
+				e.printStackTrace();
+			} 
+		}else{
+			AppDialog.alert("Error", "File does not exist");
 		}
 	}
 	@FXML
@@ -477,11 +503,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void viewSummary(){
-		//new SidebarSummaryLoader(rootPane, tableview.getItems());
+		//new SidebarSummaryLoader(rootPane, tableview.getItems(), "Processed Data Summary");
 	}
 	@FXML
 	public void refreshList(){	
 		InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
+		rootPane.setRight(null);
 	}
 	@FXML
 	public void removeInvalidFile(){
@@ -491,7 +518,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		String movedToDir = "";
 		ObservableList<Report> data = tableview.getItems();
 		for(Report report : data){
-			if(report.getStatus().equals(Report.STATUS_INVALID_FILE)){
+			if(report.getStatus().equals(Report.STATUS_FAILED)){
 				  File afile =new File(report.getPath());
 				  movedToDir = afile.getParent()+"\\"+formattedDate+"_INVALID_FILE";
 				  FileUtility.moveFiles(afile, movedToDir);
@@ -547,12 +574,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				XSSFWorkbook book = new XSSFWorkbook(fis); 
 				int totalSheet = book.getNumberOfSheets();
 				
+				importedSummaryBtn.setVisible(false);
 				String selectedsheet="";
 				if(comboBoxSheets.getValue()!=null){
 					if(comboBoxSheets.getSelectionModel().getSelectedIndex()>0){	
 						selectedsheet=comboBoxSheets.getValue();
 					}
 					InputConfiguration.getInstance().setReportSummaryFile_sheet(selectedsheet);
+					importedSummaryBtn.setVisible(true);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();

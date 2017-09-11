@@ -14,11 +14,36 @@
    -fx-background-color: #cccccc;
 }
 .complete{
+   -fx-dark-text-color: #000000;
+   -fx-mid-text-color: #000000;
+   -fx-light-text-color: #000000;
+   -fx-background-color: #8CDB8C;
+}
+.zero_input{
+   -fx-dark-text-color: #aaaaaa;
+   -fx-mid-text-color: #aaaaaa;
+   -fx-light-text-color: #aaaaaa;
+}
+.valid{
    -fx-dark-text-color: #005500;
    -fx-mid-text-color: #005500;
    -fx-light-text-color: #005500;
-   -fx-background-color: #99cc99;
+   -fx-background-color: #96FF9B;
+}
+.invalid{
+   -fx-dark-text-color: #880000;
+   -fx-mid-text-color: #880000;
+   -fx-light-text-color: #880000;
+   -fx-background-color: #FFB9B7;
 }
 .rowStyleSelected:filled:selected { 
   -fx-font-weight:bold;
+  -fx-border-color: #000000;
+	
+  -fx-border-width: 1;
+
+	
+  -fx-border-radius: 4;
+
+	
 }

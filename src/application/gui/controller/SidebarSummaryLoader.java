@@ -2,6 +2,7 @@ package application.gui.controller;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 import application.MainApplication;
@@ -13,14 +14,14 @@ import javafx.scene.Parent;
 import javafx.scene.layout.BorderPane;
 import report.Report;
 
-public class SidebarSummaryLoader extends SidebarLoader   {
+public class SidebarSummaryLoader extends SidebarContentLoader   {
 
-	public SidebarSummaryLoader(Parent parent, ObservableList<Report> observableList) {
-		super((BorderPane) parent,getSidePane(observableList));
+	public SidebarSummaryLoader(Parent parent, List<Report> observableList, String title) {
+		super((BorderPane) parent,getSidePane(observableList),title);
 		//report.setStatus(Report.STATUS_COMPLETED);
 	}
 	
-	private static BorderPane getSidePane(ObservableList<Report> observableList){
+	private static BorderPane getSidePane(List<Report> observableList){
 		 FXMLLoader sidebarLoader = new FXMLLoader();
 		 BorderPane sidebar =null;
 	     sidebarLoader.setLocation(MainApplication.class.getResource("gui/SidebarSummary.fxml"));

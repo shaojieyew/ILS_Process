@@ -17,7 +17,6 @@ public class Report extends ReportObservable{
 	public static  final  String STATUS_COMPLETED = "Completed";
 	public static  final  String STATUS_FAILED = "Failed";
 	public static  final  String STATUS_NOT_FOUND = "Not Found";
-	public static  final  String STATUS_INVALID_FILE = "Invalid File";
 	
 	private final SimpleStringProperty fileName = new SimpleStringProperty("");
 	private final SimpleStringProperty fileType = new SimpleStringProperty("");
@@ -26,6 +25,12 @@ public class Report extends ReportObservable{
 	private String author_name;
 	private List<AttributeIndex> attributes = new ArrayList<AttributeIndex>();
 
+	public Report(String author,ArrayList<AttributeIndex> att,  String status) {
+		author_name= author;
+		attributes = att;
+		this.status.set(status);
+    }
+	
 	public Report(String fName,String fType, String fpath) {
         fileName.set(fName);
     	fileType.set(fType);

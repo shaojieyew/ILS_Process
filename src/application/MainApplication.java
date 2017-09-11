@@ -23,8 +23,7 @@ import javafx.scene.layout.VBox;
 
 
 public class MainApplication extends Application {
-	@Override
-	public void start(Stage stage) {
+	public void loadLibrary(){
 		String jvmBit="";
 		String opencv_lib_path= "";
         jvmBit = System.getProperty("sun.arch.data.model");
@@ -43,7 +42,12 @@ public class MainApplication extends Application {
         }else{
         	AppDialog.criticalErrorAndExit("Missing opencv_java320.dll", "Ensure opencv_java320.dll is in \n"+opencv_lib_path);
         }
-		
+	}
+	
+	
+	@Override
+	public void start(Stage stage) {
+		loadLibrary();
 		try {
 
 			//Load FXML Main.fxml and setup controller of FXML
@@ -57,6 +61,8 @@ public class MainApplication extends Application {
 			//Setup CSS Style for the FXML
 			Scene scene = new Scene(mainLayout);
 			scene.getStylesheets().add(MainApplication.class.getResource("gui/application.css").toExternalForm());
+			scene.getStylesheets().add(MainApplication.class.getResource("gui/bootstrap.css").toExternalForm());
+		
 			stage.setScene(scene);
 			stage.setTitle("ILS Process App");
 			//Show the stage; application window

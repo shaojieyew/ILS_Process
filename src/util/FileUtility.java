@@ -82,6 +82,9 @@ public class FileUtility {
 
 	public static boolean makeFolder(String filename){
 		  File dir = new File(filename);
+		  if(dir.exists()){
+			  return true;
+		  }
 		  return dir.mkdir();
 	}
 	
