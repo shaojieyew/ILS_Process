@@ -68,7 +68,7 @@ public  class ReportTableView implements InputChangeListener{
 		            TableRow row;
 		            if (node instanceof TableRow) {
 		                row = (TableRow) node;
-		            } else {
+		            } else { 
 		                row = (TableRow) node.getParent();
 		            }
 		            Report report = (Report) row.getItem();

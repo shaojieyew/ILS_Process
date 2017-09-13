@@ -163,6 +163,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	//process the list of reports in the tableview
 	@FXML
 	public void startProcess(){
+		new SidebarContentLoader(rootPane,null,"");
 		int result = 1;
 		boolean rerunProcess=false;
 		if(completedCount>0){

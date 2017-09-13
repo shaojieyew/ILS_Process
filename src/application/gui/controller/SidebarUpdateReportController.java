@@ -224,10 +224,20 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 				tf2.getStyleClass().add(invalid); 
 			}else{
 				if(!tf1.getText().equals("0")){
-					tf1.getStyleClass().add(valid); 
+					int index = Integer.parseInt(tf1.getText());
+					if(index%2!=1||index>11||index<0){
+						tf1.getStyleClass().add(invalid); 
+					}else{
+						tf1.getStyleClass().add(valid); 
+					}
 				}
 				if(!tf2.getText().equals("0")){
-					tf2.getStyleClass().add(valid); 
+					int index = Integer.parseInt(tf2.getText());
+					if(index%2!=1||index>11||index<0){
+						tf2.getStyleClass().add(invalid); 
+					}else{
+						tf2.getStyleClass().add(valid); 
+					}
 				}
 			}
 		}
