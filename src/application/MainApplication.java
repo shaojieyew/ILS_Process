@@ -38,7 +38,7 @@ public class MainApplication extends Application {
         File varTmpDir = new File(opencv_lib_path);
         boolean exists = varTmpDir.exists();
         if(exists){
-            System.load(opencv_lib_path);
+            System.load(opencv_lib_path); 
         }else{
         	AppDialog.criticalErrorAndExit("Missing opencv_java320.dll", "Ensure opencv_java320.dll is in \n"+opencv_lib_path);
         }

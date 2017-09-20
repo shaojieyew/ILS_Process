@@ -460,9 +460,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void viewImportedFileStatistic(){
-		if(true){
-			return;
-		}
+		//if(true){
+		//	return;
+		//}
 		if(getImportedFile()!=null&&getImportedFile().length()>0){
 			FileInputStream fis;
 			try {
@@ -504,7 +504,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void viewSummary(){
-		//new SidebarSummaryLoader(rootPane, tableview.getItems(), "Processed Data Summary");
+		new SidebarSummaryLoader(rootPane, tableview.getItems(), "Processed Data Summary");
 	}
 	@FXML
 	public void refreshList(){	

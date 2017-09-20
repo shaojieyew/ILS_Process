@@ -2,6 +2,7 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -25,7 +26,7 @@
          <children>
             <BorderPane fx:id="borderPane_graphic" prefHeight="211.0" prefWidth="350.0" GridPane.columnSpan="2147483647">
                <top>
-                  <GridPane prefHeight="28.0" prefWidth="266.0" BorderPane.alignment="CENTER">
+                  <GridPane prefHeight="52.0" prefWidth="293.0" BorderPane.alignment="CENTER">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="77.0" />
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="80.0" />
@@ -33,12 +34,15 @@
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="102.0" />
                     </columnConstraints>
                     <rowConstraints>
-                      <RowConstraints minHeight="10.0" prefHeight="40.0" vgrow="SOMETIMES" />
+                      <RowConstraints maxHeight="28.0" minHeight="10.0" prefHeight="21.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="18.0" minHeight="0.0" prefHeight="6.0" vgrow="SOMETIMES" />
+                        <RowConstraints maxHeight="21.0" minHeight="0.0" prefHeight="21.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
                         <Button mnemonicParsing="false" onAction="#onclick_mean" prefHeight="25.0" prefWidth="70.0" text="Mean" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
                       <Button mnemonicParsing="false" onAction="#onclick_median" prefHeight="25.0" prefWidth="70.0" text="Median" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="32.0" prefWidth="102.0" text="Save Image" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="108.0" prefWidth="104.0" text="Save Image" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Slider fx:id="thresholdSlider" max="1.0"  prefHeight="10.0" prefWidth="285.0" value="0.75" GridPane.columnSpan="2147483647" GridPane.rowIndex="2" />
                      </children>
                      <BorderPane.margin>
                         <Insets left="35.0" right="35.0" />

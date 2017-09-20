@@ -33,6 +33,7 @@ import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
+import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
@@ -59,6 +60,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	
 	@FXML
 	private BorderPane summaryPane;
+	@FXML
+	private Slider thresholdSlider;
 	@FXML
 	private TextFlow label_summary;
 	@FXML
@@ -135,6 +138,10 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	
 	@Override
 	public void initialize(URL arg0, ResourceBundle arg1) {
+		thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            summary_graphic.setShadingThreshold((float) thresholdSlider.getValue());
+            
+        });
 	}
 	
 	@FXML
@@ -146,6 +153,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void onclick_median(){
 		summary_graphic.setStatMode(StatMode.MEDIAN);
 	}
+	
+	
 
 	Stage saveSummaryStage = new Stage();
 	@FXML

@@ -72,7 +72,7 @@ public class ReportSummaryExcelXSSFReader implements ReportSummaryReader{
 							ArrayList<AttributeIndex> atts = new ArrayList<AttributeIndex>();
 							for(int i =0;i<4;i++){
 								Cell attributeCell = row.getCell(bandColIndex+i);
-								if(attributeCell.getCellType()==Cell.CELL_TYPE_STRING){
+								if(attributeCell!=null&&attributeCell.getCellType()==Cell.CELL_TYPE_STRING){
 									atts.add(getAttributeFromString(attributeCell.getStringCellValue()));
 								}
 							}

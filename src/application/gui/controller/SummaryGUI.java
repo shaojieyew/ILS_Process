@@ -13,6 +13,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.LinearGradient;
 import javafx.scene.paint.Stop;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
@@ -29,14 +30,17 @@ public class SummaryGUI extends BorderPane {
 	private DoubleBinding bindingY = heightProperty().divide(14);
 	private Line []selectors = {new Line(),new Line(),new Line(),new Line()};
 	private Line []selectorsJoiner = {new Line(),new Line(),new Line()};
-	float selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
-	boolean hideShade = true;
-	boolean hideSelector = true;
+	private float selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
+	
+	private Circle []statsSelectors = {new Circle(),new Circle(),new Circle(),new Circle()};
+	private float statsSelectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
+	//private boolean hideShade = false;
+	private boolean hideSelector = true;
+	private float shadingThreshold = 0.75f;
 	
 	public float[][] getSelectorsLoc() {
 		return selectorsLoc;
 	}
-
 
 	public Line[] getSelectors() {
 		return selectors;
@@ -53,11 +57,21 @@ public class SummaryGUI extends BorderPane {
 	public enum StatMode {
 		MEAN, MEDIAN
 	}
-	private StatMode statMode = StatMode.MEDIAN;
+	private StatMode statMode = null;
 	public void setStatMode(StatMode statMode) {
-		this.statMode = statMode;
+		if(statMode.equals(this.statMode)){
+			this.statMode=null;
+		}else{
+			this.statMode = statMode;
+		}
 		loadGraphic();
 	}
+	
+	public void setShadingThreshold(float shadingThreshold) {
+		this.shadingThreshold = shadingThreshold;
+		loadGraphic();
+	}
+
 
 	public SummaryGUI(ObservableList<Report> observableList) {
 	}
@@ -70,7 +84,13 @@ public class SummaryGUI extends BorderPane {
 			selectors[i].setStrokeWidth(2);
 			selectors[i].startYProperty().bind(bindingY.multiply(1.50+(i*3)));
 			selectors[i].endYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
-			//selectors[i].setStrokeDashOffset(bindingY.get()/10);
+		}
+
+		for(int i =0;i<statsSelectors.length;i++){
+			statsSelectors[i].setFill(Color.web("0xFFA500"));
+			statsSelectors[i].setStrokeWidth(2);
+			statsSelectors[i].centerYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
+			statsSelectors[i].radiusProperty().bind(bindingY.divide(4));
 		}
 		for(int i =0;i<selectorsJoiner.length;i++){
 			selectorsJoiner[i].setStroke(Color.web("0xff0000bb"));
@@ -90,6 +110,8 @@ public class SummaryGUI extends BorderPane {
 			return;
 		int indices[][]=computeSummary(observableList);
 		int highestIndices[] = new int[4];
+		int lowestIndices[] = {Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE,Integer.MAX_VALUE};
+		int range[] = new int[4];
 		//border
 		Rectangle border = new Rectangle();
 		border.widthProperty().bind(widthProperty());
@@ -157,14 +179,80 @@ public class SummaryGUI extends BorderPane {
                 	highestIndices[i]=indices[i][j];
                 }
                 totalCount=totalCount+indices[i][j];
+                if(lowestIndices[i]>indices[i][j]){
+                	lowestIndices[i]=indices[i][j];
+                }
         	}
-        	
-        	
+        	range[i] = highestIndices[i]-lowestIndices[i];
+
         	for(int j=0;j<12;j++){
                 Text textIndex = new Text(indices[i][j]+"");
                 textIndex.setTextAlignment(TextAlignment.CENTER);
                 textIndex.fontProperty().bind(fontTracking);
-                if(indices[i][j]==highestIndices[i] || (((float)indices[i][j]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f){
+
+                float preValue = 0;
+                if(j>0)
+                	preValue = ((float)(indices[i][j-1]-lowestIndices[i]))/((float)(range[i]));
+                float value = ((float)(indices[i][j]-lowestIndices[i]))/((float)(range[i]));
+                float postValue=0;
+                if(j<11)
+                	postValue = ((float)(indices[i][j+1]-lowestIndices[i]))/((float)(range[i]));
+               
+        		Color preShading = Color.TRANSPARENT;
+        		Color mainShading = Color.TRANSPARENT;
+        		Color postShading = Color.TRANSPARENT;
+        		if(value>shadingThreshold){
+            		int shadeIntValue = Math.round(((1f-((value-shadingThreshold)/(1f-shadingThreshold)))*10+3));
+            		if(shadeIntValue<9){
+                		textIndex.setFill(Color.WHITE);
+            		}
+            		String shadeHexValue = Integer.toHexString(shadeIntValue);
+            		mainShading = Color.web("0x"+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue);
+        		}
+            	int shadeIntValue1 = 16;
+            	int shadeIntValue2 = 16;
+        		if(value>shadingThreshold){
+            			shadeIntValue1 = Math.round(((1f-((value-shadingThreshold)/(1f-shadingThreshold)))*10+3));
+            	}
+        		if(preValue>shadingThreshold){
+        				shadeIntValue2 = Math.round(((1f-((preValue-shadingThreshold)/(1f-shadingThreshold)))*10+3));
+        		}
+            	int shadeIntValue = (shadeIntValue1+shadeIntValue2)/2;
+            	String shadeHexValue;
+            	if(shadeIntValue>0&&shadeIntValue<16){
+            		shadeHexValue = Integer.toHexString(shadeIntValue);
+            		preShading = Color.web("0x"+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue);
+            	}
+            	shadeIntValue1 = 16;
+            	shadeIntValue2 = 16;
+            	if(value>shadingThreshold){
+            		shadeIntValue1 = Math.round(((1f-((value-shadingThreshold)/(1f-shadingThreshold)))*10+3));
+            	}
+            	if(postValue>shadingThreshold){
+            		shadeIntValue2 = Math.round(((1f-((postValue-shadingThreshold)/(1f-shadingThreshold)))*10+3));
+            	}
+            	shadeIntValue = (shadeIntValue1+shadeIntValue2)/2;
+            	if(shadeIntValue>0&&shadeIntValue<16){
+            		shadeHexValue = Integer.toHexString(shadeIntValue);
+            		postShading = Color.web("0x"+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue+shadeHexValue);
+            	}
+        		
+                Stop[] stops = new Stop[] { 
+                        new Stop(0,preShading), 
+                        new Stop(0.4, mainShading), 
+                        new Stop(0.6, mainShading), 
+                        new Stop(1, postShading)};
+   
+                LinearGradient linearGradient = new LinearGradient(0, 0, 1, 0, true, CycleMethod.NO_CYCLE, stops);
+                Rectangle rect1 = new Rectangle();
+                rect1.setStroke(linearGradient);
+                rect1.xProperty().bind(bindingX.multiply(j+1));
+                rect1.yProperty().bind(bindingY.multiply(posY));
+                rect1.widthProperty().bind(bindingX);
+                rect1.heightProperty().bind(bindingY.multiply(2));
+                rect1.setFill(linearGradient);
+                this.getChildren().addAll(rect1);
+                /*if(indices[i][j]==highestIndices[i] || (((float)indices[i][j]/totalCount)/((float)highestIndices[i]/totalCount))>0.9f){
                 	LinearGradient linearGradient = null;
                    	if(!hideShade){
                 		textIndex.setFill(Color.WHITE);
@@ -187,13 +275,15 @@ public class SummaryGUI extends BorderPane {
                     rect1.heightProperty().bind(bindingY.multiply(2));
                     rect1.setFill(linearGradient);
                     this.getChildren().addAll(rect1);
-                }
+                }*/
                 textIndex.xProperty().bind(bindingX.multiply(j+1));
                 textIndex.wrappingWidthProperty().bind(bindingX);
                 textIndex.yProperty().bind(bindingY.multiply(posY).add(bindingY.multiply(1.4)));
                 this.getChildren().addAll(textIndex);
         	}
         }
+       
+        /*
         this.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -212,9 +302,22 @@ public class SummaryGUI extends BorderPane {
             	setSelector(mouseEvent);
             }
         });
+        */
         setSelector(this.statMode, indices);
+        setStatsSelector(this.statMode, indices);
 	}
 
+	public void setStatsSelectorsLoc(float[][] statsSelectorsLoc) {
+		this.statsSelectorsLoc = statsSelectorsLoc;
+		for(int i =0;i<4;i++){
+			getChildren().remove(statsSelectors[i]);
+			if(statsSelectorsLoc[i][0]>=0){
+				statsSelectors[i].centerXProperty().bind(bindingX.multiply((float)statsSelectorsLoc[i][0]+statsSelectorsLoc[i][1]%1));
+				getChildren().addAll(statsSelectors[i]);
+			}
+		}
+	}
+	
 	public void setSelectorsLoc(float[][] selectorsLoc) {
 		this.selectorsLoc = selectorsLoc;
 		for(int i =0;i<4;i++){
@@ -227,6 +330,8 @@ public class SummaryGUI extends BorderPane {
 		}
 		setSelectorJoiner();
 	}
+	
+	/*
 	private void setSelector(MouseEvent mouseEvent){
 		if(hideSelector){
 			return;
@@ -239,12 +344,7 @@ public class SummaryGUI extends BorderPane {
 		if(mouseEvent.getX()>=bindingX.get()&&mouseEvent.getX()<=(summaryGUI.widthProperty().subtract(bindingX).get())){
 			float leftCenterRight=0;
 			int selectedIndex = (int) Math.round((mouseEvent.getX()-(mouseEvent.getX()%bindingX.get()))/bindingX.get());
-			/*
-			if(((mouseEvent.getX()%bindingX.get())/bindingX.get())>0.8f){
-				leftCenterRight=1;
-			}if(((mouseEvent.getX()%bindingX.get())/bindingX.get())<0.2f){
-				leftCenterRight=-1;
-			}*/
+
 			leftCenterRight=(float) ((mouseEvent.getX()%bindingX.get())/bindingX.get());
 			System.out.println(leftCenterRight);
 			for(int i =0;i<4;i++){
@@ -257,7 +357,7 @@ public class SummaryGUI extends BorderPane {
 			setSelectorJoiner();
 		}
 	}
-	
+	*/
 	private void setSelectorJoiner(){
 		for(int i=0;i<3;i++){
 			if(selectorsLoc[i][0]!=-1&&selectorsLoc[i+1][0]!=-1){
@@ -273,6 +373,9 @@ public class SummaryGUI extends BorderPane {
 	
 	private void setSelector(StatMode statMode, int[][]indices){
 		if(hideSelector){
+			return;
+		}
+		if(statMode==null){
 			return;
 		}
 		for(int i =0;i<4;i++){
@@ -291,6 +394,28 @@ public class SummaryGUI extends BorderPane {
 			}
 		}
 		setSelectorJoiner();
+	}
+	
+	private void setStatsSelector(StatMode statMode, int[][]indices){
+		if(statMode==null){
+			this.getChildren().removeAll(statsSelectors);
+			return;
+		}
+		for(int i =0;i<4;i++){
+			float indexLoc = -1; 
+			if(statMode.equals(StatMode.MEAN)){
+				indexLoc=getMeanLoc(indices[i]);
+			}
+			if(statMode.equals(StatMode.MEDIAN)){
+				indexLoc = getMedianLoc(indices[i]);
+			}
+			statsSelectorsLoc[i][0]=-1;
+			if(indexLoc>=0){
+				statsSelectorsLoc[i][1]=(float) (0.49+(indexLoc%1));	
+				statsSelectorsLoc[i][0]=(int)indexLoc+1+(int)statsSelectorsLoc[i][1];
+				setStatsSelectorsLoc(statsSelectorsLoc);
+			}
+		}
 	}
 	
 	private int[][] computeSummary(List<Report> observableList2){
