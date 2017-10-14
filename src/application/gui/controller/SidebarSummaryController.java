@@ -4,10 +4,19 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 import javax.imageio.ImageIO;
@@ -53,6 +62,8 @@ import report.AttributeIndex;
 import report.Report;
 import report.ReportChangeListener;
 import report.ReportObservable;
+import report.ReportProfile;
+import util.AppDialog;
 import util.FileUtility;
 import util.FilesChooser;
 
@@ -68,11 +79,13 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	private TextFlow label_summary1;
 	@FXML
 	private BorderPane borderPane_graphic;
-	
+	@FXML
+	private ComboBox combo_box_profile;
 	private SummaryGUI summary_graphic = new SummaryGUI();
 	
 	private List<Report> reportList;
 	
+	private String selectedProfile = null;
 	public SidebarSummaryController() {
 		 addReportProcessListener();
 	}
@@ -140,17 +153,31 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             summary_graphic.setShadingThreshold((float) thresholdSlider.getValue());
-            
         });
+        initProfileCombobox();
+	}
+	
+	private void initProfileCombobox(){
+		combo_box_profile.getItems().clear();
+		combo_box_profile.getItems().add("--None--");
+		Map<String,String> map = ReportProfile.get();
+        for (String key : map.keySet()){
+    		combo_box_profile.getItems().add(key);
+        }
+		if(selectedProfile!=null){
+			combo_box_profile.getSelectionModel().select(selectedProfile);
+		}
 	}
 	
 	@FXML
 	public void onclick_mean(){
+		setSelectedProfile(StatMode.MEAN);
 		summary_graphic.setStatMode(StatMode.MEAN);
 		
 	}
 	@FXML
 	public void onclick_median(){
+		setSelectedProfile(StatMode.MEDIAN);
 		summary_graphic.setStatMode(StatMode.MEDIAN);
 	}
 	
@@ -163,6 +190,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		SummaryGUI summaryGUI = new SummaryGUI();
 		summaryGUI.setReportList(reportList);
 		summaryGUI.setSelectorsLoc(summary_graphic.getSelectorsLoc());
+		summaryGUI.setShadingThreshold((float) thresholdSlider.getValue());
 		bp.setCenter(summaryGUI);
 		Scene scene2 = new Scene(bp, 800, 500);
 		saveSummaryStage.setScene(scene2);
@@ -207,6 +235,54 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		}
 	}
 
+	@FXML
+	public void onclick_save_profile(){
+		String profile = AppDialog.showTextFieldDialog("Save current statistic as profile", "Enter profile name", "");
+		if(profile!=null&&profile.length()>0){
+			float[][][]  meanMedianSelector= summary_graphic.getMeanMedianSelector();
+			String value = Arrays.deepToString(meanMedianSelector);
+			ReportProfile.saveProfile(profile, value);
+			initProfileCombobox();
+		}
+	}
+	
+	@FXML
+	public void on_profile_change(){
+		if(combo_box_profile.getSelectionModel().getSelectedIndex()>0){
+			selectedProfile = combo_box_profile.getSelectionModel().getSelectedItem().toString();
+		}else{
+			selectedProfile=null;
+		}
+		setSelectedProfile(StatMode.MEDIAN);
+	}
+	
+	public void setSelectedProfile(StatMode stateType){
+		if(selectedProfile==null){
+			summary_graphic.removeSelectors();
+			return;
+		}
+		String s  =ReportProfile.get(selectedProfile);
+		selectedProfile = combo_box_profile.getSelectionModel().getSelectedItem().toString();
+		//String s = "[[[7.0, 0.8065469], [4.0, 0.6410792], [4.0, 1.25259], [6.0, 1.1446764]], [[7.0, 0.49], [4.0, 0.49], [3.0, 0.49], [6.0, 0.49]]]";
+		float[][][]  profile = new float [2][4][2];
+		String[]  results= s.split("],");
+		for(int i =0;i<results.length;i++){
+			String str = results[i];
+			str = str.replace("[", "");
+			str = str.replace("]", "");
+			profile[i/4][i%4][0] = Float.parseFloat(str.split(",")[0]);
+			profile[i/4][i%4][1] = Float.parseFloat(str.split(",")[1]);
+		}
+
+		if(stateType.equals(StatMode.MEDIAN)){
+			summary_graphic.setSelectorsLoc(profile[1]);
+		}
+		if(stateType.equals(StatMode.MEAN)){
+			summary_graphic.setSelectorsLoc(profile[0]);
+		}
+		
+	}
+	
 	@Override
 	public void addReportProcessListener() {
 		ReportObservable.listenToChange(this);

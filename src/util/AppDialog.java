@@ -7,6 +7,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.TextInputDialog;
 
 public class AppDialog {
 	public static void criticalErrorAndExit(String title,String content ){
@@ -25,7 +26,7 @@ public class AppDialog {
         a.setContentText(content);
         a.showAndWait();
 	}
-	
+
 	public static int multiButtonDialog(String buttonNames[],String title, String content){
 		Alert alert = new Alert(AlertType.CONFIRMATION);
 		alert.setTitle(title);
@@ -48,5 +49,20 @@ public class AppDialog {
 			}
 		}
 		return -1;
+	}
+	
+
+	public static String showTextFieldDialog(String title, String content, String textFieldValue){
+		TextInputDialog dialog = new TextInputDialog(textFieldValue);
+		dialog.setTitle(title);
+		dialog.setHeaderText(title);
+		dialog.setContentText(content);
+		
+		// Traditional way to get the response value.
+		Optional<String> result = dialog.showAndWait();
+		if(result.isPresent()){
+			return result.get();
+		}
+		return "";
 	}
 }

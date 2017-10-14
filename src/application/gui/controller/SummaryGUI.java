@@ -35,7 +35,7 @@ public class SummaryGUI extends BorderPane {
 	private Circle []statsSelectors = {new Circle(),new Circle(),new Circle(),new Circle()};
 	private float statsSelectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
 	//private boolean hideShade = false;
-	private boolean hideSelector = true;
+	private boolean hideSelector = false;
 	private float shadingThreshold = 0.75f;
 	
 	public float[][] getSelectorsLoc() {
@@ -46,6 +46,11 @@ public class SummaryGUI extends BorderPane {
 		return selectors;
 	}
 
+	public void removeSelectors() {
+		float[][] selectorsLoc={{-1,0},{-1,0},{-1,0},{-1,0}};
+		this.selectorsLoc = selectorsLoc;
+		loadGraphic();
+	}
 	public void setSelectors(Line[] selectors) {
 		this.selectors = selectors;
 	}
@@ -303,7 +308,8 @@ public class SummaryGUI extends BorderPane {
             }
         });
         */
-        setSelector(this.statMode, indices);
+        //setSelector(this.statMode, indices);
+        setSelectorsLoc(selectorsLoc);
         setStatsSelector(this.statMode, indices);
 	}
 
@@ -394,6 +400,29 @@ public class SummaryGUI extends BorderPane {
 			}
 		}
 		setSelectorJoiner();
+	}
+	
+	public float[][][] getMeanMedianSelector(){
+		float selectorsLoc[][][] = {{{-1,0},{-1,0},{-1,0},{-1,0}},{{-1,0},{-1,0},{-1,0},{-1,0}}};
+		int indices[][]=computeSummary(observableList);
+
+		for(int type =0;type<=1;type++){
+			for(int i =0;i<4;i++){
+				float indexLoc = -1; 
+				if(type==0){
+					indexLoc=getMeanLoc(indices[i]);
+				}
+				if(type==1){
+					indexLoc = getMedianLoc(indices[i]);
+				}
+				selectorsLoc[type][i][0]=-1;
+				if(indexLoc>=0){
+					selectorsLoc[type][i][1]=(float) (0.49+(indexLoc%1));	
+					selectorsLoc[type][i][0]=(int)indexLoc+1+(int)selectorsLoc[type][i][1];
+				}
+			}
+		}
+		return selectorsLoc;
 	}
 	
 	private void setStatsSelector(StatMode statMode, int[][]indices){
