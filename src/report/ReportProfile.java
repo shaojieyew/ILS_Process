@@ -92,6 +92,34 @@ public class ReportProfile implements Serializable {
         }
         return map.get(key);
     }
+
+
+    public static String  delete(String key){
+    	Map<String, String> map = new HashMap<String, String>();
+        try {
+
+        	ReportProfile db = new ReportProfile();
+            // Read Object
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
+                db = (ReportProfile) ois.readObject();
+            }
+
+            map = db.getMap();
+            map.remove(key);
+            db.setMap(map);
+	        try {
+	            // Save Object
+	            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(FILE_NAME))) {
+	                oos.writeObject(db);
+	            }
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	        }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map.get(key);
+    }
     
     public List<String> getList() {
         return list;

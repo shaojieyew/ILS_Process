@@ -245,6 +245,20 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			initProfileCombobox();
 		}
 	}
+	@FXML
+	public void onclick_delete_profile(){
+		String buttons[] = {"Confirm"};
+		if(selectedProfile!=null){
+			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Profile?");
+			if(result>-1){
+				ReportProfile.delete(selectedProfile);
+				initProfileCombobox();
+				selectedProfile = null;
+			}
+		}else{
+			AppDialog.alert("No profile selected", "No profile selected to be delete.");
+		}
+	}
 	
 	@FXML
 	public void on_profile_change(){
