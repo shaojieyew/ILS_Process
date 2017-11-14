@@ -62,7 +62,7 @@ import report.AttributeIndex;
 import report.Report;
 import report.ReportChangeListener;
 import report.ReportObservable;
-import report.ReportProfile;
+import report.ReportsCurve;
 import util.AppDialog;
 import util.FileUtility;
 import util.FilesChooser;
@@ -160,7 +160,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	private void initProfileCombobox(){
 		combo_box_profile.getItems().clear();
 		combo_box_profile.getItems().add("--None--");
-		Map<String,String> map = ReportProfile.get();
+		Map<String,String> map = ReportsCurve.get();
         for (String key : map.keySet()){
     		combo_box_profile.getItems().add(key);
         }
@@ -179,6 +179,11 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void onclick_median(){
 		setSelectedProfile(StatMode.MEDIAN);
 		summary_graphic.setStatMode(StatMode.MEDIAN);
+	}
+	@FXML
+	public void onclick_mode(){
+		setSelectedProfile(StatMode.MODE);
+		summary_graphic.setStatMode(StatMode.MODE);
 	}
 	
 	
@@ -241,7 +246,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		if(profile!=null&&profile.length()>0){
 			float[][][]  meanMedianSelector= summary_graphic.getMeanMedianSelector();
 			String value = Arrays.deepToString(meanMedianSelector);
-			ReportProfile.saveProfile(profile, value);
+			ReportsCurve.saveProfile(profile, value);
 			initProfileCombobox();
 		}
 	}
@@ -251,7 +256,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		if(selectedProfile!=null){
 			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Profile?");
 			if(result>-1){
-				ReportProfile.delete(selectedProfile);
+				ReportsCurve.delete(selectedProfile);
 				initProfileCombobox();
 				selectedProfile = null;
 			}
@@ -267,7 +272,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		}else{
 			selectedProfile=null;
 		}
-		setSelectedProfile(StatMode.MEDIAN);
+		setSelectedProfile(StatMode.MODE);
 	}
 	
 	public void setSelectedProfile(StatMode stateType){
@@ -275,10 +280,10 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			summary_graphic.removeSelectors();
 			return;
 		}
-		String s  =ReportProfile.get(selectedProfile);
+		String s  =ReportsCurve.get(selectedProfile);
 		selectedProfile = combo_box_profile.getSelectionModel().getSelectedItem().toString();
 		//String s = "[[[7.0, 0.8065469], [4.0, 0.6410792], [4.0, 1.25259], [6.0, 1.1446764]], [[7.0, 0.49], [4.0, 0.49], [3.0, 0.49], [6.0, 0.49]]]";
-		float[][][]  profile = new float [2][4][2];
+		float[][][]  profile = new float [3][4][2];
 		String[]  results= s.split("],");
 		for(int i =0;i<results.length;i++){
 			String str = results[i];
@@ -289,9 +294,12 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		}
 
 		if(stateType.equals(StatMode.MEDIAN)){
-			summary_graphic.setSelectorsLoc(profile[1]);
+			summary_graphic.setSelectorsLoc(profile[2]);
 		}
 		if(stateType.equals(StatMode.MEAN)){
+			summary_graphic.setSelectorsLoc(profile[1]);
+		}
+		if(stateType.equals(StatMode.MODE)){
 			summary_graphic.setSelectorsLoc(profile[0]);
 		}
 		

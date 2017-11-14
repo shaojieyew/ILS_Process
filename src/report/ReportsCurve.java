@@ -14,17 +14,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class ReportProfile implements Serializable {
+public class ReportsCurve implements Serializable {
     private static final long serialVersionUID = 5864896800675704551L;
     private List<String> list;
     private Map<String, String> map;
-    private static final String FILE_NAME = Paths.get("").toAbsolutePath().toString()+"\\profileDB.txt";
+    private static final String FILE_NAME = Paths.get("").toAbsolutePath().toString()+"\\profileDB1.txt";
 
     public static void saveProfile(String key, String value){
-        	ReportProfile db = new ReportProfile();// Read Object
+    	ReportsCurve db = new ReportsCurve();// Read Object
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
                 try {
-					db = (ReportProfile) ois.readObject();
+					db = (ReportsCurve) ois.readObject();
 				} catch (ClassNotFoundException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -56,7 +56,7 @@ public class ReportProfile implements Serializable {
     	Map<String, String> map = new HashMap<String, String>();
         try {
 
-        	ReportProfile db = new ReportProfile();
+        	ReportsCurve db = new ReportsCurve();
             // Read Object
         	File f = new File(FILE_NAME);
         	if(!f.exists()){
@@ -65,7 +65,7 @@ public class ReportProfile implements Serializable {
 	            }
         	}
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-                db = (ReportProfile) ois.readObject();
+                db = (ReportsCurve) ois.readObject();
             }
             if(db.getMap()!=null){
                 map = db.getMap();
@@ -80,10 +80,10 @@ public class ReportProfile implements Serializable {
     	Map<String, String> map = new HashMap<String, String>();
         try {
 
-        	ReportProfile db = new ReportProfile();
+        	ReportsCurve db = new ReportsCurve();
             // Read Object
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-                db = (ReportProfile) ois.readObject();
+                db = (ReportsCurve) ois.readObject();
             }
 
             map = db.getMap();
@@ -98,10 +98,10 @@ public class ReportProfile implements Serializable {
     	Map<String, String> map = new HashMap<String, String>();
         try {
 
-        	ReportProfile db = new ReportProfile();
+        	ReportsCurve db = new ReportsCurve();
             // Read Object
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(FILE_NAME))) {
-                db = (ReportProfile) ois.readObject();
+                db = (ReportsCurve) ois.readObject();
             }
 
             map = db.getMap();

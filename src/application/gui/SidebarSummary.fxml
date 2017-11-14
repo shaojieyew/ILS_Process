@@ -29,9 +29,10 @@
                <top>
                   <GridPane hgap="2.0" prefHeight="66.0" prefWidth="336.0" vgap="3.0" BorderPane.alignment="CENTER">
                     <columnConstraints>
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="69.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="79.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="84.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="61.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="50.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="51.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="70.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="58.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="74.0" />
                     </columnConstraints>
@@ -40,13 +41,14 @@
                         <RowConstraints maxHeight="41.0" minHeight="0.0" prefHeight="24.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onclick_mean" prefHeight="32.0" prefWidth="66.0" text="Mean" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-                      <Button mnemonicParsing="false" onAction="#onclick_median" prefHeight="32.0" prefWidth="69.0" text="Median" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="32.0" prefWidth="97.0" text="Save Image" GridPane.columnIndex="3" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                        <Slider fx:id="thresholdSlider" max="1.0" prefHeight="14.0" prefWidth="150.0" value="0.75" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-                        <ComboBox fx:id="combo_box_profile" onAction="#on_profile_change" prefHeight="28.0" prefWidth="87.0" GridPane.columnIndex="2" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_delete_profile" prefHeight="32.0" prefWidth="98.0" text="Del" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_save_profile" prefHeight="32.0" prefWidth="98.0" text="Save" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_mean" prefHeight="32.0" prefWidth="58.0" text="Mean" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                      <Button mnemonicParsing="false" onAction="#onclick_median" prefHeight="32.0" prefWidth="69.0" text="Median" GridPane.columnIndex="2" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="32.0" prefWidth="97.0" text="Save Image" GridPane.columnIndex="4" GridPane.columnSpan="2147483647" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                        <Slider fx:id="thresholdSlider" max="1.0" prefHeight="14.0" prefWidth="181.0" value="0.75" GridPane.columnSpan="4" GridPane.rowIndex="1" />
+                        <ComboBox fx:id="combo_box_profile" onAction="#on_profile_change" prefHeight="28.0" prefWidth="87.0" GridPane.columnIndex="3" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_delete_profile" prefHeight="32.0" prefWidth="43.0" text="Del" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_save_profile" prefHeight="32.0" prefWidth="98.0" text="Save" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Button mnemonicParsing="false" onAction="#onclick_mode" prefHeight="32.0" prefWidth="58.0" text="Mode" />
                      </children>
                      <BorderPane.margin>
                         <Insets bottom="5.0" left="10.0" right="10.0" />

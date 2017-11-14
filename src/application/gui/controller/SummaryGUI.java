@@ -60,7 +60,7 @@ public class SummaryGUI extends BorderPane {
 	}
 
 	public enum StatMode {
-		MEAN, MEDIAN
+		MODE,MEAN, MEDIAN
 	}
 	private StatMode statMode = null;
 	public void setStatMode(StatMode statMode) {
@@ -288,7 +288,7 @@ public class SummaryGUI extends BorderPane {
         	}
         }
        
-        /*
+        
         this.addEventFilter(MouseEvent.MOUSE_PRESSED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent mouseEvent) {
@@ -307,7 +307,7 @@ public class SummaryGUI extends BorderPane {
             	setSelector(mouseEvent);
             }
         });
-        */
+        
         //setSelector(this.statMode, indices);
         setSelectorsLoc(selectorsLoc);
         setStatsSelector(this.statMode, indices);
@@ -337,7 +337,7 @@ public class SummaryGUI extends BorderPane {
 		setSelectorJoiner();
 	}
 	
-	/*
+	
 	private void setSelector(MouseEvent mouseEvent){
 		if(hideSelector){
 			return;
@@ -363,7 +363,7 @@ public class SummaryGUI extends BorderPane {
 			setSelectorJoiner();
 		}
 	}
-	*/
+	
 	private void setSelectorJoiner(){
 		for(int i=0;i<3;i++){
 			if(selectorsLoc[i][0]!=-1&&selectorsLoc[i+1][0]!=-1){
@@ -392,6 +392,9 @@ public class SummaryGUI extends BorderPane {
 			if(statMode.equals(StatMode.MEDIAN)){
 				indexLoc = getMedianLoc(indices[i]);
 			}
+			if(statMode.equals(StatMode.MODE)){
+				indexLoc = getModeLoc(indices[i]);
+			}
 			selectorsLoc[i][0]=-1;
 			if(indexLoc>=0){
 				selectorsLoc[i][1]=(float) (0.49+(indexLoc%1));	
@@ -403,16 +406,19 @@ public class SummaryGUI extends BorderPane {
 	}
 	
 	public float[][][] getMeanMedianSelector(){
-		float selectorsLoc[][][] = {{{-1,0},{-1,0},{-1,0},{-1,0}},{{-1,0},{-1,0},{-1,0},{-1,0}}};
+		float selectorsLoc[][][] = {{{-1,0},{-1,0},{-1,0},{-1,0}},{{-1,0},{-1,0},{-1,0},{-1,0}},{{-1,0},{-1,0},{-1,0},{-1,0}}};
 		int indices[][]=computeSummary(observableList);
 
-		for(int type =0;type<=1;type++){
+		for(int type =0;type<=2;type++){
 			for(int i =0;i<4;i++){
 				float indexLoc = -1; 
 				if(type==0){
-					indexLoc=getMeanLoc(indices[i]);
+					indexLoc=getModeLoc(indices[i]);
 				}
 				if(type==1){
+					indexLoc = getMeanLoc(indices[i]);
+				}
+				if(type==2){
 					indexLoc = getMedianLoc(indices[i]);
 				}
 				selectorsLoc[type][i][0]=-1;
@@ -437,6 +443,9 @@ public class SummaryGUI extends BorderPane {
 			}
 			if(statMode.equals(StatMode.MEDIAN)){
 				indexLoc = getMedianLoc(indices[i]);
+			}
+			if(statMode.equals(StatMode.MODE)){
+				indexLoc = getModeLoc(indices[i]);
 			}
 			statsSelectorsLoc[i][0]=-1;
 			if(indexLoc>=0){
@@ -559,5 +568,31 @@ public class SummaryGUI extends BorderPane {
 		}
 		float median = (median1Index+median2Index)/2;
 		return median;
+	}
+	
+
+	private static float getModeLoc(int arr[] ){
+		if(arr.length==0){
+			return -1;
+		}
+		int maxValue = -1;
+
+		for(int i=0;i<arr.length;i++){
+			if(maxValue<arr[i]){
+				maxValue = arr[i];
+			}
+		}
+		
+		float count = 0;
+		float value = 0;
+
+		for(int i=0;i<arr.length;i++){
+			if(maxValue==arr[i]){
+				count++;
+				value=value+i;
+			}
+		}
+		float mode = value/count;
+		return mode;
 	}
 }
