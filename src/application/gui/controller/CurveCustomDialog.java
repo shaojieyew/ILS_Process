@@ -19,6 +19,7 @@ import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import report.ReportsCurve;
+import util.AppDialog;
 
 public class CurveCustomDialog {
 
@@ -43,7 +44,10 @@ public class CurveCustomDialog {
 	                new EventHandler<MouseEvent>() {
 	                    @Override
 	                    public void handle(MouseEvent e) {
-	                        dialog.close();
+	                    	if(textFields.getText().length()>0)
+	                    		dialog.close();
+	                    	else
+	                    		AppDialog.alert("Missing input", "Missing input");
 	                    }
 	                });
 	        no.addEventHandler(MouseEvent.MOUSE_CLICKED,
