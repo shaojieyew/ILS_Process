@@ -35,14 +35,19 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.SnapshotParameters;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.ImageView;
@@ -50,10 +55,15 @@ import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
@@ -68,7 +78,8 @@ import util.FileUtility;
 import util.FilesChooser;
 
 public class SidebarSummaryController implements Initializable, ReportChangeListener {
-	
+	@FXML
+	private TextArea text_area;
 	@FXML
 	private BorderPane summaryPane;
 	@FXML
@@ -80,12 +91,12 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	@FXML
 	private BorderPane borderPane_graphic;
 	@FXML
-	private ComboBox combo_box_profile;
+	private ComboBox combo_box_curve;
 	private SummaryGUI summary_graphic = new SummaryGUI();
 	
 	private List<Report> reportList;
 	
-	private String selectedProfile = null;
+	private String selectedCurve = null;
 	public SidebarSummaryController() {
 		 addReportProcessListener();
 	}
@@ -115,10 +126,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 				}
 			}
 		}
-		
 
+		label_summary.getChildren().clear();
 		if(reportList instanceof ObservableList){
-			label_summary.getChildren().clear();
 			for(int i=0;i<countStatus.length;i++){
 				if(countStatus[i]>0){
 					Text text1=new Text(status[i]+": "+ countStatus[i]+"\n");
@@ -137,10 +147,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			}
 		}
 		
-		label_summary1.getChildren().clear();
 		if(reportList!=null){
 			Text text2=new Text("Total ILS Report: "+ reportList.size());
-			label_summary1.getChildren().addAll(text2);
+			label_summary.getChildren().addAll(text2);
 		}
 		
 
@@ -154,35 +163,37 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             summary_graphic.setShadingThreshold((float) thresholdSlider.getValue());
         });
-        initProfileCombobox();
+        initCurveCombobox();
 	}
 	
-	private void initProfileCombobox(){
-		combo_box_profile.getItems().clear();
-		combo_box_profile.getItems().add("--None--");
+	private void initCurveCombobox(){
+		combo_box_curve.getItems().clear();
+		combo_box_curve.getItems().add("--None--");
 		Map<String,String> map = ReportsCurve.get();
         for (String key : map.keySet()){
-    		combo_box_profile.getItems().add(key);
+    		combo_box_curve.getItems().add(key);
         }
-		if(selectedProfile!=null){
-			combo_box_profile.getSelectionModel().select(selectedProfile);
+		if(selectedCurve!=null){
+			combo_box_curve.getSelectionModel().select(selectedCurve);
+		}else{
+			combo_box_curve.getSelectionModel().select(combo_box_curve.getItems().get(0).toString());
 		}
 	}
 	
 	@FXML
 	public void onclick_mean(){
-		setSelectedProfile(StatMode.MEAN);
+		//setSelectedCurve(StatMode.MEAN);
 		summary_graphic.setStatMode(StatMode.MEAN);
 		
 	}
 	@FXML
 	public void onclick_median(){
-		setSelectedProfile(StatMode.MEDIAN);
+		//setSelectedCurve(StatMode.MEDIAN);
 		summary_graphic.setStatMode(StatMode.MEDIAN);
 	}
 	@FXML
 	public void onclick_mode(){
-		setSelectedProfile(StatMode.MODE);
+		//setSelectedCurve(StatMode.MODE);
 		summary_graphic.setStatMode(StatMode.MODE);
 	}
 	
@@ -240,67 +251,79 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		}
 	}
 
+	
+	
+	
 	@FXML
-	public void onclick_save_profile(){
-		String profile = AppDialog.showTextFieldDialog("Save current statistic as profile", "Enter profile name", "");
-		if(profile!=null&&profile.length()>0){
-			float[][][]  meanMedianSelector= summary_graphic.getMeanMedianSelector();
-			String value = Arrays.deepToString(meanMedianSelector);
-			ReportsCurve.saveProfile(profile, value);
-			initProfileCombobox();
+	public void onclick_save_curve(){
+		//BorderPane bp = new BorderPane();
+		SummaryGUI summaryGUI = new SummaryGUI();
+		summaryGUI.setReportList(reportList);
+		float[][][]  curve = summaryGUI.getMeanMedianSelector();
+		summaryGUI.setSelectorsLoc(curve[0]);
+		summaryGUI.setShadingThreshold((float) thresholdSlider.getValue());
+		
+		boolean result = CurveCustomDialog.showCustomDialog("Save current statistic as curve", "Enter curve name",summaryGUI, "");
+		if(result){
+			initCurveCombobox();
 		}
 	}
+	
+	
+	
 	@FXML
-	public void onclick_delete_profile(){
+	public void onclick_delete_curve(){
 		String buttons[] = {"Confirm"};
-		if(selectedProfile!=null){
-			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Profile?");
+		if(selectedCurve!=null){
+			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Curve?");
 			if(result>-1){
-				ReportsCurve.delete(selectedProfile);
-				initProfileCombobox();
-				selectedProfile = null;
+				ReportsCurve.delete(selectedCurve);
+				initCurveCombobox();
+				selectedCurve = null;
 			}
 		}else{
-			AppDialog.alert("No profile selected", "No profile selected to be delete.");
+			AppDialog.alert("No curve selected", "No curve selected to be delete.");
 		}
 	}
 	
 	@FXML
-	public void on_profile_change(){
-		if(combo_box_profile.getSelectionModel().getSelectedIndex()>0){
-			selectedProfile = combo_box_profile.getSelectionModel().getSelectedItem().toString();
+	public void on_curve_change(){
+		if(combo_box_curve.getSelectionModel().getSelectedIndex()>0){
+			selectedCurve = combo_box_curve.getSelectionModel().getSelectedItem().toString();
 		}else{
-			selectedProfile=null;
+			selectedCurve=null;
 		}
-		setSelectedProfile(StatMode.MODE);
+		setSelectedCurve(StatMode.MODE);
 	}
 	
-	public void setSelectedProfile(StatMode stateType){
-		if(selectedProfile==null){
+	
+	
+	public void setSelectedCurve(StatMode stateType){
+		if(selectedCurve==null){
 			summary_graphic.removeSelectors();
 			return;
 		}
-		String s  =ReportsCurve.get(selectedProfile);
-		selectedProfile = combo_box_profile.getSelectionModel().getSelectedItem().toString();
+		String s  =ReportsCurve.get(selectedCurve);
+		selectedCurve = combo_box_curve.getSelectionModel().getSelectedItem().toString();
 		//String s = "[[[7.0, 0.8065469], [4.0, 0.6410792], [4.0, 1.25259], [6.0, 1.1446764]], [[7.0, 0.49], [4.0, 0.49], [3.0, 0.49], [6.0, 0.49]]]";
-		float[][][]  profile = new float [3][4][2];
+		float[][][]  curve = new float [3][4][2];
 		String[]  results= s.split("],");
 		for(int i =0;i<results.length;i++){
 			String str = results[i];
 			str = str.replace("[", "");
 			str = str.replace("]", "");
-			profile[i/4][i%4][0] = Float.parseFloat(str.split(",")[0]);
-			profile[i/4][i%4][1] = Float.parseFloat(str.split(",")[1]);
+			curve[i/4][i%4][0] = Float.parseFloat(str.split(",")[0]);
+			curve[i/4][i%4][1] = Float.parseFloat(str.split(",")[1]);
 		}
 
 		if(stateType.equals(StatMode.MEDIAN)){
-			summary_graphic.setSelectorsLoc(profile[2]);
+			summary_graphic.setSelectorsLoc(curve[2]);
 		}
 		if(stateType.equals(StatMode.MEAN)){
-			summary_graphic.setSelectorsLoc(profile[1]);
+			summary_graphic.setSelectorsLoc(curve[1]);
 		}
 		if(stateType.equals(StatMode.MODE)){
-			summary_graphic.setSelectorsLoc(profile[0]);
+			summary_graphic.setSelectorsLoc(curve[0]);
 		}
 		
 	}

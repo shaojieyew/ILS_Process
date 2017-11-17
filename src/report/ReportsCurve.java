@@ -18,7 +18,7 @@ public class ReportsCurve implements Serializable {
     private static final long serialVersionUID = 5864896800675704551L;
     private List<String> list;
     private Map<String, String> map;
-    private static final String FILE_NAME = Paths.get("").toAbsolutePath().toString()+"\\profileDB1.txt";
+    private static final String FILE_NAME = Paths.get("").toAbsolutePath().toString()+"\\profileDB.txt";
 
     public static void saveProfile(String key, String value){
     	ReportsCurve db = new ReportsCurve();// Read Object

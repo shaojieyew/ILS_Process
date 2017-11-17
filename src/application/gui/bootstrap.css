@@ -1,6 +1,8 @@
 .root {
 	-fx-body-color : #F5F5F5;
 	-fx-outer-border : #cecece;
+	-fx-focus-color: transparent;
+	-fx-faint-focus-color: #cecece;
 }
 .button:focused, .toggle-button:focused,
 .split-menu-button:focused, .menu-button:focused,
@@ -14,7 +16,7 @@
 }
 
 .button,.menu-button,.toggle-button,.split-menu-button {
-	-fx-font-size: 14;
+	-fx-font-size: 12;
 	-fx-background-radius: 4;
 	-fx-border-radius: 4;
 	-fx-pref-height: 30;

@@ -27,9 +27,9 @@
             <GridPane hgap="5.0" prefHeight="107.0" prefWidth="1062.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="721.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="313.0" minWidth="0.0" prefWidth="120.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="300.0" minWidth="57.0" prefWidth="120.0" />
               </columnConstraints>
               <rowConstraints>
                 <RowConstraints />
@@ -56,12 +56,13 @@
                   <Insets top="10.0" />
                </padding>
             </GridPane>
-            <GridPane fx:id="importedFilePane" hgap="5.0">
+            <GridPane fx:id="importedFilePane" hgap="5.0" prefHeight="32.0" prefWidth="936.0">
               <columnConstraints>
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="148.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="102.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="578.0" minWidth="0.0" prefWidth="104.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="90.0" prefWidth="596.0" />
               </columnConstraints>
                <children>
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openImportedFile" text="Open Excel" GridPane.columnIndex="2" />
@@ -71,7 +72,7 @@
                </GridPane.margin>
             </ComboBox>
                   <Label prefHeight="17.0" prefWidth="84.0" text="Select Sheet: " GridPane.halignment="RIGHT" />
-                  <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" text="View Summary" GridPane.columnIndex="3" />
+                  <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" prefWidth="121.0" text="View Summary" GridPane.columnIndex="3" />
                </children>
                <VBox.margin>
                   <Insets />
@@ -89,8 +90,8 @@
             <GridPane hgap="5.0" vgap="5.0">
                <columnConstraints>
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="90.0" minWidth="90.0" prefWidth="90.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="150.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="10.0" prefWidth="844.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="150.0" minWidth="90.0" prefWidth="118.0" />
                </columnConstraints>
                <rowConstraints>
                   <RowConstraints />

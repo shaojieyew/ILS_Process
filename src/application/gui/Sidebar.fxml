@@ -24,7 +24,7 @@
             <RowConstraints maxHeight="1.7976931348623157E308" minHeight="10.0" percentHeight="183.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label fx:id="close_label" alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#closeSidebar" prefHeight="25.0" prefWidth="25.0" style="-fx-cursor: pointer; -fx-background-color: #C2E8EA; -fx-background-radius: 100;" styleClass="plain" text="X" textAlignment="RIGHT" textOverrun="CLIP" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
+            <Label fx:id="close_label" alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#closeSidebar" prefHeight="25.0" prefWidth="25.0" style="-fx-cursor: pointer; -fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #cecece; -fx-border-radius: 8;" styleClass="plain" text="X" textAlignment="RIGHT" textOverrun="CLIP" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
                <font>
                   <Font size="15.0" />
                </font>
