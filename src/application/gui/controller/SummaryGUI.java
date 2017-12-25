@@ -352,7 +352,7 @@ public class SummaryGUI extends BorderPane {
 			int selectedIndex = (int) Math.round((mouseEvent.getX()-(mouseEvent.getX()%bindingX.get()))/bindingX.get());
 
 			leftCenterRight=(float) ((mouseEvent.getX()%bindingX.get())/bindingX.get());
-			System.out.println(leftCenterRight);
+			//System.out.println(leftCenterRight);
 			for(int i =0;i<4;i++){
     			if(mouseEvent.getY()>=bindingY.multiply(i*3+2).get()&&mouseEvent.getY()<=bindingY.multiply(i*3+4).get()){
     				selectorsLoc[i][0]=selectedIndex;

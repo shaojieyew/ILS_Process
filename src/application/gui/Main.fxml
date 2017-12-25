@@ -123,15 +123,15 @@
    <center>
       <TableView fx:id="tableview" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" style="-fx-border-radius: 5; -fx-border-width: 1; -fx-border-color: #cccccc; -fx-background-color: #ffffff;" styleClass="box" BorderPane.alignment="CENTER">
         <columns>
-          <TableColumn prefWidth="162.0" sortable="true" style="-fx-border-radius: 4;" text="Name">
+          <TableColumn minWidth="200.0" prefWidth="105.0" sortable="true" style="-fx-border-radius: 4;" text="Name">
 	         <cellValueFactory><PropertyValueFactory property="fileName" />
 	         </cellValueFactory>
 	          </TableColumn>
-	          <TableColumn minWidth="0.0" prefWidth="64.0" sortable="false" text="File type">
+	          <TableColumn minWidth="80.0" sortable="false" text="File type">
 	         <cellValueFactory><PropertyValueFactory property="fileType" />
 	         </cellValueFactory>
 	          </TableColumn>
-	          <TableColumn minWidth="0.0" prefWidth="105.0" sortable="false" text="Status">
+	          <TableColumn minWidth="100.0" prefWidth="105.0" sortable="false" text="Status">
 	         <cellValueFactory><PropertyValueFactory property="status" />
 	         </cellValueFactory>
 	          </TableColumn>
