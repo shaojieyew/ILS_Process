@@ -6,6 +6,9 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
@@ -33,8 +36,8 @@
                     <columnConstraints>
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="61.0" />
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="91.0" minWidth="10.0" prefWidth="50.0" />
-                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="26.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="62.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" maxWidth="109.0" minWidth="10.0" prefWidth="70.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="113.0" minWidth="10.0" prefWidth="14.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="62.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="102.0" minWidth="10.0" prefWidth="73.0" />
                     </columnConstraints>
@@ -44,8 +47,9 @@
                      <children>
                         <Button mnemonicParsing="false" onAction="#onclick_mean" prefHeight="32.0" prefWidth="62.0" text="Mean" GridPane.columnIndex="4" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
                       <Button mnemonicParsing="false" onAction="#onclick_median" prefHeight="32.0" prefWidth="69.0" text="Median" GridPane.columnIndex="5" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
-                        <Slider fx:id="thresholdSlider" max="1.0" prefHeight="14.0" prefWidth="198.0" value="0.75" GridPane.columnSpan="3" GridPane.valignment="CENTER" />
-                        <Button mnemonicParsing="false" visible="false" onAction="#onclick_mode" prefHeight="32.0" prefWidth="58.0" text="Mode" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Slider fx:id="thresholdSlider" max="1.0" prefHeight="14.0" prefWidth="150.0" value="0.75" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.valignment="CENTER" />
+                        <Button mnemonicParsing="false" onAction="#onclick_mode" prefHeight="32.0" prefWidth="58.0" text="Mode" visible="false" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.valignment="TOP" />
+                        <Label text="Higlight Intensity:" wrapText="true" />
                      </children>
                      <BorderPane.margin>
                         <Insets bottom="5.0" left="10.0" right="10.0" />
@@ -56,8 +60,8 @@
                   <GridPane hgap="5.0" prefHeight="92.0" prefWidth="356.0" vgap="10.0" BorderPane.alignment="CENTER">
                     <columnConstraints>
                       <ColumnConstraints hgrow="SOMETIMES" maxWidth="149.0" minWidth="10.0" prefWidth="43.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="0.0" prefWidth="67.0" />
-                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="10.0" prefWidth="147.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="0.0" prefWidth="127.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="10.0" prefWidth="88.0" />
                         <ColumnConstraints hgrow="SOMETIMES" maxWidth="221.0" minWidth="10.0" prefWidth="82.0" />
                     </columnConstraints>
                     <rowConstraints>
@@ -66,10 +70,40 @@
                         <RowConstraints maxHeight="44.0" minHeight="10.0" prefHeight="25.0" vgrow="SOMETIMES" />
                     </rowConstraints>
                      <children>
-                        <Button mnemonicParsing="false" onAction="#onclick_save" prefHeight="40.0" prefWidth="141.0" text="Save Image with Curve" wrapText="true" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP" />
-                        <ComboBox fx:id="combo_box_curve" onAction="#on_curve_change" prefHeight="25.0" prefWidth="117.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_delete_curve" prefHeight="12.0" prefWidth="88.0" text="Delete Curve" GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                        <Button mnemonicParsing="false" onAction="#onclick_save_curve" prefHeight="32.0" prefWidth="76.0" text="New Curve" wrapText="true" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onclick_save" prefHeight="29.0" prefWidth="195.0" text="Save Image with Curve" wrapText="true" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.halignment="RIGHT" GridPane.valignment="TOP">
+                           <graphic>
+                              <ImageView fitHeight="20.0" fitWidth="67.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@graphic/save_summary.png" />
+                                 </image>
+                                 <effect>
+                                    <Bloom threshold="0.78" />
+                                 </effect>
+                              </ImageView>
+                           </graphic></Button>
+                        <ComboBox fx:id="combo_box_curve" onAction="#on_curve_change" prefHeight="25.0" prefWidth="96.0" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="1" GridPane.valignment="TOP" />
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onclick_delete_curve" prefHeight="12.0" prefWidth="88.0" text="Delete " GridPane.columnIndex="2" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                           <graphic>
+                              <ImageView fitHeight="14.0" fitWidth="14.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@graphic/cancel.png" />
+                                 </image>
+                                 <effect>
+                                    <Bloom threshold="0.78" />
+                                 </effect>
+                              </ImageView>
+                           </graphic></Button>
+                        <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onclick_save_curve" prefHeight="32.0" prefWidth="76.0" text="New " wrapText="true" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                           <graphic>
+                              <ImageView fitHeight="17.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+                                 <image>
+                                    <Image url="@graphic/add_new.png" />
+                                 </image>
+                                 <effect>
+                                    <Bloom threshold="0.78" />
+                                 </effect>
+                              </ImageView>
+                           </graphic></Button>
                         <ScrollPane style="-fx-border-radius: 10;" GridPane.columnSpan="2147483647" GridPane.rowIndex="2">
                           <content>
                             <AnchorPane minHeight="0.0" minWidth="0.0">
@@ -79,7 +113,11 @@
                               </AnchorPane>
                           </content>
                         </ScrollPane>
-                        <Label text="Curve:" GridPane.rowIndex="1" />
+                        <ImageView fitHeight="36.0" fitWidth="41.0" pickOnBounds="true" preserveRatio="true" GridPane.rowIndex="1">
+                           <image>
+                              <Image url="@graphic/curve.png" />
+                           </image>
+                        </ImageView>
                      </children>
                   </GridPane>
                </bottom>

@@ -92,6 +92,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	private ComboBox<String> comboBoxSheets;
 
+	private static MainController instance = null;
+	
+	public static MainController getInstance() {
+		return instance;
+	}
+
 	public static final String defaultFileName = "ILS-Result";
 	private static final Semaphore lockStatCounter = new Semaphore(1);
 	public int completedCount = 0;
@@ -127,6 +133,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		addListener(InputConfiguration.LISTEN_InputDirectory);
 		addListener(InputConfiguration.LISTEN_ReportSummaryFile);
 		addReportProcessListener();
+		instance = this;
     }
 
 	
@@ -138,7 +145,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		
 		//initialize tableview 
 		ReportTableViewFactory.getInstance(tableview).updateListByInputDirectory(InputConfiguration.getInstance());
-		updateProgressBar("");
+		updateProgressBar("",null);
 		textField_outputFile.setText(getImportedFile());
 		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
 		
@@ -155,7 +162,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			completedCount=0;
 			failedCount = 0;
 			inProcessCount = 0;
-			updateProgressBar("");
+			updateProgressBar("",null);
 		}
 	}
 	
@@ -230,7 +237,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void onCancelProcess(){
-		updateProgressBar("Cancelling, please wait.");
+		updateProgressBar("Cancelling, please wait.","warning");
 		cancelProcess();
 	}
 	
@@ -304,7 +311,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryProcessor)process).getDestFile().getAbsolutePath());
 	        				diableAllControls(false);
 	        				cancelBtn.setDisable(true);
-	        				updateProgressBar("Complete");
+	        				updateProgressBar("Complete","sucess");
 	                 }
 				});
 			}
@@ -313,7 +320,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			public void onStart(Processor process) {
 				Platform.runLater(new Runnable() {
 	                 @Override public void run() {
-	     				updateProgressBar("Generating Summary");
+	     				updateProgressBar("Generating Summary","warning");
 	                 }
 				});
 			}
@@ -392,7 +399,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
         		tableview.getColumns().get(0).setVisible(false);
         		tableview.getColumns().get(0).setVisible(true);
          		//if((Report.STATUS_COMPLETED).equals(reportObservable.getStatus())||(Report.STATUS_FAILED).equals(reportObservable.getStatus())||(Report.STATUS_NOT_FOUND).equals(reportObservable.getStatus())){
-    	        	double percentageProcess= updateProgressBar("");
+    	        	double percentageProcess= updateProgressBar("",null);
     	        	if(mainProcessor!=null){
     	        		if(percentageProcess==1||mainProcessor.isCancelProcess()){
     	        			cancelProcess();
@@ -403,11 +410,15 @@ public class MainController extends FXMLController implements Initializable,Inpu
         });
 	}
 	
-	public double updateProgressBar(String message){
+	public double updateProgressBar(String message, String style){
 		int reportToProcess = ReportTableViewFactory.getInstance(tableview).getTotalGetReport();
 		double percentageProcess = (float)(completedCount+failedCount)/(float)reportToProcess;
 		progressBar.setProgress(percentageProcess);
 		progressLabel.setText("("+(completedCount+failedCount)+"/"+reportToProcess + ") "+message);
+		progressLabel.getStyleClass().clear();
+		if(style!=null){
+			progressLabel.getStyleClass().add(style);
+		}
 		return percentageProcess;
 	}
 	

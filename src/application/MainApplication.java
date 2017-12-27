@@ -5,6 +5,7 @@ import java.nio.file.Paths;
 
 import application.configurable.InputConfiguration;
 import application.gui.controller.FXMLController;
+import application.gui.controller.MainController;
 import javafx.application.Application;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -81,6 +82,10 @@ public class MainApplication extends Application {
 					if(focused.getValue()==true){
 						InputConfiguration.getInstance().setReportSummaryFile(InputConfiguration.getInstance().getReportSummaryFile());
 					}
+				//	MainController mainController = MainController.getInstance();
+				//	if(mainController!=null){
+				//		mainController.refreshList();
+				//	}
 				}
 			});
 		} catch(Exception e) {

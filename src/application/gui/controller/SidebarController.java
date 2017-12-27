@@ -60,6 +60,8 @@ public class SidebarController implements Initializable {
 	@FXML
 	private Label title_panel;
 	@FXML
+	private ImageView excel_imported;
+	@FXML
 	private BorderPane sidePane;
 	@FXML
 	private BorderPane sidebar_content_pane;
@@ -80,5 +82,9 @@ public class SidebarController implements Initializable {
 	public void setContent(Node node, String title){
 		sidebar_content_pane.setCenter(node);
 		title_panel.setText(title);
+		excel_imported.setVisible(false);
+		if(title.contains("Excel Sheet Summary")){
+			excel_imported.setVisible(true);
+		}
 	}
 }

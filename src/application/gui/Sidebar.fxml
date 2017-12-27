@@ -3,6 +3,9 @@
 <?import java.net.URL?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.effect.Bloom?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
@@ -24,14 +27,6 @@
             <RowConstraints percentHeight="183.0" vgrow="SOMETIMES" />
         </rowConstraints>
          <children>
-            <Label fx:id="close_label" alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#closeSidebar" prefHeight="25.0" prefWidth="25.0" style="-fx-cursor: pointer; -fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #cecece; -fx-border-radius: 8;" styleClass="plain" text="X" textAlignment="RIGHT" textOverrun="CLIP" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
-               <font>
-                  <Font size="15.0" />
-               </font>
-               <GridPane.margin>
-                  <Insets top="5.0" />
-               </GridPane.margin>
-            </Label>
             <Label fx:id="title_panel" styleClass="titled-pane">
                <font>
                   <Font name="System Bold" size="13.0" />
@@ -40,8 +35,26 @@
                   <URL value="@application.css" />
                   <URL value="@bootstrap.css" />
                </stylesheets>
-               <GridPane.margin>
+               <graphic>
+                  <ImageView fx:id="excel_imported" fitHeight="20.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@graphic/excel.png" />
+                     </image>
+                     <effect>
+                        <Bloom threshold="0.78" />
+                     </effect>
+                  </ImageView>
+               </graphic>
+               <padding>
                   <Insets left="10.0" />
+               </padding>
+            </Label>
+            <Label fx:id="close_label" alignment="CENTER" contentDisplay="CENTER" onMouseClicked="#closeSidebar" prefHeight="25.0" prefWidth="25.0" style="-fx-cursor: pointer; -fx-background-color: #FFFFFF; -fx-background-radius: 8; -fx-border-color: #cecece; -fx-border-radius: 8;" styleClass="plain" text="X" textAlignment="RIGHT" textOverrun="CLIP" wrapText="true" GridPane.columnIndex="1" GridPane.columnSpan="2147483647" GridPane.halignment="LEFT" GridPane.rowSpan="2147483647" GridPane.valignment="TOP">
+               <font>
+                  <Font size="15.0" />
+               </font>
+               <GridPane.margin>
+                  <Insets top="5.0" />
                </GridPane.margin>
             </Label>
             <BorderPane fx:id="sidebar_content_pane" prefHeight="250.0" prefWidth="388.0" GridPane.columnSpan="2147483647" GridPane.rowIndex="1" />
