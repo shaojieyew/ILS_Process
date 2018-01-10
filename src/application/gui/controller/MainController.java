@@ -73,6 +73,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	@FXML
 	private Button refreshBtn;
 	@FXML
+	private Button settingBtn;
+	@FXML
 	private TableView<Report> tableview;
 	@FXML
 	private Button cancelBtn;
@@ -521,6 +523,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	public void refreshList(){	
 		InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
 		rootPane.setRight(null);
+	}
+
+	@FXML
+	public void openSetting(){	
+		boolean result = SettingCustomDialog.showCustomDialog("Setting");
 	}
 	@FXML
 	public void removeInvalidFile(){

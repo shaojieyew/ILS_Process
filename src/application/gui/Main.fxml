@@ -249,6 +249,18 @@
                      </effect>
                   </ImageView>
                </graphic></Button>
+            <Button fx:id="settingBtn" mnemonicParsing="false" onAction="#openSetting" text="Setting">
+               <graphic>
+                  <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@graphic/setting.png" />
+                     </image>
+                     <effect>
+                        <Bloom threshold="0.78" />
+                     </effect>
+                  </ImageView>
+               </graphic>
+            </Button>
         </items>
          <BorderPane.margin>
             <Insets left="-20.0" right="-20.0" />
