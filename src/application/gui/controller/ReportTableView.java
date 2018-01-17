@@ -128,6 +128,8 @@ public  class ReportTableView implements InputChangeListener{
 		
 		
 	}
+	
+	/*
 	private class ButtonCell extends TableCell<Report, Boolean> {
         final Button cellButton = new Button("Edit");
         ButtonCell(){
@@ -154,6 +156,7 @@ public  class ReportTableView implements InputChangeListener{
             }
         }
     }
+	*/
 	
 	//update the list in the tableview
 	public void updateListByInputDirectory(InputConfiguration inputDirectory){

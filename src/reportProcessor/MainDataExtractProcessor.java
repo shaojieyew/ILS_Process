@@ -53,15 +53,16 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 		cancelProcess=true;
 	}
 	
-	List<Thread> listOfThreads = new ArrayList<Thread>();
+	//List<Thread> listOfThreads = new ArrayList<Thread>();
 	private final Semaphore lock = new Semaphore(1);
+	private final List<DataExtractProcessor> listOfRp = new ArrayList<DataExtractProcessor>();
 	
 	@Override
 	public void run() {
 		started();
 		Semaphore token = new Semaphore((totalCount-1)*-1);
 		cancelProcess = false;
-		listOfThreads.clear();
+		//listOfThreads.clear();
 		List<Processor> runningProcessors = new ArrayList<Processor>();
 		int count =0;
 		for(int i =0;i<totalCount;i++){
@@ -76,6 +77,7 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 				}
 				//start a sub-thread to process a report
 				DataExtractProcessor rp = new DataExtractProcessor(this,reports.get(i),i,reprocessCompletedFile);
+				listOfRp.add(rp);
 				rp.addListener(new ProcessorListener(){
 					@Override
 					public void onComplete(Processor processor) {

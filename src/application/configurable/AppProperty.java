@@ -17,7 +17,12 @@ import java.util.Properties;
 public class AppProperty {
 	private static final Properties PROP = new Properties();
 	private static final String CONFIG_FIlE="config.properties";
-	
+	public static final String PROP_input = "input";
+	public static final String PROP_output = "output";
+	public static final String PROP_report_summary = "report_summary";
+	public static final String PROP_report_summary_sheet = "report_summary_sheet";
+	public static final String PROP_multi_thread = "multi_thread";
+	public static final String PROP_debug = "debug";
 	 /**
 	  * Get the value of an application property. Initialize new config.properties file if file not exist.
 	  * 
@@ -67,7 +72,7 @@ public class AppProperty {
 		 }
 		OutputStream output = null;
 		try {
-			output = new FileOutputStream("config.properties");
+			output = new FileOutputStream(CONFIG_FIlE);
 			PROP.setProperty(property, value);
 			PROP.store(output, null);
 		} catch (IOException io) {
@@ -82,7 +87,7 @@ public class AppProperty {
 			}
 		}
 	}
-	 
+
 
 	 /**
 	  * Create a new config.properties file for the application, initialized with default value for application properties 
@@ -90,13 +95,13 @@ public class AppProperty {
 	 public static void initialize() {
 			OutputStream output = null;
 			try {
-				output = new FileOutputStream("config.properties");
-				PROP.setProperty("input", Paths.get("").toAbsolutePath().toString());
-				PROP.setProperty("output", Paths.get("").toAbsolutePath().toString());
-				PROP.setProperty("report_summary", "");
-				PROP.setProperty("report_summary_sheet", "");
-				PROP.setProperty("multi_thread", "2");
-				PROP.setProperty("debug", "false");
+				output = new FileOutputStream(CONFIG_FIlE);
+				PROP.setProperty(PROP_input, Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty(PROP_output, Paths.get("").toAbsolutePath().toString());
+				PROP.setProperty(PROP_report_summary, "");
+				PROP.setProperty(PROP_report_summary_sheet, "");
+				PROP.setProperty(PROP_multi_thread, "2");
+				PROP.setProperty(PROP_debug, "false");
 				PROP.store(output, null);
 
 			} catch (IOException io) {

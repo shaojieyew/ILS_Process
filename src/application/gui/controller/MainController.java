@@ -100,12 +100,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		return instance;
 	}
 
-	public static final String defaultFileName = "ILS-Result";
+	private static final String defaultFileName = "ILS-Result";
 	private static final Semaphore lockStatCounter = new Semaphore(1);
-	public int completedCount = 0;
-	public int failedCount = 0;
-	public int inProcessCount = 0;
-	public MainDataExtractProcessor mainProcessor;
+	private int completedCount = 0;
+	private int failedCount = 0;
+	//private int inProcessCount = 0;
+	private MainDataExtractProcessor mainProcessor;
 
 	public String getImportedFile() {
 		return InputConfiguration.getInstance().getReportSummaryFile();
@@ -151,7 +151,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		textField_outputFile.setText(getImportedFile());
 		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
 		
-		DebugClass.setDebug(AppProperty.getValue("debug").equals("true")?true:false);
 	}
 
 	
@@ -163,7 +162,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			InputConfiguration.getInstance().setDirectory(f.getPath());
 			completedCount=0;
 			failedCount = 0;
-			inProcessCount = 0;
+			//inProcessCount = 0;
 			updateProgressBar("",null);
 		}
 	}
@@ -191,11 +190,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		//get report from the tableview
 		completedCount = 0;
 		failedCount = 0;
-		inProcessCount = 0;
+		//inProcessCount = 0;
 		ObservableList<Report> data = tableview.getItems();
 		int multi_thread_count = 1;
 		try{
-			multi_thread_count = Integer.parseInt(AppProperty.getValue("multi_thread"));
+			multi_thread_count = Integer.parseInt(AppProperty.getValue(AppProperty.PROP_multi_thread));
 		}catch(Exception ex){
 			
 		}
@@ -382,10 +381,10 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 		completedCount = 0;
 		failedCount = 0;
-		inProcessCount = 0;
+		//inProcessCount = 0;
 		for(Report r : tableview.getItems()){
 			if((Report.STATUS_IN_PROCESSING).equals(r.getStatus())){
-				inProcessCount++;
+				//inProcessCount++;
 			}
 			if((Report.STATUS_COMPLETED).equals(r.getStatus())){
 				completedCount++;
@@ -531,6 +530,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	}
 	@FXML
 	public void removeInvalidFile(){
+		File f = FolderChooser.show(getStage(), "Select folder to move invalid file to",inputTextfield.getText());
 		SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMdd");
 		String formattedDate = formatter.format(new Date());
 		int count =0;
@@ -538,10 +538,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		ObservableList<Report> data = tableview.getItems();
 		for(Report report : data){
 			if(report.getStatus().equals(Report.STATUS_FAILED)){
-				  File afile =new File(report.getPath());
-				  movedToDir = afile.getParent()+"\\"+formattedDate+"_INVALID_FILE";
-				  FileUtility.moveFiles(afile, movedToDir);
-				  count++;
+				File afile =new File(report.getPath());
+				String path = afile.getParent();
+				path=f.getAbsolutePath();
+				movedToDir = path+"\\"+formattedDate+"_INVALID_FILE";
+				FileUtility.moveFiles(afile, movedToDir);
+				count++;
 			}
 		}
 		if(count>0){

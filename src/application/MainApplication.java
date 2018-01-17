@@ -56,7 +56,7 @@ public class MainApplication extends Application {
             mainLoader.setLocation(MainApplication.class.getResource("gui/Main.fxml"));
             BorderPane mainLayout = (BorderPane) mainLoader.load();
 
-            FXMLController controller = (FXMLController)mainLoader.getController();
+            FXMLController controller = (MainController)mainLoader.getController();
             controller.setStageAndSetupListeners(stage); 
             
 			//Setup CSS Style for the FXML
