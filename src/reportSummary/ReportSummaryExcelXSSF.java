@@ -25,14 +25,16 @@ import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
 import report.AttributeIndex;
 import report.Report;
+import util.AppDialog;
 
 public class ReportSummaryExcelXSSF implements ReportSummary {
 	private XSSFSheet sheet;
+	private String processName="";
 	
 	public ReportSummaryExcelXSSF(XSSFSheet o) {
 		sheet=o;
 	}
-
+	private static final String BatchNameKeyword="Results (counting) for:";
 	private int studentColIndex = -1;
 	private int recColIndex = -1;
 	private int bandColIndex = -1;
@@ -40,12 +42,13 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 	private boolean includeUnknownStudentInCounting = false;
 	
 	@Override
-	public void process(ObservableList<Report> reports) {
+	public void process(ObservableList<Report> reports, String processName) {
 		if(!verify()){
 			//System.out.println("Invalid format");
 			ReportSummaryExcelLayout.createNewLayout(sheet);	
 		}
-		System.out.println("Writing data to file");
+		this.processName=processName;
+		//System.out.println("Writing data to file");
 		Iterator<Row> itr = sheet.iterator(); 
 		List<String> StudentList = new ArrayList<String>();
 		List<String> NewStudentList = new ArrayList<String>();
@@ -318,7 +321,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 		Cell cell = null;
 		if(!percentage){
 			cell = r.createCell(startCol);
-			cell.setCellValue("Results (counting) for: XXXXX");
+			cell.setCellValue("Results (counting) for: "+processName);
 			
 			cell = r.createCell(startCol+6);
 			cell.setCellValue("sampling =");
@@ -341,7 +344,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 			cell.setCellStyle(formulaStyle);
 		}else{
 			cell = r.createCell(startCol);
-			cell.setCellValue("Results (percentage) for: XXXXX");
+			cell.setCellValue("Results (percentage) for: "+processName);
 		}
 		
 		
@@ -786,5 +789,33 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 			
 		}
 		return valid;
+	}
+
+	@Override
+	public String getReportSheetName() {
+		return sheet.getSheetName();
+	}
+
+	@Override
+	public String getBatchName() {
+		if(verify()){
+			Iterator<Row> itr = sheet.iterator(); 
+			while (itr.hasNext()) { 
+				Row row = itr.next(); 
+					Iterator<Cell> cellIterator = row.cellIterator();
+					while (cellIterator.hasNext()) {
+						Cell tempCell = cellIterator.next();
+						if(tempCell.getCellType()==Cell.CELL_TYPE_STRING){
+							String value = tempCell.getStringCellValue();
+							if(value.contains(BatchNameKeyword)){
+								return value.replace(BatchNameKeyword, "").trim();
+							}
+						}
+					}
+				}
+				
+			}
+		return null;
+		
 	}
 }

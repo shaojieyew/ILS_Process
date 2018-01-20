@@ -37,16 +37,7 @@
       <operations public="true" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="5" language="java" name="reportSummary.ReportSummary" project="ILS_Processing" 
-    file="/ILS_Processing/src/reportSummary/ReportSummary.java" binary="false" corner="BOTTOM_RIGHT">    
-    <position height="-1" width="-1" x="481" y="163"/>    
-    <display autosize="true" stereotype="true" package="false" initial-value="false" signature="true" 
-      sort-features="false" accessors="true" visibility="true">      
-      <attributes public="true" package="true" protected="true" private="false" static="true"/>      
-      <operations public="true" package="true" protected="true" private="false" static="true"/>    
-    </display>  
-  </interface>  
-  <class id="6" language="java" name="reportSummary.reader.ReportSummaryExcelXSSFReader" project="ILS_Processing" 
+  <class id="5" language="java" name="reportSummary.reader.ReportSummaryExcelXSSFReader" project="ILS_Processing" 
     file="/ILS_Processing/src/reportSummary/reader/ReportSummaryExcelXSSFReader.java" binary="false" 
     corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="977" y="614"/>    
@@ -56,7 +47,7 @@
       <operations public="true" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </class>  
-  <interface id="7" language="java" name="reportSummary.reader.ReportSummaryReader" project="ILS_Processing" 
+  <interface id="6" language="java" name="reportSummary.reader.ReportSummaryReader" project="ILS_Processing" 
     file="/ILS_Processing/src/reportSummary/reader/ReportSummaryReader.java" binary="false" corner="BOTTOM_RIGHT">    
     <position height="-1" width="-1" x="974" y="469"/>    
     <display autosize="true" stereotype="true" package="false" initial-value="false" signature="true" 
@@ -65,50 +56,46 @@
       <operations public="true" package="true" protected="true" private="false" static="true"/>    
     </display>  
   </interface>  
-  <association id="8">    
+  <association id="7">    
     <end type="SOURCE" refId="1" navigable="false">      
-      <attribute id="9" name="INSTANCE"/>      
-      <multiplicity id="10" minimum="0" maximum="1"/>    
+      <attribute id="8" name="INSTANCE">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="9" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="1" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <dependency id="11">    
-    <end type="SOURCE" refId="1"/>    
-    <end type="TARGET" refId="5"/>  
-  </dependency>  
-  <dependency id="12">    
+  <dependency id="10">    
     <end type="SOURCE" refId="2"/>    
     <end type="TARGET" refId="1"/>  
   </dependency>  
-  <dependency id="13">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="7"/>  
+  <dependency id="11">    
+    <end type="SOURCE" refId="3"/>    
+    <end type="TARGET" refId="4"/>  
   </dependency>  
+  <dependency id="12">    
+    <end type="SOURCE" refId="2"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <realization id="13">    
+    <end type="SOURCE" refId="5"/>    
+    <end type="TARGET" refId="6"/>  
+  </realization>  
   <association id="14">    
     <end type="SOURCE" refId="2" navigable="false">      
-      <attribute id="15" name="instance"/>      
-      <multiplicity id="16" minimum="0" maximum="1"/>    
+      <attribute id="15" name="instance">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="16" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
     <end type="TARGET" refId="2" navigable="true"/>    
     <display labels="true" multiplicity="true"/>  
   </association>  
-  <dependency id="17">    
-    <end type="SOURCE" refId="2"/>    
-    <end type="TARGET" refId="5"/>  
-  </dependency>  
-  <realization id="18">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="5"/>  
-  </realization>  
-  <dependency id="19">    
-    <end type="SOURCE" refId="3"/>    
-    <end type="TARGET" refId="4"/>  
-  </dependency>  
-  <realization id="20">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="7"/>  
-  </realization>  
   <classifier-display autosize="true" stereotype="true" package="false" initial-value="false" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="true" package="true" protected="true" private="false" static="true"/>    

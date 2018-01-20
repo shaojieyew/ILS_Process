@@ -19,10 +19,9 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import report.ReportsCurve;
 import util.AppDialog;
 
-public class SettingCustomDialog {
+public class CustomDialogSetting {
 
 
 	static boolean cancel = false;
@@ -97,7 +96,7 @@ public class SettingCustomDialog {
 	        Scene dialogScene = new Scene(borderPane, 450, 100);
 	        dialogScene.getStylesheets().add(MainApplication.class.getResource("gui/application.css").toExternalForm());
 	        dialogScene.getStylesheets().add(MainApplication.class.getResource("gui/bootstrap.css").toExternalForm());
-		
+	        dialog.setResizable(false);
 	        dialog.setScene(dialogScene);
 	        dialog.showAndWait();
 	        if(cancel){

@@ -100,6 +100,10 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 							e.printStackTrace();
 						}
 					}
+					@Override
+					public void onFail(Processor processor) {
+						
+					}
 				});
 				Thread thread1 = new Thread(rp);
 				thread1.start();

@@ -16,31 +16,38 @@ public class SummaryProcessor extends Processor implements Runnable{
 	private String outputDirectory;
 	private File destFile;
 	private Object summaryFile;
+	private String processName;
 	
 	//constructor setup list of reports to process
-	public SummaryProcessor(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile){
+	public SummaryProcessor(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile,String processName){
 
 		this.reports=data;
 		this.outputDirectory= outputDirectory;
 		this.destFile = destFile;
 		this.summaryFile = summaryFile;
+		this.processName = processName;
 	}
 	
 	//singleton method
-	public static SummaryProcessor getInstance(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile) {
-		INSTANCE = new SummaryProcessor(data,outputDirectory,destFile,summaryFile);
+	public static SummaryProcessor getInstance(ObservableList<Report> data, String outputDirectory, File destFile, Object summaryFile,String processName) {
+		INSTANCE = new SummaryProcessor(data,outputDirectory,destFile,summaryFile,processName);
         return INSTANCE;
     }
 	
 	@Override
 	public void run() {
 		started();
+		boolean result = true;
 		ReportSummary reportSmmary = ReportSummaryFactory.createInstance(summaryFile);
 		if(reportSmmary!=null){
-			reportSmmary.process(reports);
-			reportSmmary.save(destFile); //slow
+			reportSmmary.process(reports,processName);
+			result = reportSmmary.save(destFile); //slow
 		}
-		completed();
+		if(result){
+			completed();
+		}else{
+			failed();
+		}
 	}
 	
 	public ObservableList<Report> getReports() {

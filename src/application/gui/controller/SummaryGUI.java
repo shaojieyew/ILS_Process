@@ -77,18 +77,35 @@ public class SummaryGUI extends BorderPane {
 		loadGraphic();
 	}
 
+	public void setSelectorColor(String color){
+		for(Line line: selectors){
+			line.setStroke(Color.web(color));
+		}
+		for(Line line: selectorsJoiner){
+			line.setStroke(Color.web(color));
+		}
+		
+	}
 
+	public static final Color DEFAULT_SELECTOR_COLOR = Color.web("0xff0000bb");
+	
 	public SummaryGUI(ObservableList<Report> observableList) {
 	}
 	
 	public SummaryGUI() {
 		super();
 		for(int i =0;i<selectors.length;i++){
-			selectors[i].setStroke(Color.web("0xff0000bb"));
+			selectors[i].setStroke(DEFAULT_SELECTOR_COLOR);
 			selectors[i].setFill(Color.TRANSPARENT);
 			selectors[i].setStrokeWidth(2);
 			selectors[i].startYProperty().bind(bindingY.multiply(1.50+(i*3)));
 			selectors[i].endYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
+		}
+		for(int i =0;i<selectorsJoiner.length;i++){
+			selectorsJoiner[i].setStroke(DEFAULT_SELECTOR_COLOR);
+			selectorsJoiner[i].setFill(Color.TRANSPARENT);
+			selectorsJoiner[i].setStrokeWidth(2);
+			selectorsJoiner[i].getStrokeDashArray().addAll(2d);
 		}
 
 		for(int i =0;i<statsSelectors.length;i++){
@@ -96,12 +113,6 @@ public class SummaryGUI extends BorderPane {
 			statsSelectors[i].setStrokeWidth(2);
 			statsSelectors[i].centerYProperty().bind(bindingY.multiply(2.50+(i*3)).add(bindingY).add(bindingY));
 			statsSelectors[i].radiusProperty().bind(bindingY.divide(4));
-		}
-		for(int i =0;i<selectorsJoiner.length;i++){
-			selectorsJoiner[i].setStroke(Color.web("0xff0000bb"));
-			selectorsJoiner[i].setFill(Color.TRANSPARENT);
-			selectorsJoiner[i].setStrokeWidth(2);
-			selectorsJoiner[i].getStrokeDashArray().addAll(2d);
 		}
 	}
 	public void setReportList(List<Report> observableList) {

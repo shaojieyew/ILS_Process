@@ -72,7 +72,7 @@ import report.AttributeIndex;
 import report.Report;
 import report.ReportChangeListener;
 import report.ReportObservable;
-import report.ReportsCurve;
+import report.ReportCurve;
 import util.AppDialog;
 import util.FileUtility;
 import util.FilesChooser;
@@ -169,14 +169,16 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	private void initCurveCombobox(){
 		combo_box_curve.getItems().clear();
 		combo_box_curve.getItems().add("--None--");
-		Map<String,String> map = ReportsCurve.get();
-        for (String key : map.keySet()){
-    		combo_box_curve.getItems().add(key);
-        }
-		if(selectedCurve!=null){
-			combo_box_curve.getSelectionModel().select(selectedCurve);
-		}else{
-			combo_box_curve.getSelectionModel().select(combo_box_curve.getItems().get(0).toString());
+		List<ReportCurve> list= ReportCurve.getAll();
+		if(list!=null){
+	        for (ReportCurve rc:list){
+	    		combo_box_curve.getItems().add(rc.getName());
+	        }
+			if(selectedCurve!=null){
+				combo_box_curve.getSelectionModel().select(selectedCurve);
+			}else{
+				combo_box_curve.getSelectionModel().select(combo_box_curve.getItems().get(0).toString());
+			}
 		}
 	}
 	
@@ -263,7 +265,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		summaryGUI.setSelectorsLoc(curve[0]);
 		summaryGUI.setShadingThreshold((float) thresholdSlider.getValue());
 		
-		boolean result = CurveCustomDialog.showCustomDialog("Save current statistic as curve", "Enter curve name",summaryGUI, "");
+		boolean result = CustomDialogCurve.showCustomDialog("Save current statistic as curve", "Enter curve name",summaryGUI, "");
 		if(result){
 			initCurveCombobox();
 		}
@@ -277,7 +279,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		if(selectedCurve!=null){
 			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Curve?");
 			if(result>-1){
-				ReportsCurve.delete(selectedCurve);
+				ReportCurve.deleteCurve(selectedCurve);
 				initCurveCombobox();
 				selectedCurve = null;
 			}
@@ -303,11 +305,11 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			summary_graphic.removeSelectors();
 			return;
 		}
-		String s  =ReportsCurve.get(selectedCurve);
+		ReportCurve rc  =ReportCurve.getCurve(selectedCurve);
 		selectedCurve = combo_box_curve.getSelectionModel().getSelectedItem().toString();
 		//String s = "[[[7.0, 0.8065469], [4.0, 0.6410792], [4.0, 1.25259], [6.0, 1.1446764]], [[7.0, 0.49], [4.0, 0.49], [3.0, 0.49], [6.0, 0.49]]]";
 		float[][][]  curve = new float [3][4][2];
-		String[]  results= s.split("],");
+		String[]  results= rc.getCurve().split("],");
 		for(int i =0;i<results.length;i++){
 			String str = results[i];
 			str = str.replace("[", "");
