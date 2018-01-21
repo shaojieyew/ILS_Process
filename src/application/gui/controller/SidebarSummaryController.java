@@ -319,8 +319,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		if(selectedCurve!=null){
 			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Curve?");
 			if(result>-1){
+				summary_graphic.removeCurve(ReportCurve.getCurve(selectedCurve));
 				ReportCurve.deleteCurve(selectedCurve);
-
 		        initCurveListView();
 				selectedCurve = null;
 			}
