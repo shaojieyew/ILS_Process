@@ -26,8 +26,8 @@ import report.Report;
 public class SummaryGUI extends BorderPane {
 	private List<Report> observableList = null;
 
-	private DoubleBinding bindingX = widthProperty().divide(14);
-	private DoubleBinding bindingY = heightProperty().divide(14);
+	protected DoubleBinding bindingX = widthProperty().divide(14);
+	protected DoubleBinding bindingY = heightProperty().divide(14);
 	private Line []selectors = {new Line(),new Line(),new Line(),new Line()};
 	private Line []selectorsJoiner = {new Line(),new Line(),new Line()};
 	private float selectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
@@ -35,6 +35,15 @@ public class SummaryGUI extends BorderPane {
 	private Circle []statsSelectors = {new Circle(),new Circle(),new Circle(),new Circle()};
 	private float statsSelectorsLoc [][]={{-1,0},{-1,0},{-1,0},{-1,0}};
 	//private boolean hideShade = false;
+	private boolean isMouseClickEnabled = true;
+	public boolean isMouseClickEnabled() {
+		return isMouseClickEnabled;
+	}
+
+	public void setMouseClickEnabled(boolean isMouseClickEnabled) {
+		this.isMouseClickEnabled = isMouseClickEnabled;
+	}
+
 	private boolean hideSelector = false;
 	private float shadingThreshold = 0.75f;
 	
@@ -350,7 +359,7 @@ public class SummaryGUI extends BorderPane {
 	
 	
 	private void setSelector(MouseEvent mouseEvent){
-		if(hideSelector){
+		if(hideSelector || !isMouseClickEnabled){
 			return;
 		}
 		BorderPane summaryGUI = (BorderPane) mouseEvent.getSource();

@@ -20,7 +20,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="559.0" prefWidth="1102.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.MainController">
+<BorderPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="560.0" prefWidth="1102.0" xmlns="http://javafx.com/javafx/8.0.111" xmlns:fx="http://javafx.com/fxml/1" fx:controller="application.gui.controller.MainController">
    <padding>
       <Insets bottom="35.0" left="20.0" right="20.0" />
    </padding>
@@ -40,7 +40,7 @@
                   <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
               </rowConstraints>
                <children>
-                  <Button fx:id="inputBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectInputAction" prefHeight="52.0" prefWidth="50.0" text="Select Folder" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                  <Button fx:id="inputBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#selectInputAction" prefHeight="32.0" text="Select Folder" GridPane.columnIndex="2" GridPane.rowIndex="1">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -61,7 +61,7 @@
                         <Font size="13.0" />
                      </font></Label>
                      
-                  <Button fx:id="startBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startProcess" prefHeight="14.0" prefWidth="68.0" text="Start Process" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                  <Button fx:id="startBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startProcess" prefHeight="32.0" text="Start Process" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1">
 				     <graphic>
 				       <ImageView fitHeight="21.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
 						          <image>
@@ -76,7 +76,7 @@
                         <Insets />
                      </GridPane.margin>
                   </Button>
-                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onImportExcel" text="Import Excel" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                  <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onImportExcel" prefHeight="32.0" text="Import Excel" GridPane.columnIndex="2" GridPane.rowIndex="2">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -87,7 +87,7 @@
                            </effect>
                         </ImageView>
                      </graphic></Button>
-                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNewExcel" prefWidth="151.0" text="New Excel" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onClickNewExcel" prefHeight="32.0" text="New Excel" GridPane.columnIndex="3" GridPane.rowIndex="2">
                      <graphic>
                         <ImageView fitHeight="22.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -113,7 +113,7 @@
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="90.0" prefWidth="561.0" />
               </columnConstraints>
                <children>
-            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openImportedFile" text="Open Excel" GridPane.columnIndex="2">
+            <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openImportedFile" prefHeight="32.0" text="Open Excel" GridPane.columnIndex="2">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -130,7 +130,7 @@
                </GridPane.margin>
             </ComboBox>
                   <Label prefHeight="17.0" prefWidth="84.0" text="Select Sheet: " GridPane.halignment="RIGHT" />
-                  <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" prefWidth="121.0" text="View Summary" GridPane.columnIndex="3">
+                  <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" prefHeight="32.0" text="View Summary" GridPane.columnIndex="3">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -222,7 +222,7 @@
    <top>
       <ToolBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
         <items>
-          <Button mnemonicParsing="false" onAction="#viewSummary" text="Summary">
+          <Button mnemonicParsing="false" onAction="#viewSummary" prefHeight="30.0" text="Summary">
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -233,7 +233,7 @@
                      </effect>
                   </ImageView>
                </graphic></Button>
-          <Button fx:id="removeInvalidBtn" mnemonicParsing="false" onAction="#removeInvalidFile" text="Remove Problem Files">
+          <Button fx:id="removeInvalidBtn" mnemonicParsing="false" onAction="#removeInvalidFile" prefHeight="30.0" text="Remove Problem Files">
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -244,7 +244,7 @@
                      </effect>
                   </ImageView>
                </graphic></Button>
-          <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#refreshList" text="Refresh File List">
+          <Button fx:id="refreshBtn" mnemonicParsing="false" onAction="#refreshList" prefHeight="30.0" text="Refresh File List">
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                      <image>
@@ -255,7 +255,7 @@
                      </effect>
                   </ImageView>
                </graphic></Button>
-            <Button fx:id="settingBtn" mnemonicParsing="false" onAction="#openSetting" text="Setting">
+            <Button fx:id="settingBtn" mnemonicParsing="false" onAction="#openSetting" prefHeight="30.0" text="Setting">
                <graphic>
                   <ImageView fitHeight="20.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
                      <image>

@@ -58,8 +58,8 @@ public class CustomDialogCurve {
 	                new EventHandler<MouseEvent>() {
 	                    @Override
 	                    public void handle(MouseEvent e) {
-	                        dialog.close();
 	                        cancel =true;
+	                        dialog.close();
 	                    }
 	                });
 	        borderPane.setCenter(summaryGUI);

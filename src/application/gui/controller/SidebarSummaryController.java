@@ -28,6 +28,8 @@ import application.configurable.InputConfiguration;
 import application.configurable.OutputConfiguration;
 import application.gui.controller.SummaryGUI.StatMode;
 import javafx.application.Platform;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.ObservableList;
@@ -46,10 +48,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.CheckBoxListCell;
 import javafx.scene.image.ImageView;
 import javafx.scene.image.WritableImage;
 import javafx.scene.input.MouseEvent;
@@ -67,6 +71,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.stage.WindowEvent;
+import javafx.util.Callback;
 import javafx.stage.FileChooser.ExtensionFilter;
 import report.AttributeIndex;
 import report.Report;
@@ -91,8 +96,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	@FXML
 	private BorderPane borderPane_graphic;
 	@FXML
-	private ComboBox combo_box_curve;
-	private SummaryGUI summary_graphic = new SummaryGUI();
+	private ListView list_view_curve;
+	
+	private SummaryGUIMultiCurve summary_graphic = new SummaryGUIMultiCurve();
 	
 	private List<Report> reportList;
 	
@@ -162,24 +168,57 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void initialize(URL arg0, ResourceBundle arg1) {
 		thresholdSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
             summary_graphic.setShadingThreshold((float) thresholdSlider.getValue());
+            summary_graphic.drawCurve();
         });
-        initCurveCombobox();
+        
+        list_view_curve.setCellFactory(CheckBoxListCell.forListView(new Callback<String, ObservableValue<Boolean>>() {
+            @Override
+            public ObservableValue<Boolean> call(String item) {
+                BooleanProperty observable = new SimpleBooleanProperty();
+
+        		List<ReportCurve> appliedRc = summary_graphic.getCurves();
+        		for(ReportCurve rc: appliedRc){
+        			if(rc.name.equals(item)){
+                        observable.set(true);
+                        break;
+        			}
+        		}
+                observable.addListener((obs, wasSelected, isNowSelected) -> updateGUICurve(obs, wasSelected, isNowSelected,item));
+                return observable ;
+            }
+
+			private Object updateGUICurve(ObservableValue<? extends Boolean> obs, Boolean wasSelected,
+					Boolean isNowSelected, String item) {
+				ReportCurve rc = ReportCurve.getCurve(item);
+				if(rc!=null){
+					if(isNowSelected&&!wasSelected){
+						summary_graphic.drawCurve(rc);
+					}
+					if(!isNowSelected&&wasSelected){
+						summary_graphic.removeCurve(rc);
+					}
+				}
+				return null;
+			}
+        }));
+        initCurveListView();
 	}
 	
-	private void initCurveCombobox(){
-		combo_box_curve.getItems().clear();
-		combo_box_curve.getItems().add("--None--");
+	
+	private void initCurveListView(){
+        list_view_curve.getItems().clear();
 		List<ReportCurve> list= ReportCurve.getAll();
 		if(list!=null){
 	        for (ReportCurve rc:list){
-	    		combo_box_curve.getItems().add(rc.getName());
+	        	list_view_curve.getItems().add(rc.getName());
 	        }
 			if(selectedCurve!=null){
-				combo_box_curve.getSelectionModel().select(selectedCurve);
+				list_view_curve.getSelectionModel().select(selectedCurve);
 			}else{
-				combo_box_curve.getSelectionModel().select(combo_box_curve.getItems().get(0).toString());
+				list_view_curve.getSelectionModel().clearSelection();
 			}
 		}
+
 	}
 	
 	@FXML
@@ -205,14 +244,15 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	@FXML
 	public void onclick_save(){
 		BorderPane bp = new BorderPane();
-		SummaryGUI summaryGUI = new SummaryGUI();
+		SummaryGUIMultiCurve summaryGUI = new SummaryGUIMultiCurve();
 		summaryGUI.setReportList(reportList);
-		summaryGUI.setSelectorsLoc(summary_graphic.getSelectorsLoc());
+		//summaryGUI.setSelectorsLoc(summary_graphic.getSelectorsLoc());
 		summaryGUI.setShadingThreshold((float) thresholdSlider.getValue());
 		bp.setCenter(summaryGUI);
-		Scene scene2 = new Scene(bp, 800, 500);
+		Scene scene2 = new Scene(bp, 1000, 625);
 		saveSummaryStage.setScene(scene2);
-
+		summaryGUI.drawCurves(summary_graphic.getCurves());
+		
 		ExtensionFilter [] filters = {FilesChooser.FORMAT_PNG};
 		File file = FilesChooser.save(saveSummaryStage, "Save Summary Image", OutputConfiguration.getInstance().getDirectory(), filters);
 		if(file!=null){
@@ -267,7 +307,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 		
 		boolean result = CustomDialogCurve.showCustomDialog("Save current statistic as curve", "Enter curve name",summaryGUI, "");
 		if(result){
-			initCurveCombobox();
+			initCurveListView();
 		}
 	}
 	
@@ -280,7 +320,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			int result = AppDialog.multiButtonDialog(buttons, "Confirmation", "Confirm Deletion of Curve?");
 			if(result>-1){
 				ReportCurve.deleteCurve(selectedCurve);
-				initCurveCombobox();
+
+		        initCurveListView();
 				selectedCurve = null;
 			}
 		}else{
@@ -290,12 +331,18 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	
 	@FXML
 	public void on_curve_change(){
-		if(combo_box_curve.getSelectionModel().getSelectedIndex()>0){
-			selectedCurve = combo_box_curve.getSelectionModel().getSelectedItem().toString();
+		if(list_view_curve.getSelectionModel().getSelectedIndex()>-1){
+			if(selectedCurve==null||!selectedCurve.equals(list_view_curve.getSelectionModel().getSelectedItem().toString())){
+				selectedCurve = list_view_curve.getSelectionModel().getSelectedItem().toString();
+			}else{
+				list_view_curve.getSelectionModel().clearSelection();
+				selectedCurve=null;
+			}
 		}else{
 			selectedCurve=null;
 		}
-		setSelectedCurve(StatMode.MODE);
+		
+		//setSelectedCurve(StatMode.MODE);
 	}
 	
 	
@@ -306,7 +353,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 			return;
 		}
 		ReportCurve rc  =ReportCurve.getCurve(selectedCurve);
-		selectedCurve = combo_box_curve.getSelectionModel().getSelectedItem().toString();
+		selectedCurve = list_view_curve.getSelectionModel().getSelectedItem().toString();
 		//String s = "[[[7.0, 0.8065469], [4.0, 0.6410792], [4.0, 1.25259], [6.0, 1.1446764]], [[7.0, 0.49], [4.0, 0.49], [3.0, 0.49], [6.0, 0.49]]]";
 		float[][][]  curve = new float [3][4][2];
 		String[]  results= rc.getCurve().split("],");
