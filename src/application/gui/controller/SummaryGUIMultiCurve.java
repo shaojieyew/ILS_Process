@@ -73,7 +73,11 @@ public class SummaryGUIMultiCurve extends SummaryGUI {
 		}
 		drawCurve();
 	}
-	
+
+	public void loadGraphic(){
+		super.loadGraphic();
+		drawCurve();
+	}
 	public void drawCurve(){
 		getChildren().removeAll(lines);
 		lines.clear();
