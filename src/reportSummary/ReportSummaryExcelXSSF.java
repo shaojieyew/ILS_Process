@@ -58,6 +58,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 		while (itr.hasNext()) { 
 			Row row = itr.next(); 
 			if(studentColIndex==-1||recColIndex==-1||bandColIndex==-1){
+				//Find Headers row
 				 studentColIndex = -1;
 				 recColIndex = -1;
 				 bandColIndex = -1;
@@ -92,18 +93,28 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 				}
 			}
 
-			//System.out.print(row.getRowNum());
-
+			
 			if(headerRow>-1){
+				System.out.println(row.getRowNum()+"  VS  "+(headerRow+1));
 				if(row.getRowNum()>headerRow+1){
+					endOfstudentRow++;
 					Cell cell = row.getCell(studentColIndex);
 					if(cell==null||cell.getCellType()!=Cell.CELL_TYPE_STRING||cell.getStringCellValue().length()==0){
 						endOfstudentRow=row.getRowNum();
 						break;
 					}
 				}
+				
 			}
 		}
+		/*
+		if(endOfstudentRow==(headerRow+2)){
+			Cell cell = row.getCell(studentColIndex);
+			if(cell==null||cell.getCellType()!=Cell.CELL_TYPE_STRING||cell.getStringCellValue().length()==0){
+				endOfstudentRow=row.getRowNum();
+				break;
+			}
+		}*/
 		if(StudentList.size()==0)
 			includeUnknownStudentInCounting = true;
 				
@@ -187,80 +198,11 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 			}
 		}while(noMoreNewItem);
 		
-		/*
-		//name matching student
-		for(String x : StudentList){
-			  List<ExtractedResult> f= FuzzySearch.extractSorted(x, NewStudentList,55);
-			  for(ExtractedResult y : f){
-				  if(x.equals(FuzzySearch.extractOne(y.getString(), StudentList).getString())){
-					  //check ambiguousName
-					  List<ExtractedResult> f2 = FuzzySearch.extractAll(x,StudentList,3);
-					  int score = 0;
-					  boolean ambigouousNameExist = false;
-					  int ambigouousNameCount = 0;
-					  for(ExtractedResult x2 : f2){
-						  System.out.println(x2.getString()+" = "+x2.getScore());
-						  if(score<x2.getScore()){
-							  score=x2.getScore();
-						  }else{
-							  if(x2.getScore()==score){
-								  ambigouousNameExist =true;
-								  break;
-							  }
-						  }
-						  if(x2.getString().toLowerCase().contains(y.getString().toLowerCase())){
-							  ambigouousNameCount++;
-						  }
-					  }
-					  if(ambigouousNameCount>1||ambigouousNameExist){
-						  System.out.println("ambigouous Count = "+ambigouousNameCount);
-						  System.out.println("ambigouousNameExist = "+ambigouousNameExist);
-						  break;
-					  }
-						  
-					  
-					  //check length
-					  //if(FuzzySearch.tokenSortRatio(x, y.getString())>80)
-					  score = FuzzySearch.tokenSortRatio(x, y.getString());
-					  //int spaceCount1 =  x.split("\\s+").length -1;
-					  //int spaceCount2 =  y.getString().split("\\s+").length -1;
-					  float xlen = x.length();
-					  float ylen = y.getString().length();
-					  int thresholdScore = 100;
-					  float temp = 1;
-					  if(xlen<ylen){
-						  temp = xlen/ylen;
-					  }
-					  if(xlen>ylen){
-						  temp = ylen/xlen;
-					  }
-					  if(xlen==ylen){
-						  thresholdScore = 85;
-					  }else{
-						  temp=temp-0.45f;
-						  temp = temp*500;
-						  temp = 55+temp/5;
-						  thresholdScore = (int) temp;
-					  }
-					  if(thresholdScore>85){
-						  thresholdScore=85;
-					  }
-					  if(thresholdScore<55){
-						  thresholdScore=55;
-					  }
-					  if(thresholdScore<score){
-					//	  System.out.println("Found: ["+score+"] "+x+" --> "+y.getString());
-						  writeAttributeToList(x,y.getString(), reportList);
-					  }
-				  }
-			 }
-		}*/
-		
+
 		//add not added student
-		//System.out.println(endOfstudentRow);
 		if(endOfstudentRow>-1){
+
 			cleanSheet(endOfstudentRow,sheet.getLastRowNum(),0,bandColIndex+3);
-			
 			if(includeUnknownStudentInCounting){
 				for(Report r: reportList){
 					Row newRow = getRow( endOfstudentRow);
@@ -703,7 +645,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 						if(cell.getStringCellValue().equals(x)){
 							for(Report r: reports){
 								if(y.equals(r.getAuthor_name())){
-
+									System.out.println("===============:"+row.getRowNum());
 									writeReportToRow(row, r);
 									reports.remove(r);
 									break;

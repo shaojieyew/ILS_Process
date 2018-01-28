@@ -109,6 +109,9 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 				@Override
 				public void changed(ObservableValue<? extends String> observable, String oldValue, String newValue) {
 					try{
+						if(!newValue.matches("\\d*\\.?\\d+")){
+							newValue = "";
+						}
 						newValue = newValue.replaceAll("[^\\d.]", "");
 						if(!newValue.equals("11")){
 							newValue=newValue.replaceAll("0", "");
@@ -119,7 +122,6 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 							newValue="0";
 						}			
 						newValue= Integer.parseInt(newValue)+"";
-						System.out.println(newValue);
 						TextField changedTextField = null;
 						TextField oppositeTextField = null;
 						//if(attributeIndex.getIndex()>0){
@@ -127,43 +129,43 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 							switch(attributeIndex.getAttribute()){
 							case AttributeIndex.KEYWORD_ILS_ACTIVE:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_REFLECTIVE);
-								changedTextField = textfield_ILS_Active;
-								oppositeTextField = textfield_ILS_Reflective;
+								//changedTextField = textfield_ILS_Active;
+								//oppositeTextField = textfield_ILS_Reflective;
 								break;
 							case AttributeIndex.KEYWORD_ILS_SENSING:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_INTUITIVE);
-								changedTextField = textfield_ILS_Sensing;
-								oppositeTextField = textfield_ILS_Intuitive;
+								//changedTextField = textfield_ILS_Sensing;
+								//oppositeTextField = textfield_ILS_Intuitive;
 								break;
 							case AttributeIndex.KEYWORD_ILS_VISUAL:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_VERBAL);
-								changedTextField = textfield_ILS_Visual;
-								oppositeTextField = textfield_ILS_Verbal;
+								//changedTextField = textfield_ILS_Visual;
+								//oppositeTextField = textfield_ILS_Verbal;
 								break;
 							case AttributeIndex.KEYWORD_ILS_SEQUENTIAL:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_GLOBAL);
-								changedTextField = textfield_ILS_Sequential;
-								oppositeTextField = textfield_ILS_Global;
+								//changedTextField = textfield_ILS_Sequential;
+								//oppositeTextField = textfield_ILS_Global;
 								break;
 							case AttributeIndex.KEYWORD_ILS_REFLECTIVE:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_ACTIVE);
-								changedTextField = textfield_ILS_Reflective;
-								oppositeTextField = textfield_ILS_Active;
+								//changedTextField = textfield_ILS_Reflective;
+								//oppositeTextField = textfield_ILS_Active;
 								break;
 							case AttributeIndex.KEYWORD_ILS_INTUITIVE:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_SENSING);
-								changedTextField = textfield_ILS_Intuitive;
-								oppositeTextField = textfield_ILS_Sensing;
+								//changedTextField = textfield_ILS_Intuitive;
+								//oppositeTextField = textfield_ILS_Sensing;
 								break;
 							case AttributeIndex.KEYWORD_ILS_VERBAL:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_VISUAL);
-								changedTextField = textfield_ILS_Verbal;
-								oppositeTextField = textfield_ILS_Visual;
+								//changedTextField = textfield_ILS_Verbal;
+								//oppositeTextField = textfield_ILS_Visual;
 								break;
 							case AttributeIndex.KEYWORD_ILS_GLOBAL:
 								ai = report.getAttributeIndexByAttribute(AttributeIndex.KEYWORD_ILS_SEQUENTIAL);
-								changedTextField = textfield_ILS_Global;
-								oppositeTextField = textfield_ILS_Sequential;
+								//changedTextField = textfield_ILS_Global;
+								//oppositeTextField = textfield_ILS_Sequential;
 								break;
 							}
 
@@ -224,7 +226,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 				tf2.getStyleClass().add(invalid); 
 			}else{
 				if(!tf1.getText().equals("0")){
-					int index = Integer.parseInt(tf1.getText());
+					int index = Integer.parseInt(tf1.getText().replaceAll("[^\\d.]", ""));
 					if(index%2!=1||index>11||index<0){
 						tf1.getStyleClass().add(invalid); 
 					}else{
@@ -232,7 +234,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 					}
 				}
 				if(!tf2.getText().equals("0")){
-					int index = Integer.parseInt(tf2.getText());
+					int index = Integer.parseInt(tf2.getText().replaceAll("[^\\d.]", ""));
 					if(index%2!=1||index>11||index<0){
 						tf2.getStyleClass().add(invalid); 
 					}else{

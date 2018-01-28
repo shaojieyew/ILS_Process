@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
 
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -689,18 +691,21 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	public void onComboBoxSheetsSelectedChange(){
 		if(getImportedFile()!=null){
 			try {
-				FileInputStream fis = new FileInputStream(getImportedFile());
-				XSSFWorkbook book = new XSSFWorkbook(fis); 
-				int totalSheet = book.getNumberOfSheets();
-				
-				importedSummaryBtn.setVisible(false);
-				String selectedsheet="";
-				if(comboBoxSheets.getValue()!=null){
-					if(comboBoxSheets.getSelectionModel().getSelectedIndex()>0){	
-						selectedsheet=comboBoxSheets.getValue();
+				File f = new File(getImportedFile());
+				if(f.exists()){
+					FileInputStream fis = new FileInputStream(getImportedFile());
+					Workbook book = WorkbookFactory.create(fis); 
+					int totalSheet = book.getNumberOfSheets();
+					
+					importedSummaryBtn.setVisible(false);
+					String selectedsheet="";
+					if(comboBoxSheets.getValue()!=null){
+						if(comboBoxSheets.getSelectionModel().getSelectedIndex()>0){	
+							selectedsheet=comboBoxSheets.getValue();
+						}
+						InputConfiguration.getInstance().setReportSummaryFile_sheet(selectedsheet);
+						importedSummaryBtn.setVisible(true);
 					}
-					InputConfiguration.getInstance().setReportSummaryFile_sheet(selectedsheet);
-					importedSummaryBtn.setVisible(true);
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
