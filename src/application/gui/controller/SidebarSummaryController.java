@@ -110,8 +110,8 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 	public void setReportList(List<Report> reportList) {
 		this.reportList= reportList;
 		//String summary = "";
-		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND};
-		int countStatus[] = {0,0,0,0,0};
+		String status[] = {Report.STATUS_NOT_PROCESSED, Report.STATUS_IN_PROCESSING,Report.STATUS_COMPLETED,Report.STATUS_FAILED,Report.STATUS_NOT_FOUND,Report.STATUS_FAILED_MEMORY};
+		int countStatus[] = {0,0,0,0,0,0};
 
 		if(reportList!=null){
 			for(Report r: reportList){
@@ -120,6 +120,9 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 				}
 				if(r.getStatus().equals(Report.STATUS_FAILED)){
 					countStatus[3]++;
+				}
+				if(r.getStatus().equals(Report.STATUS_FAILED_MEMORY)){
+					countStatus[5]++;
 				}
 				if(r.getStatus().equals(Report.STATUS_NOT_FOUND)){
 					countStatus[4]++;
@@ -143,7 +146,7 @@ public class SidebarSummaryController implements Initializable, ReportChangeList
 						text1.setStyle("-fx-font-weight: bold");
 						text1.setFill(Color.GREEN);
 					}
-					if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_NOT_FOUND)){
+					if(status[i].equals(Report.STATUS_FAILED)||status[i].equals(Report.STATUS_FAILED_MEMORY)||status[i].equals(Report.STATUS_NOT_FOUND)){
 						text1.setStyle("-fx-font-weight: bold");
 						text1.setFill(Color.RED);
 					}

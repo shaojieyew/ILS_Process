@@ -12,6 +12,8 @@ import java.util.Date;
 import java.util.ResourceBundle;
 import java.util.concurrent.Semaphore;
 
+import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
+import org.apache.poi.openxml4j.exceptions.InvalidOperationException;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
@@ -109,6 +111,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	private static final String STYLE_DANGER = "danger";
 	private static final String[] STYLES = {STYLE_PRIMARY,STYLE_INFO,STYLE_SUCCESS,STYLE_WARNING,STYLE_DANGER};
 	
+	private static final String LABEL_PROCESS_OUTOFMEMORYFILE = "Re-processing out of memory files ...";
+	private static final String LABEL_PROCESS_COMPLETED = "Process completed";
+	private static final String LABEL_PROCESS_CANCELED = "Cancelling, please wait";
+	private static final String LABEL_PROCESS_PROCESSING = "Processing Files ...";
+	private static final String LABEL_PROCESS_GENERATINGSUMMARY ="Generating summary file ...";
+	private static final String LABEL_PROCESS_FAILSUMMARY ="Failed to generate summary";
 	
 	private static final String defaultFileName = "ILS-Result";
 	private static final Semaphore lockStatCounter = new Semaphore(1);
@@ -173,7 +181,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			completedCount=0;
 			failedCount = 0;
 			//inProcessCount = 0;
-			updateProgressBar("",null);
+			updateProgressBar(null,null);
 		}
 	}
 
@@ -231,11 +239,37 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		mainProcessor.addListener(new ProcessorListener(){
 			@Override
 			public void onComplete(Processor process) {
-				generateSummary(current_sheetName,current_processName);
+				mainProcessor = MainDataExtractProcessor.getInstanceReprocessOutOfMemory(data);
+				mainProcessor.addListener(new ProcessorListener(){
+					@Override
+					public void onComplete(Processor process) {
+						generateSummary(current_sheetName,current_processName);
+					}
+
+					@Override
+					public void onStart(Processor process) {
+						Platform.runLater(new Runnable() {
+		                 @Override public void run() {
+				 			updateProgressBar(LABEL_PROCESS_OUTOFMEMORYFILE,null);
+		                 }
+						});
+					}
+
+					@Override
+					public void onFail(Processor processor) {
+					}
+				});
+				Thread mainProcessorThread = new Thread(mainProcessor);
+				mainProcessorThread.start();
 			}
 
 			@Override
 			public void onStart(Processor process) {
+				Platform.runLater(new Runnable() {
+	                 @Override public void run() {
+	     				updateProgressBar(LABEL_PROCESS_PROCESSING,null);
+	                 }
+					});
 			}
 
 			@Override
@@ -245,8 +279,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		Thread mainProcessorThread = new Thread(mainProcessor);
 		mainProcessorThread.start();
 		cancelBtn.setDisable(false);
-		
-		
 	}
 	
 	TableViewSelectionModel<Report> tableviewSelectionModel = null;
@@ -274,7 +306,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	
 	@FXML
 	public void onCancelProcess(){
-		updateProgressBar("Cancelling, please wait",STYLE_WARNING);
+		updateProgressBar(LABEL_PROCESS_CANCELED,STYLE_WARNING);
 		cancelProcess();
 	}
 	
@@ -382,7 +414,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryProcessor)process).getDestFile().getAbsolutePath());
 	        				diableAllControls(false);
 	        				cancelBtn.setDisable(true);
-	        				updateProgressBar("Complete",STYLE_SUCCESS);
+	        				updateProgressBar(LABEL_PROCESS_COMPLETED,STYLE_SUCCESS);
 	                 }
 				});
 			}
@@ -392,11 +424,10 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				Platform.runLater(new Runnable() {
 	                 @Override public void run() {
 	             		updateStatusCounters();
-	     				updateProgressBar("Generating Summary",null);
+	     				updateProgressBar(LABEL_PROCESS_GENERATINGSUMMARY,null);
 	                 }
 				});
 			}
-
 			@Override
 			public void onFail(Processor process) {
 				Platform.runLater(new Runnable() {
@@ -405,7 +436,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	                		InputConfiguration.getInstance().setReportSummaryFile(((SummaryProcessor)process).getDestFile().getAbsolutePath());
 	        				diableAllControls(false);
 	        				cancelBtn.setDisable(true);
-	        				updateProgressBar("Failed to Generate Summary",STYLE_DANGER);
+	        				updateProgressBar(LABEL_PROCESS_FAILSUMMARY,STYLE_DANGER);
 	        		    	AppDialog.alert("Failed to save excel file", "Ensure that "+textField_outputFile.getText()+" is closed and try again.");	   
 	                 }
 				});
@@ -467,7 +498,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			if((Report.STATUS_COMPLETED).equals(r.getStatus())){
 				completedCount++;
 			}
-			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())){
+			if((Report.STATUS_FAILED).equals(r.getStatus())||(Report.STATUS_FAILED_MEMORY).equals(r.getStatus())||(Report.STATUS_NOT_FOUND).equals(r.getStatus())){
 				failedCount++;
 			}
 		}
@@ -494,7 +525,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
     	        		if(mainProcessor.isCancelProcess()){
     	        			cancelProcess();
     	        		}else{
-    	        			double percentageProcess= updateProgressBar("",null);
+    	        			double percentageProcess= updateProgressBar(null,null);
         	        		if(percentageProcess==1){
         	        			cancelProcess();
         	        		}
@@ -506,6 +537,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	}
 	
 	public double updateProgressBar(String message, String style){
+		if(message==null){
+			message = progressLabel.getText().split("\\)")[1];
+			if(message.length()>0)
+				message=message.trim();
+		}
 		int reportToProcess = ReportTableViewFactory.getInstance(tableview).getTotalGetReport();
 		double percentageProcess = (float)(completedCount+failedCount)/(float)reportToProcess;
 		progressBar.setProgress(percentageProcess);
@@ -514,7 +550,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		if(style!=null){
 			progressBar.getStyleClass().add(style);
 		}
-		return percentageProcess;
+		return message.equals("Process completed")?1:0;
 	}
 	
 
@@ -530,8 +566,20 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		}
 		//setImportedFile(file);
 		if(file!=null){
-			InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
-			textField_outputFile.setText(file.getAbsolutePath());
+			try {
+				XSSFWorkbook book = new XSSFWorkbook(file);
+				InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
+				textField_outputFile.setText(file.getAbsolutePath());
+			} catch (InvalidFormatException | IOException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				AppDialog.alert("Invalid File", "Invalid File");
+			} catch (InvalidOperationException e) {
+				// TODO Auto-generated catch block
+				//e.printStackTrace();
+				AppDialog.alert("Invalid File", "Invalid File");
+			} 
+			
 		}
 	}
 
@@ -636,23 +684,25 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		int count =0;
 		String movedToDir = "";
 		ObservableList<Report> data = tableview.getItems();
-		for(Report report : data){
-			if(report.getStatus().equals(Report.STATUS_FAILED)){
-				File afile =new File(report.getPath());
-				String path = afile.getParent();
-				path=f.getAbsolutePath();
-				movedToDir = path+"\\"+formattedDate+"_INVALID_FILE";
-				FileUtility.moveFiles(afile, movedToDir);
-				count++;
+		if(f!=null){
+			for(Report report : data){
+				if(report.getStatus().equals(Report.STATUS_FAILED)||report.getStatus().equals(Report.STATUS_FAILED_MEMORY)){
+					File afile =new File(report.getPath());
+					String path = afile.getParent();
+					path=f.getAbsolutePath();
+					movedToDir = path+"\\"+formattedDate+"_INVALID_FILE";
+					FileUtility.moveFiles(afile, movedToDir);
+					count++;
+				}
 			}
-		}
-		if(count>0){
-			String []buttons = {"Open Folder"};
-			if(0==AppDialog.multiButtonDialog(buttons, "Problem Files Removed", "The problematic files are moved to "+movedToDir+".")){
-				FileUtility.openFile(movedToDir);
+			if(count>0){
+				String []buttons = {"Open Folder"};
+				if(0==AppDialog.multiButtonDialog(buttons, "Problem Files Removed", "The problematic files are moved to "+movedToDir+".")){
+					FileUtility.openFile(movedToDir);
+				}
 			}
+			InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
 		}
-		InputConfiguration.getInstance().setDirectory(InputConfiguration.getInstance().getDirectory());
 	}
 	
 	@FXML

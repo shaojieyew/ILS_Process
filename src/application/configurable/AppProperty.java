@@ -23,6 +23,16 @@ public class AppProperty {
 	public static final String PROP_report_summary_sheet = "report_summary_sheet";
 	public static final String PROP_multi_thread = "multi_thread";
 	public static final String PROP_debug = "debug";
+	
+
+	public static final String DEFAULT_PROP_input = Paths.get("").toAbsolutePath().toString();
+	public static final String DEFAULT_PROP_output = Paths.get("").toAbsolutePath().toString();
+	public static final String DEFAULT_PROP_report_summary = "";
+	public static final String DEFAULT_PROP_report_summary_sheet = "";
+	public static final String DEFAULT_PROP_multi_thread = "1";
+	public static final String DEFAULT_PROP_debug = "false";
+
+
 	 /**
 	  * Get the value of an application property. Initialize new config.properties file if file not exist.
 	  * 
@@ -41,7 +51,10 @@ public class AppProperty {
 			input = new FileInputStream(CONFIG_FIlE);
 			PROP.load(input);
 			value=PROP.getProperty(property);
-			
+			if(value==null){
+				initialize(property);
+				value=getDefaultProperty(property);
+			}
 		} catch (IOException ex) {
 				ex.printStackTrace();
 		} finally {
@@ -100,10 +113,70 @@ public class AppProperty {
 				PROP.setProperty(PROP_output, Paths.get("").toAbsolutePath().toString());
 				PROP.setProperty(PROP_report_summary, "");
 				PROP.setProperty(PROP_report_summary_sheet, "");
-				PROP.setProperty(PROP_multi_thread, "2");
+				PROP.setProperty(PROP_multi_thread, "1");
 				PROP.setProperty(PROP_debug, "false");
 				PROP.store(output, null);
 
+			} catch (IOException io) {
+				io.printStackTrace();
+			} finally {
+				if (output != null) {
+					try {
+						output.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+
+			}
+	}
+
+
+	 public static String getDefaultProperty(String key) {
+				switch(key){
+				case PROP_input:
+					return DEFAULT_PROP_input;
+				case PROP_output:
+					return DEFAULT_PROP_output;
+				case PROP_report_summary:
+					return DEFAULT_PROP_report_summary;
+				case PROP_report_summary_sheet:
+					return DEFAULT_PROP_report_summary_sheet;
+				case PROP_multi_thread:
+					return DEFAULT_PROP_multi_thread;
+				case PROP_debug:
+					return DEFAULT_PROP_debug;
+				}
+				return null;
+	}
+	 
+	 
+	 
+	 public static void initialize(String key) {
+			OutputStream output = null;
+			try {
+				output = new FileOutputStream(CONFIG_FIlE);
+				switch(key){
+				case PROP_input:
+					PROP.setProperty(PROP_input, Paths.get("").toAbsolutePath().toString());
+					break;
+				case PROP_output:
+					PROP.setProperty(PROP_output, Paths.get("").toAbsolutePath().toString());
+					break;
+				case PROP_report_summary:
+					PROP.setProperty(PROP_report_summary, "");
+					break;
+				case PROP_report_summary_sheet:
+					PROP.setProperty(PROP_report_summary_sheet, "");
+					break;
+				case PROP_multi_thread:
+					PROP.setProperty(PROP_multi_thread, "1");
+					break;
+				case PROP_debug:
+					PROP.setProperty(PROP_debug, "false");
+					break;
+				}
+				PROP.store(output, null);
 			} catch (IOException io) {
 				io.printStackTrace();
 			} finally {

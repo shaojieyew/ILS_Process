@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+
+import org.opencv.core.CvException;
 import org.opencv.core.Mat;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
@@ -83,137 +85,144 @@ public class OCRProcessor extends DebugClass {
 
     
     public BufferedImage ocrPreProcessing(BufferedImage image) throws OutOfMemoryError{
-        //float owidth = image.getWidth();
-        //float oheight = image.getHeight();
-        image = removeUncessarySpace(image);
-        /*
-        float cwidth = image.getWidth();
-        float cheight = image.getHeight();
-        int shrinkRatio=1;
-        if((owidth-cwidth)>(oheight-cheight)){
-        	shrinkRatio= (int) (owidth/(cwidth));
-        }else{
-        	shrinkRatio= (int) (oheight/(cheight));
-        }
-        */
-        float width = image.getWidth();
-        float height = image.getHeight();
-        float ratio = 1;
-    	//if(height<3000){
-      //  	ratio = 3000f/height;
-    	//}else{
-            if(width<3500){
-            	ratio = 3500f/width;
-            }
-    //	}
-        
-        if(width>3500){
-        	ratio = 3500f/width;
-        }
-        int newW = (int) (ratio*width);
-        int newH = (int) (ratio*height);
-
-        if(ratio!=1){
-        	BufferedImage newImage = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
-        	Graphics g = newImage.createGraphics();
-        	g.drawImage(image, 0, 0, newW, newH, null);
-        	g.dispose();
-        	//Imgproc.resize(source, source, new Size(newW,newH));
-        	image = newImage;
-        }
-    	Mat source= OpenCVUtility.img2Mat(image);
-        int blurMat =3;
-        int threshold_val = 195;
-        blurMat = (int) ((Math.round(ratio+0.5))*2+1);
-        if(blurMat<3){
-        	blurMat=3;
-        }
-        if(ratio>1){
-        	threshold_val=threshold_val+(int) ((ratio-0.9)*25);
-        	if(threshold_val>220)
-        		threshold_val=220;
-        }
-
-        //System.out.println(ratio+":"+blurMat);
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
-        Imgproc.threshold(source, source, threshold_val, 255, Imgproc.THRESH_BINARY);
-        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
-        Imgproc.blur(source, source, new Size(3, 3));
-        
-        /*
-        int blurMat = (int) ((Math.round(ratio+0.1))*2+1);
-        if(blurMat<3){
-        	blurMat=3;
-        }
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
-        Imgproc.threshold(source, source, 200, 255, Imgproc.THRESH_BINARY);
-        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
-        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
-        */
-        
-        /*
-        int blurMat = 3;
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
-        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
-         */
-        
-        /*
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
-        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
-        */
-        
-        
-       /*
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Mat kernel = Mat.ones(3,3, CvType.CV_8S);
-        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
-        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-         Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
-        */
-        
-        
-        
-        /*
-        if(source.channels()>1)
-            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
-        Mat kernel = Mat.ones(3,3, CvType.CV_8S);
-        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
-        Imgproc.morphologyEx(source, source, Imgproc.MORPH_CLOSE, kernel);
-        Imgproc.adaptiveThreshold(source, source, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,  Imgproc.THRESH_BINARY, 11, 12);
-         Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
-         Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
-        */
-
-        image = OpenCVUtility.mat2Img(source);
-
-	    if(isDebug()) {
-	                //Imgcodecs.imwrite("C:\\Users\\YSJ laptop\\Desktop\\FYP\\ILS\\test\\saved"+count+".png",source);
-
-	         //File outputfile = new File(AppProperty.getValue("output")+"\\saved("+ratio+")"+count+".png");
-	            	try {
-	            		if(FileUtility.makeFolder(file.getParent()+"\\debug")){
-		            	    File outputfile = new File(file.getParent()+"\\debug\\"+file.getName()+"_processed.png");
-							ImageIO.write(image, "png", outputfile);
-	            		}
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-	    }
-    	return image;
+    	try{
+    		
+	        //float owidth = image.getWidth();
+	        //float oheight = image.getHeight();
+	        image = removeUncessarySpace(image);
+	        /*
+	        float cwidth = image.getWidth();
+	        float cheight = image.getHeight();
+	        int shrinkRatio=1;
+	        if((owidth-cwidth)>(oheight-cheight)){
+	        	shrinkRatio= (int) (owidth/(cwidth));
+	        }else{
+	        	shrinkRatio= (int) (oheight/(cheight));
+	        }
+	        */
+	        float width = image.getWidth();
+	        float height = image.getHeight();
+	        float ratio = 1;
+	    	//if(height<3000){
+	      //  	ratio = 3000f/height;
+	    	//}else{
+	            if(width<3500){
+	            	ratio = 3500f/width;
+	            }
+	    //	}
+	        
+	        if(width>3500){
+	        	ratio = 3500f/width;
+	        }
+	        int newW = (int) (ratio*width);
+	        int newH = (int) (ratio*height);
+	
+	        if(ratio!=1){
+	        	BufferedImage newImage = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
+	        	Graphics g = newImage.createGraphics();
+	        	g.drawImage(image, 0, 0, newW, newH, null);
+	        	g.dispose();
+	        	//Imgproc.resize(source, source, new Size(newW,newH));
+	        	image = newImage;
+	        }
+	    	Mat source= OpenCVUtility.img2Mat(image);
+	    	if(source==null)
+	    		throw new OutOfMemoryError("OpenCV Error: Insufficient memory");
+	        int blurMat =3;
+	        int threshold_val = 195;
+	        blurMat = (int) ((Math.round(ratio+0.5))*2+1);
+	        if(blurMat<3){
+	        	blurMat=3;
+	        }
+	        if(ratio>1){
+	        	threshold_val=threshold_val+(int) ((ratio-0.9)*25);
+	        	if(threshold_val>220)
+	        		threshold_val=220;
+	        }
+	
+	        //System.out.println(ratio+":"+blurMat);
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
+	        Imgproc.threshold(source, source, threshold_val, 255, Imgproc.THRESH_BINARY);
+	        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
+	        Imgproc.blur(source, source, new Size(3, 3));
+	        
+	        /*
+	        int blurMat = (int) ((Math.round(ratio+0.1))*2+1);
+	        if(blurMat<3){
+	        	blurMat=3;
+	        }
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
+	        Imgproc.threshold(source, source, 200, 255, Imgproc.THRESH_BINARY);
+	        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
+	        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
+	        */
+	        
+	        /*
+	        int blurMat = 3;
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Imgproc.GaussianBlur(source, source, new Size(blurMat, blurMat), 0);
+	        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
+	         */
+	        
+	        /*
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
+	        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	        Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
+	        */
+	        
+	        
+	       /*
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Mat kernel = Mat.ones(3,3, CvType.CV_8S);
+	        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
+	        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	         Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
+	        */
+	        
+	        
+	        
+	        /*
+	        if(source.channels()>1)
+	            Imgproc.cvtColor(source, source, Imgproc.COLOR_BGR2GRAY);
+	        Mat kernel = Mat.ones(3,3, CvType.CV_8S);
+	        Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	        Imgproc.threshold(source, source, 220, 255, Imgproc.THRESH_BINARY);
+	        Imgproc.morphologyEx(source, source, Imgproc.MORPH_CLOSE, kernel);
+	        Imgproc.adaptiveThreshold(source, source, 255, Imgproc.ADAPTIVE_THRESH_MEAN_C,  Imgproc.THRESH_BINARY, 11, 12);
+	         Imgproc.GaussianBlur(source, source, new Size(3, 3), 0);
+	         Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
+	        */
+	
+	        image = OpenCVUtility.mat2Img(source);
+	
+		    if(isDebug()) {
+		                //Imgcodecs.imwrite("C:\\Users\\YSJ laptop\\Desktop\\FYP\\ILS\\test\\saved"+count+".png",source);
+	
+		         //File outputfile = new File(AppProperty.getValue("output")+"\\saved("+ratio+")"+count+".png");
+		            	try {
+		            		if(FileUtility.makeFolder(file.getParent()+"\\debug")){
+			            	    File outputfile = new File(file.getParent()+"\\debug\\"+file.getName()+"_processed.png");
+								ImageIO.write(image, "png", outputfile);
+		            		}
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+		    }
+	    	return image;
+    	}catch(CvException e){
+    		throw new OutOfMemoryError("OpenCV Error: Insufficient memory");
+    	}
     }
 
     //crop out bufferedImage

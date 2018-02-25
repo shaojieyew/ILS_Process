@@ -17,28 +17,28 @@ import util.FileUtility;
  */
 public class DataExtractProcessor extends Processor implements Runnable{
 
-	private boolean reprocessCompletedFile=false;
 	private MainDataExtractProcessor mainProcess;  //the parent thread that create the thread of this class.
 	private int index; //index of which the report is in the tableview
 	private Report report;
 	
+	public Report getReport() {
+		return report;
+	}
+
 	//constructor
-	public DataExtractProcessor(MainDataExtractProcessor mainProcess, Report report, int index, boolean reprocessCompletedFile){
+	public DataExtractProcessor(MainDataExtractProcessor mainProcess, Report report, int index){
 		this.mainProcess =mainProcess;
 		this.index = index;
 		this.report = report;
-		this.reprocessCompletedFile = reprocessCompletedFile;
 	}
 	
 	//start thread
 	@Override
 	public void run() {
 		started();
-		if((!report.getStatus().equals(Report.STATUS_COMPLETED)||reprocessCompletedFile)){
-			preProcess();
-			runProcess();
-			postProcess();
-		}
+		preProcess();
+		runProcess();
+		postProcess();
 		mainProcess.releaseSemaphore();
 		completed();
 	}
@@ -53,15 +53,18 @@ public class DataExtractProcessor extends Processor implements Runnable{
 
 	private void postProcess() {
 		if(new File(report.getPath()).exists()){
-			if(report.validateFile()){
-				if(report.validateData()){
-					report.setStatus(Report.STATUS_COMPLETED);
+			if(!report.getStatus().equals(Report.STATUS_FAILED_MEMORY)){
+
+				if(report.validateFile()){
+					if(report.validateData()){
+						report.setStatus(Report.STATUS_COMPLETED);
+					}else{
+						report.setStatus(Report.STATUS_FAILED);
+					}
 				}else{
+					//report.setStatus(Report.STATUS_INVALID_FILE);
 					report.setStatus(Report.STATUS_FAILED);
 				}
-			}else{
-				//report.setStatus(Report.STATUS_INVALID_FILE);
-				report.setStatus(Report.STATUS_FAILED);
 			}
 		}else{
 			report.setStatus(Report.STATUS_NOT_FOUND);
@@ -147,6 +150,7 @@ public class DataExtractProcessor extends Processor implements Runnable{
 			e.printStackTrace();
 		} catch (OutOfMemoryError e) {
 			e.printStackTrace();
+			report.setStatus(Report.STATUS_FAILED_MEMORY);
 		}
 	}
 

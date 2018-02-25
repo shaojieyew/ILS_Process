@@ -18,6 +18,8 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 	private int totalCount = 0 ;
 	private boolean cancelProcess = false;
 	private boolean reprocessCompletedFile = false;
+	private boolean reprocessOutOfMemoryFile = false;
+	private boolean reprocessFailFile = false;
 	/*
 	private int completedCount = 0 ;
 	//get process of the processing
@@ -27,7 +29,7 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 	*/
 
 	//constructor setup list of reports to process
-	public MainDataExtractProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile){
+	public MainDataExtractProcessor(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile, boolean reprocessOutOfMemoryFile, boolean reprocessFailFile){
 		if(numberOfThread<=0){
 			numberOfThread=1;
 		}
@@ -35,13 +37,20 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 		this.reports=data;
 		this.totalCount=data.size();
 		this.reprocessCompletedFile = reprocessCompletedFile;
+		this.reprocessOutOfMemoryFile = reprocessOutOfMemoryFile;
+		this.reprocessFailFile = reprocessFailFile;
 	}
 	
 	//singleton method
 	public static MainDataExtractProcessor getInstance(ObservableList<Report> data, int numberOfThread, boolean reprocessCompletedFile) {
-		INSTANCE = new MainDataExtractProcessor(data,numberOfThread,reprocessCompletedFile);
+		INSTANCE = new MainDataExtractProcessor(data,numberOfThread,reprocessCompletedFile,true,true);
         return INSTANCE;
     }
+	public static MainDataExtractProcessor getInstanceReprocessOutOfMemory(ObservableList<Report> data) {
+		INSTANCE = new MainDataExtractProcessor(data,1,false,true,false);
+        return INSTANCE;
+    }
+	
 	
 	//setup counting semaphore for multithreading
 	private Semaphore count_thread;
@@ -67,47 +76,55 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 		int count =0;
 		for(int i =0;i<totalCount;i++){
 			try {
-				count_thread.acquire();
-				if(cancelProcess){
-					for(int x=0;x<(totalCount-count);x++){
-						token.release();
-					}
-					count_thread.release();
-					break;
-				}
-				//start a sub-thread to process a report
-				DataExtractProcessor rp = new DataExtractProcessor(this,reports.get(i),i,reprocessCompletedFile);
-				listOfRp.add(rp);
-				rp.addListener(new ProcessorListener(){
-					@Override
-					public void onComplete(Processor processor) {
-						try {
-							lock.acquire();
-							runningProcessors.remove(processor);
+				if(reports.get(i).getStatus().equals(Report.STATUS_COMPLETED)&&reprocessCompletedFile==false){
+					token.release();
+				}else if(reports.get(i).getStatus().equals(Report.STATUS_FAILED_MEMORY)&&reprocessOutOfMemoryFile==false){
+					token.release();
+				}else if(reports.get(i).getStatus().equals(Report.STATUS_FAILED)&&reprocessFailFile==false){
+					token.release();
+				}else{
+					count_thread.acquire();
+					if(cancelProcess){
+						for(int x=0;x<(totalCount-count);x++){
 							token.release();
-							lock.release();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
 						}
+						count_thread.release();
+						break;
 					}
-					@Override
-					public void onStart(Processor processor) {
-						try {
-							lock.acquire();
-							runningProcessors.add(processor);
-							lock.release();
-						} catch (InterruptedException e) {
-							e.printStackTrace();
+					//start a sub-thread to process a report
+					DataExtractProcessor rp = new DataExtractProcessor(this,reports.get(i),i);
+					listOfRp.add(rp);
+					rp.addListener(new ProcessorListener(){
+						@Override
+						public void onComplete(Processor processor) {
+							try {
+								lock.acquire();
+								runningProcessors.remove(processor);
+								token.release();
+								lock.release();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
 						}
-					}
-					@Override
-					public void onFail(Processor processor) {
-						
-					}
-				});
-				Thread thread1 = new Thread(rp);
-				thread1.start();
-				count++;
+						@Override
+						public void onStart(Processor processor) {
+							try {
+								lock.acquire();
+								runningProcessors.add(processor);
+								lock.release();
+							} catch (InterruptedException e) {
+								e.printStackTrace();
+							}
+						}
+						@Override
+						public void onFail(Processor processor) {
+							
+						}
+					});
+					Thread thread1 = new Thread(rp);
+					thread1.start();
+					count++;
+				}
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}

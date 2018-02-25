@@ -28,9 +28,9 @@ import util.AppDialog;
 public class CustomDialogCurve {
 
 
-	static boolean cancel = false;
+	static boolean cancel = true;
 	public static boolean showCustomDialog(String title, String content, SummaryGUI summaryGUI, String textFieldValue){
-		cancel = false;
+		 cancel = true;
 		 final Stage dialog = new Stage();
 	        dialog.setTitle(title);
 	        Button yes = new Button("Save");
@@ -48,9 +48,12 @@ public class CustomDialogCurve {
 	                new EventHandler<MouseEvent>() {
 	                    @Override
 	                    public void handle(MouseEvent e) {
-	                    	if(textFields.getText().length()>0)
+	                    	if(textFields.getText().length()>0){
+
+		                        cancel =false;
 	                    		dialog.close();
-	                    	else
+	              
+	                    	}else
 	                    		AppDialog.alert("Missing input", "Missing input");
 	                    }
 	                });
@@ -58,7 +61,6 @@ public class CustomDialogCurve {
 	                new EventHandler<MouseEvent>() {
 	                    @Override
 	                    public void handle(MouseEvent e) {
-	                        cancel =true;
 	                        dialog.close();
 	                    }
 	                });

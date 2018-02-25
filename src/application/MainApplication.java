@@ -43,9 +43,19 @@ public class MainApplication extends Application {
         }else{
         	AppDialog.criticalErrorAndExit("Missing opencv_java320.dll", "Ensure opencv_java320.dll is in \n"+opencv_lib_path);
         }
+        
+       // javaVersion();
+      
 	}
 	
-	
+	  public void javaVersion() {
+          System.out.println(System.getProperty("java.version"));
+          System.out.println(System.getProperty("java.runtime.version"));
+          System.out.println(System.getProperty("java.home"));
+          System.out.println(System.getProperty("java.vendor"));
+          System.out.println(System.getProperty("java.vendor.url"));
+          System.out.println(System.getProperty("java.class.path"));
+      }
 	@Override
 	public void start(Stage stage) {
 		loadLibrary();
@@ -65,7 +75,7 @@ public class MainApplication extends Application {
 			scene.getStylesheets().add(MainApplication.class.getResource("gui/bootstrap.css").toExternalForm());
 		
 			stage.setScene(scene);
-			stage.setTitle("ILS Process App");
+			stage.setTitle("ILS Process Application");
 			//Show the stage; application window
 			stage.show();
 			stage.setOnCloseRequest(new EventHandler<WindowEvent>() {

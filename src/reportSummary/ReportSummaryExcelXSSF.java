@@ -95,7 +95,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 
 			
 			if(headerRow>-1){
-				System.out.println(row.getRowNum()+"  VS  "+(headerRow+1));
+				//System.out.println(row.getRowNum()+"  VS  "+(headerRow+1));
 				if(row.getRowNum()>headerRow+1){
 					endOfstudentRow++;
 					Cell cell = row.getCell(studentColIndex);
@@ -645,7 +645,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 						if(cell.getStringCellValue().equals(x)){
 							for(Report r: reports){
 								if(y.equals(r.getAuthor_name())){
-									System.out.println("===============:"+row.getRowNum());
+									//System.out.println("===============:"+row.getRowNum());
 									writeReportToRow(row, r);
 									reports.remove(r);
 									break;

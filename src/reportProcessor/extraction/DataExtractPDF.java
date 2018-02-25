@@ -50,16 +50,12 @@ public class DataExtractPDF extends DataExtract {
 				text.indexOf(ReportDataReader.KEYWORD_ILS_GLOBAL)==-1)||text.indexOf(ReportDataReader.KEYWORD_QUESTIONNAIRE)==-1){
 			rerunByImageProcessing=true;
 		}
-
+		text = "@@@@";
 		//get text by image processing using OCR
 		if(rerunByImageProcessing){
 			BufferedImage[] bim=pdfToBufferimage(file);
 		    OCRProcessor ocr = new OCRProcessor();
-		    try{
-		    	text = ocr.ocrImage(bim,file);
-		    }catch(OutOfMemoryError e){
-		    	
-		    }
+		    text = ocr.ocrImage(bim,file);
 		}
 		setText(text);
 	}

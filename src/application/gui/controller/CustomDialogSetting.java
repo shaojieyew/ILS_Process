@@ -4,6 +4,7 @@ import java.util.Arrays;
 
 import application.MainApplication;
 import application.configurable.AppProperty;
+import application.configurable.DebugClass;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -11,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
+import javafx.scene.control.CheckBox;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -43,9 +45,11 @@ public class CustomDialogSetting {
 	        hbox.getChildren().addAll(yes,no);
 	        hbox.setSpacing(10);
 	        VBox vbox = new VBox();
-	        
+
 	        HBox hbox1 = new HBox();
-	        hbox1.setAlignment(Pos.TOP_RIGHT);
+	        hbox1.setAlignment(Pos.TOP_LEFT);
+	        HBox hbox2 = new HBox();
+	        hbox2.setAlignment(Pos.TOP_LEFT);
 	    	int multi_thread_count = 2;
 			try{
 				multi_thread_count = Integer.parseInt(AppProperty.getValue("multi_thread"));
@@ -59,7 +63,14 @@ public class CustomDialogSetting {
 	        hbox1.getChildren().addAll(label_multi_thread,textField_multi_thread);
 	        hbox1.setSpacing(10);
 	        
-	        vbox.getChildren().addAll(hbox1,hbox);
+	        CheckBox checkBox_debug = new CheckBox();
+	        checkBox_debug.setSelected(DebugClass.isDebug());
+	        Label label_debug = new Label("Data Parser Debug Mode: ");
+	        label_multi_thread.setFont(Font.font(null, FontWeight.NORMAL, 14));
+	        hbox2.getChildren().addAll(label_debug,checkBox_debug);
+	        hbox2.setSpacing(10);
+	        
+	        vbox.getChildren().addAll(hbox1,hbox2,hbox);
 	        yes.addEventHandler(MouseEvent.MOUSE_CLICKED,
 	                new EventHandler<MouseEvent>() {
 	                    @Override
@@ -74,6 +85,7 @@ public class CustomDialogSetting {
 		                    			val=Integer.toString(maxVal);
 		                    		}
 	                    		}
+	                    		DebugClass.setDebug(checkBox_debug.isSelected());
 	                    		AppProperty.setValue("multi_thread", val);
 	                    		dialog.close();
 	                    	}
@@ -93,7 +105,7 @@ public class CustomDialogSetting {
 	        vbox.setSpacing(10);
 	        borderPane.setCenter(vbox);
 	        borderPane.setPadding(new Insets(20));
-	        Scene dialogScene = new Scene(borderPane, 450, 100);
+	        Scene dialogScene = new Scene(borderPane, 450, 120);
 	        dialogScene.getStylesheets().add(MainApplication.class.getResource("gui/application.css").toExternalForm());
 	        dialogScene.getStylesheets().add(MainApplication.class.getResource("gui/bootstrap.css").toExternalForm());
 	        dialog.setResizable(false);

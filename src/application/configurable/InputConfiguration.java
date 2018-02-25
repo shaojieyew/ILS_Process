@@ -31,7 +31,7 @@ public final class InputConfiguration {
 	public static final String LISTEN_InputDirectory="input";
 	
 	//readable file types for the application
-	private String fileType[] = {"pdf","png","html","htm","jpeg","jpg","tiff","bmp","gif"};
+	private String fileType[] = {"pdf","png","html","htm","jpeg","jpg","tiff","tif","bmp","gif"};
 	//input folder of the application configuration
 	private String inputDirectory =AppProperty.getValue("input");
 	private String reportSummaryFile =AppProperty.getValue("report_summary");

@@ -146,7 +146,7 @@ public class ReportCurve  implements  Comparable<ReportCurve> {
     }
 	@Override
 	public int compareTo(ReportCurve b) {
-		 return this.name.compareTo(b.name);
+		 return (this.name.toLowerCase()).compareTo((b.name.toLowerCase()));
 	}
 	public static ReportCurve getCurve(String name) {
 		List<ReportCurve> list =  getAll();

@@ -57,7 +57,8 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 	private Label filename_label;
 	private ChangeListener indexChangeListeners[] = new ChangeListener[8];
 	private ChangeListener<String> nameChangeListeners = null;
-	
+
+
 	public SidebarUpdateReportController() {
 		 addReportProcessListener();
 	}
@@ -192,7 +193,7 @@ public class SidebarUpdateReportController implements Initializable, ReportChang
 
 	public void verify_data(Report report){
 		if(!report.validateData()){
-			if(!report.getStatus().equals(Report.STATUS_FAILED)&&!report.getStatus().equals(Report.STATUS_NOT_FOUND)){
+			if(!report.getStatus().equals(Report.STATUS_FAILED)&&!report.getStatus().equals(Report.STATUS_FAILED_MEMORY)&&!report.getStatus().equals(Report.STATUS_NOT_FOUND)){
 				report.setStatus(Report.STATUS_NOT_PROCESSED);
 			}else{
 				report.setStatus(report.getStatus());

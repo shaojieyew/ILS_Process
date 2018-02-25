@@ -19,6 +19,7 @@ public class DataExtractFactory {
 		case("jpg"):
 		case("bmp"):
 		case("tiff"):
+		case("tif"):
 		case("gif"):
 			de= new DataExtractImage(f);
 			break;
