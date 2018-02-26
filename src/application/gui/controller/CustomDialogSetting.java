@@ -26,9 +26,9 @@ import util.AppDialog;
 public class CustomDialogSetting {
 
 
-	static boolean cancel = false;
+	static boolean cancel = true;
 	public static boolean showCustomDialog(String title){
-		cancel = false;
+			cancel = true;
 		 final Stage dialog = new Stage();
 	        dialog.setTitle(title);
 	        Button yes = new Button("Save");
@@ -87,6 +87,7 @@ public class CustomDialogSetting {
 	                    		}
 	                    		DebugClass.setDebug(checkBox_debug.isSelected());
 	                    		AppProperty.setValue("multi_thread", val);
+		                        cancel =false;
 	                    		dialog.close();
 	                    	}
 	                    	else
@@ -98,7 +99,6 @@ public class CustomDialogSetting {
 	                    @Override
 	                    public void handle(MouseEvent e) {
 	                        dialog.close();
-	                        cancel =true;
 	                    }
 	                });
 	        
