@@ -36,11 +36,14 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TableView.TableViewSelectionModel;
 import javafx.scene.control.TextField;
+import javafx.scene.control.Toggle;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.stage.FileChooser.ExtensionFilter;
@@ -94,6 +97,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	private Button importBtn;
 	@FXML
 	private Button importedSummaryBtn;
+	@FXML
+	private HBox write_sheet_radiogroup;
+	@FXML
+	private RadioButton write_sheet_radio1;
+	@FXML
+	private RadioButton write_sheet_radio2;
+	@FXML
+	private RadioButton write_sheet_radio3;
 	
 	@FXML
 	private ComboBox<String> comboBoxSheets;
@@ -156,7 +167,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		instance = this;
     }
 
-	
+	public static final int WRITE_SHEET_REPLACE = 1;
+	public static final int WRITE_SHEET_APPEND = 2;
+	public static final int WRITE_SHEET_NAME_MATCH = 3;
 	@FXML
 	public void initialize(URL fxmlurl, ResourceBundle arg1) {
 		//setup initial input folder
@@ -168,7 +181,9 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		updateProgressBar("",null);
 		textField_outputFile.setText(getImportedFile());
 		InputConfiguration.getInstance().setReportSummaryFile(getImportedFile());
-		
+		write_sheet_radio1.setUserData(WRITE_SHEET_REPLACE);
+		write_sheet_radio2.setUserData(WRITE_SHEET_APPEND);
+		write_sheet_radio3.setUserData(WRITE_SHEET_NAME_MATCH);
 	}
 
 	
@@ -182,6 +197,8 @@ public class MainController extends FXMLController implements Initializable,Inpu
 			failedCount = 0;
 			//inProcessCount = 0;
 			updateProgressBar(null,null);
+			if(comboBoxSheets.isVisible())
+				comboBoxSheets.setValue(comboBoxSheets.getItems().get(0));
 		}
 	}
 
@@ -411,9 +428,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	}
 	
 	private void generateSummary(String current_sheetName, String current_processName) {
+		int writeType = 1;
+		writeType = Integer.parseInt(write_sheet_radio1.getToggleGroup().getSelectedToggle().getUserData().toString());
 		XSSFSheet sheet = getSheet(current_sheetName);
 		File destFile = getDestFile();
-		SummaryProcessor summaryProcess = new SummaryProcessor(tableview.getItems(), OutputConfiguration.getInstance().getDirectory(),destFile, sheet, current_processName);
+		SummaryProcessor summaryProcess = new SummaryProcessor(tableview.getItems(), OutputConfiguration.getInstance().getDirectory(),destFile, sheet, current_processName, writeType);
 		Thread thread1 = new Thread(summaryProcess);
 		thread1.start();
 		summaryProcess.addListener(new ProcessorListener(){
@@ -614,18 +633,6 @@ public class MainController extends FXMLController implements Initializable,Inpu
 		if(file != null){
 			InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
 			
-			/* try {
-				 XSSFWorkbook workbook = new XSSFWorkbook();
-				 XSSFSheet sheet = workbook.createSheet();
-				 String sheetName = sheet.getSheetName();
-				 //ReportSummaryExcelLayout.createNewLayout(sheet);
-			     FileOutputStream out =  new FileOutputStream(file.getAbsoluteFile());
-			     workbook.write(out);
-			     out.close();
-				 InputConfiguration.getInstance().setReportSummaryFile(file.getAbsolutePath());
-				 InputConfiguration.getInstance().setReportSummaryFile_sheet(sheetName);
-		        } catch (IOException ex) {
-		    }*/
 		}
 	}
 	
@@ -733,7 +740,7 @@ public class MainController extends FXMLController implements Initializable,Inpu
 					XSSFWorkbook book = new XSSFWorkbook(fis); 
 					int totalSheet = book.getNumberOfSheets();
 					comboBoxSheets.getItems().clear();
-					comboBoxSheets.getItems().add("***New Sheet***");
+					comboBoxSheets.getItems().add("--New Sheet--");
 					String sheetName = InputConfiguration.getInstance().getReportSummaryFile_sheet();
 					int pos = 0;
 					for(int i=0;i<totalSheet;i++){
@@ -780,48 +787,14 @@ public class MainController extends FXMLController implements Initializable,Inpu
 				e.printStackTrace();
 			}
 		}
+		
+		if(comboBoxSheets.getSelectionModel().getSelectedIndex()!=0){
+			write_sheet_radiogroup.setVisible(true);
+		}else{
+			write_sheet_radiogroup.setVisible(false);
+		}
 
 	}
 	
-	/*
-	@FXML
-	public void onClickNewSheet(){
-		if(getImportedFile()!=null){
-			try {
-				FileInputStream fis = new FileInputStream(getImportedFile());
-				XSSFWorkbook book = new XSSFWorkbook(fis); 
-				int totalSheet = book.getNumberOfSheets();
-				
-				//create sheet and layout for imported file;
-				XSSFSheet sheet=book.createSheet();
-				//ReportSummaryExcelLayout.createNewLayout(sheet);
-
-				//save file
-				try{
-					FileOutputStream out =  new FileOutputStream(getImportedFile());
-					sheet.getWorkbook().write(out);
-					out.close();
-
-					//update combo box
-					comboBoxSheets.getItems().add(sheet.getSheetName());
-					comboBoxSheets.setValue(sheet.getSheetName());
-				}catch(FileNotFoundException ex){
-					//labelVerifyFormat.setText(ex.getMessage());
-					AppDialog.alert("Cannot create new sheet!",ex.getMessage());
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-			
-		}
-	}
-	*/
-
-	/*
-	@FXML
-	public void onRemoveFile(){
-		InputConfiguration.getInstance().setReportSummaryFile("");
-	}
-	*/
 	
 }

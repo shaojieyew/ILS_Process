@@ -7,7 +7,7 @@ import report.Report;
 
 public interface  ReportSummary {
 
-	public void process(ObservableList<Report> reports, String processName);
+	public Object process(ObservableList<Report> reports, String processName, int writeType);
 	public  boolean save(File destFile);
 	public boolean verify();
 	public String getReportSheetName();

@@ -5,10 +5,13 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.RadioButton?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
 <?import javafx.scene.effect.Bloom?>
 <?import javafx.scene.image.Image?>
@@ -16,6 +19,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
@@ -52,13 +56,13 @@
                         </ImageView>
                      </graphic></Button>
                   <TextField fx:id="inputTextfield" editable="false" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                  <Label text="Input Folder:" textFill="#515151" GridPane.rowIndex="1">
+                  <Label text="Input Folder:" textFill="#838080" GridPane.rowIndex="1">
                      <font>
-                        <Font size="13.0" />
+                        <Font name="System Bold" size="13.0" />
                      </font></Label>
-                  <Label text="Output File:" textFill="#515151" GridPane.rowIndex="2">
+                  <Label text="Output File:" textFill="#838080" GridPane.rowIndex="2">
                      <font>
-                        <Font size="13.0" />
+                        <Font name="System Bold" size="13.0" />
                      </font></Label>
                      
                   <Button fx:id="startBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#startProcess" prefHeight="32.0" text="Start Process" textAlignment="RIGHT" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="1">
@@ -110,7 +114,8 @@
                 <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="-Infinity" prefWidth="148.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="120.0" minWidth="120.0" prefWidth="120.0" />
                   <ColumnConstraints hgrow="SOMETIMES" maxWidth="123.0" minWidth="123.0" prefWidth="123.0" />
-                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="90.0" prefWidth="561.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="549.0" minWidth="70.0" prefWidth="537.0" />
+                  <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" minWidth="0.0" prefWidth="0.0" />
               </columnConstraints>
                <children>
             <Button maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#openImportedFile" prefHeight="32.0" text="Open Excel" GridPane.columnIndex="2">
@@ -124,12 +129,15 @@
                            </effect>
                         </ImageView>
                      </graphic></Button>
-            <ComboBox fx:id="comboBoxSheets" maxWidth="1.7976931348623157E308" onAction="#onComboBoxSheetsSelectedChange" prefHeight="25.0" prefWidth="148.0" promptText="--Select Sheet--" GridPane.columnIndex="1" GridPane.halignment="LEFT">
+            <ComboBox fx:id="comboBoxSheets" maxWidth="1.7976931348623157E308" onAction="#onComboBoxSheetsSelectedChange" prefHeight="63.0" prefWidth="148.0" promptText="--Select Sheet--" GridPane.columnIndex="1" GridPane.halignment="LEFT">
                <GridPane.margin>
                   <Insets />
                </GridPane.margin>
             </ComboBox>
-                  <Label prefHeight="17.0" prefWidth="84.0" text="Select Sheet: " GridPane.halignment="RIGHT" />
+                  <Label prefHeight="17.0" prefWidth="84.0" text="Select Sheet: " textFill="#838080" GridPane.halignment="RIGHT">
+                     <font>
+                        <Font name="System Bold" size="13.0" />
+                     </font></Label>
                   <Button fx:id="importedSummaryBtn" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#viewImportedFileStatistic" prefHeight="32.0" text="View Summary" GridPane.columnIndex="3">
                      <graphic>
                         <ImageView fitHeight="20.0" fitWidth="21.0" pickOnBounds="true" preserveRatio="true">
@@ -141,6 +149,44 @@
                            </effect>
                         </ImageView>
                      </graphic></Button>
+                  <HBox fx:id="write_sheet_radiogroup" maxHeight="32.0" minHeight="32.0" prefHeight="32.0" spacing="5.0" style="-fx-background-color: #ffffff; -fx-border-radius: 5; -fx-border-color: #cccccc; -fx-border-width: 1;" GridPane.columnIndex="4" GridPane.vgrow="ALWAYS">
+                     <children>
+                        <Label prefHeight="30.0" prefWidth="162.0" text="Write Summary Sheet Option:" textFill="#838080">
+                           <font>
+                              <Font name="System Bold" size="11.0" />
+                           </font></Label>
+                        <RadioButton fx:id="write_sheet_radio1" mnemonicParsing="false" prefHeight="40.0" prefWidth="98.0" selected="true" text="Replace Result">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                           <toggleGroup>
+                              <ToggleGroup fx:id="sheettype" />
+                           </toggleGroup>
+                             <tooltip>
+            						<Tooltip text="Processed result will be written in the selected worksheet. All the existing data on the worksheet will be removed and replaced with the processed result." />
+        					</tooltip>
+                        </RadioButton>
+                        <RadioButton fx:id="write_sheet_radio2" mnemonicParsing="false" prefHeight="70.0" prefWidth="99.0" text="Append Result" toggleGroup="$sheettype">
+                           <HBox.margin>
+                              <Insets right="10.0" />
+                           </HBox.margin>
+                             <tooltip>
+            						<Tooltip text="Processed result will be written below the existing data in the selected worksheet. All the existing data on the sheet will not be removed." />
+        					</tooltip>
+                        </RadioButton>
+                        <RadioButton fx:id="write_sheet_radio3" mnemonicParsing="false" prefHeight="65.0" prefWidth="119.0" text="Match to Namelist" toggleGroup="$sheettype">
+                             <tooltip>
+            						<Tooltip text="Processed result will be matched to a name in the selected worksheet. This option requires a name list to be in the selected worksheet. Processed result that do not have a matching name in the namelist will be appended at the bottom of the namelist." />
+        					</tooltip>
+                        </RadioButton>
+                     </children>
+                     <GridPane.margin>
+                        <Insets />
+                     </GridPane.margin>
+                     <padding>
+                        <Insets left="10.0" right="10.0" />
+                     </padding>
+                  </HBox>
                </children>
                <VBox.margin>
                   <Insets />
@@ -167,9 +213,9 @@
                </rowConstraints>
                <children>
                   <Button fx:id="cancelBtn" disable="true" maxWidth="1.7976931348623157E308" mnemonicParsing="false" onAction="#onCancelProcess" text="Cancel" GridPane.columnIndex="2" GridPane.rowIndex="1" GridPane.valignment="TOP" />
-                  <Label text="Progress: " textFill="#515151" GridPane.rowIndex="1" GridPane.valignment="TOP">
+                  <Label text="Progress: " textFill="#838080" GridPane.rowIndex="1" GridPane.valignment="TOP">
                      <font>
-                        <Font size="13.0" />
+                        <Font name="System Bold" size="13.0" />
                      </font></Label>
                   <ProgressBar fx:id="progressBar" maxHeight="-Infinity" maxWidth="1.7976931348623157E308" opacity="0.65" prefHeight="25.0" prefWidth="592.0" progress="0.0" GridPane.columnIndex="1" GridPane.rowIndex="1" GridPane.valignment="TOP">
                      <padding>

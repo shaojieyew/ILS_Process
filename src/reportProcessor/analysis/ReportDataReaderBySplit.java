@@ -90,5 +90,15 @@ public class ReportDataReaderBySplit extends ReportDataReader {
 			AttributeIndex ai = report.getAttributeIndexByAttribute(attribute);
 			ai.setIndex(index);
 		}
+		if(report.getAuthor_name().length()==0){
+			String filename = report.getFileName();
+			if(filename.contains(".")){
+				filename = filename.substring(0, filename.lastIndexOf('.'));
+			}
+			if(filename.startsWith("ILS ")){
+				filename = filename.replaceAll("ILS ", "");
+			}
+			report.setAuthor_name(filename);
+		}
 	}
 }

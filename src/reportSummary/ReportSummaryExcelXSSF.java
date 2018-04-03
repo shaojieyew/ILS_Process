@@ -20,6 +20,8 @@ import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.CellReference;
 import org.apache.poi.xssf.usermodel.XSSFCell;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+
 import javafx.collections.ObservableList;
 import me.xdrop.fuzzywuzzy.FuzzySearch;
 import me.xdrop.fuzzywuzzy.model.ExtractedResult;
@@ -42,9 +44,22 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 	private boolean includeUnknownStudentInCounting = false;
 	
 	@Override
-	public void process(ObservableList<Report> reports, String processName) {
-		if(!verify()){
+	public XSSFSheet process(ObservableList<Report> reports, String processName, int writeType) {
+		if(writeType==2){
+			includeUnknownStudentInCounting=true;
+		}
+		if(!verify()||writeType==1){
 			//System.out.println("Invalid format");
+			String name = sheet.getSheetName();
+			XSSFWorkbook wb = sheet.getWorkbook();
+			  for(int i=wb.getNumberOfSheets()-1;i>=0;i--){
+		            XSSFSheet tmpSheet =wb.getSheetAt(i);
+		            if(tmpSheet.getSheetName().equals(name)){
+		            	wb.removeSheetAt(i);
+		            	break;
+		            }
+		        }    
+			  sheet = wb.createSheet(name);
 			ReportSummaryExcelLayout.createNewLayout(sheet);	
 		}
 		this.processName=processName;
@@ -125,79 +140,80 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 			}
 		}
 		//boolean[] addedStudentList = new boolean[StudentList.size()];
-		boolean noMoreNewItem=false;
-		do{
-			noMoreNewItem=false;
-			for(int i =0;i<reportList.size();i++){
-				  Report report=reportList.get(i);
-				  List<ExtractedResult> f = FuzzySearch.extractTop(report.getAuthor_name(),StudentList,3);  
-				  boolean ambigouousNameExist = false;
-				  int ambigouousNameCount=0;
-				  int score=0;
-				  for(ExtractedResult x : f){
-					  if(score<x.getScore()){
-						  score=x.getScore();
-					  }else{
-						  if(x.getScore()==score){
-							  ambigouousNameExist =true;
-							  break;
+		if(includeUnknownStudentInCounting==false){
+			boolean noMoreNewItem=false;
+			do{
+				noMoreNewItem=false;
+				for(int i =0;i<reportList.size();i++){
+					  Report report=reportList.get(i);
+					  List<ExtractedResult> f = FuzzySearch.extractTop(report.getAuthor_name(),StudentList,3);  
+					  boolean ambigouousNameExist = false;
+					  int ambigouousNameCount=0;
+					  int score=0;
+					  for(ExtractedResult x : f){
+						  if(score<x.getScore()){
+							  score=x.getScore();
+						  }else{
+							  if(x.getScore()==score){
+								  ambigouousNameExist =true;
+								  break;
+							  }
+						  }
+						  if(x.getString().toLowerCase().contains(report.getAuthor_name().toLowerCase())){
+							  ambigouousNameCount++;
+							  if(ambigouousNameCount>1){
+								  break;
+							  }
 						  }
 					  }
-					  if(x.getString().toLowerCase().contains(report.getAuthor_name().toLowerCase())){
-						  ambigouousNameCount++;
-						  if(ambigouousNameCount>1){
-							  break;
-						  }
+					  if(f.size()==0||ambigouousNameCount>1||ambigouousNameExist){
+						  continue;
 					  }
-				  }
-				  if(f.size()==0||ambigouousNameCount>1||ambigouousNameExist){
-					  continue;
-				  }
-				  if(report.getAuthor_name().equals(FuzzySearch.extractOne(f.get(0).getString(), NewStudentList).getString())){
-	
-					  //check length
-					  //if(FuzzySearch.tokenSortRatio(x, y.getString())>80)
-					  score = FuzzySearch.tokenSortRatio(f.get(0).getString(), report.getAuthor_name());
-					  //int spaceCount1 =  x.split("\\s+").length -1;
-					  //int spaceCount2 =  y.getString().split("\\s+").length -1;
-					  float xlen = f.get(0).getString().length();
-					  float ylen = report.getAuthor_name().length();
-					  int thresholdScore = 100;
-					  float temp = 1;
-					  if(xlen<ylen){
-						  temp = xlen/ylen;
-					  }
-					  if(xlen>ylen){
-						  temp = ylen/xlen;
-					  }
-					  if(xlen==ylen){
-						  thresholdScore = 85;
-					  }else{
-						  temp=temp-0.45f;
-						  temp = temp*500;
-						  temp = 55+temp/5;
-						  thresholdScore = (int) temp;
-					  }
-					  if(thresholdScore>85){
-						  thresholdScore=85;
-					  }
-					  if(thresholdScore<55){
-						  thresholdScore=55;
-					  }
-					  if(thresholdScore<score){
-						  writeAttributeToList(f.get(0).getString(),report.getAuthor_name(), reportList);
-						  StudentList.remove(f.get(0).getString());
-						  NewStudentList.remove(report.getAuthor_name());
-						  i--;
-						  noMoreNewItem=true;
-					  }
-				  } 
-				  if(reportList.size()==0){
-					  break;
-				  }
-			}
-		}while(noMoreNewItem);
+					  if(report.getAuthor_name().equals(FuzzySearch.extractOne(f.get(0).getString(), NewStudentList).getString())){
 		
+						  //check length
+						  //if(FuzzySearch.tokenSortRatio(x, y.getString())>80)
+						  score = FuzzySearch.tokenSortRatio(f.get(0).getString(), report.getAuthor_name());
+						  //int spaceCount1 =  x.split("\\s+").length -1;
+						  //int spaceCount2 =  y.getString().split("\\s+").length -1;
+						  float xlen = f.get(0).getString().length();
+						  float ylen = report.getAuthor_name().length();
+						  int thresholdScore = 100;
+						  float temp = 1;
+						  if(xlen<ylen){
+							  temp = xlen/ylen;
+						  }
+						  if(xlen>ylen){
+							  temp = ylen/xlen;
+						  }
+						  if(xlen==ylen){
+							  thresholdScore = 85;
+						  }else{
+							  temp=temp-0.45f;
+							  temp = temp*500;
+							  temp = 55+temp/5;
+							  thresholdScore = (int) temp;
+						  }
+						  if(thresholdScore>85){
+							  thresholdScore=85;
+						  }
+						  if(thresholdScore<55){
+							  thresholdScore=55;
+						  }
+						  if(thresholdScore<score){
+							  writeAttributeToList(f.get(0).getString(),report.getAuthor_name(), reportList);
+							  StudentList.remove(f.get(0).getString());
+							  NewStudentList.remove(report.getAuthor_name());
+							  i--;
+							  noMoreNewItem=true;
+						  }
+					  } 
+					  if(reportList.size()==0){
+						  break;
+					  }
+				}
+			}while(noMoreNewItem);
+		}
 
 		//add not added student
 		if(endOfstudentRow>-1){
@@ -233,6 +249,7 @@ public class ReportSummaryExcelXSSF implements ReportSummary {
 			writeDetailSummaryCount(endOfstudentRow, headerRow+11, bandColIndex+7, true);
 	
 		}
+		return sheet;
 	}
 
 	private void writeDetailSummaryCount(int endOfstudentRow, int startRow, int startCol, boolean percentage) {
