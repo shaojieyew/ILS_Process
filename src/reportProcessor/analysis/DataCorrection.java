@@ -43,11 +43,11 @@ public class DataCorrection {
 			text="";
 			return "";
 		}
-		
-		text=text.replace(":", " ");
+
 		String lines[] =text.split("\\r?\\n");
 		for(String line : lines){
 
+			line=line.replaceAll("[^A-Za-z0-9]", " ");
 			String arr[] = line.split("\\s+|[ ]+");
 			List<String> wordList = Arrays.stream(arr).collect(Collectors.toList());
 
@@ -108,8 +108,9 @@ public class DataCorrection {
 								  }
 							  }
 						  }
-						 if(score>word_match_strictness)
+						 if(score>word_match_strictness){
 							 line=line.replace(str.trim(), correction);
+						 }
 					  }
 				  }
 			}
@@ -150,8 +151,8 @@ public class DataCorrection {
 					String newWord = word.replace(word.charAt(0)+"", "0");
 					input=input.replace(word, newWord);
 				}
-				if(word.charAt(0)=='B'){
-					String newWord = word.replace(word.charAt(0)+"", "8");
+				if(word.charAt(0)=='B'||word.charAt(0)=='8'){
+					String newWord = word.replace(word.charAt(0)+"", "3");
 					input=input.replace(word, newWord);
 				}
 				if(word.charAt(0)=='S'){

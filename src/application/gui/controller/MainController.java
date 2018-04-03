@@ -258,6 +258,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 					@Override
 					public void onFail(Processor processor) {
 					}
+
+					@Override
+					public void onInterrupt(Processor processor) {
+
+						generateSummary(current_sheetName,current_processName);
+					}
 				});
 				Thread mainProcessorThread = new Thread(mainProcessor);
 				mainProcessorThread.start();
@@ -274,6 +280,11 @@ public class MainController extends FXMLController implements Initializable,Inpu
 
 			@Override
 			public void onFail(Processor processor) {
+			}
+
+			@Override
+			public void onInterrupt(Processor processor) {
+				generateSummary(current_sheetName,current_processName);
 			}
 		});
 		Thread mainProcessorThread = new Thread(mainProcessor);
@@ -440,6 +451,12 @@ public class MainController extends FXMLController implements Initializable,Inpu
 	        		    	AppDialog.alert("Failed to save excel file", "Ensure that "+textField_outputFile.getText()+" is closed and try again.");	   
 	                 }
 				});
+			}
+
+			@Override
+			public void onInterrupt(Processor processor) {
+				// TODO Auto-generated method stub
+				
 			}
 		});
 	}

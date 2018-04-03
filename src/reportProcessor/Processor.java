@@ -8,6 +8,7 @@ import application.configurable.DebugClass;
 public abstract class Processor extends DebugClass {
 	private ArrayList<ProcessorListener> listeners = new ArrayList<ProcessorListener>();
 	public static  final String TYPE_ON_COMPLETE="Completed";
+	public static  final String TYPE_ON_INTERRUPT="INTERRUPT";
 	public static  final String TYPE_ON_FAIL="Failed";
 	public static  final String TYPE_ON_START="Started";
 	
@@ -25,6 +26,9 @@ public abstract class Processor extends DebugClass {
 					case TYPE_ON_FAIL:
 						listeners.get(i).onFail(this);	
 						break;
+					case TYPE_ON_INTERRUPT:
+						listeners.get(i).onInterrupt(this);	
+						break;
 					}
 				}
 			}
@@ -38,10 +42,14 @@ public abstract class Processor extends DebugClass {
 		public void removeListener(ProcessorListener listener){
 			listeners.remove(listener);
 		}
-		
+
 
 		protected void completed() {
 			notifyChange(TYPE_ON_COMPLETE);
+		}
+
+		protected void interupted() {
+			notifyChange(TYPE_ON_INTERRUPT);
 		}
 		
 		protected void failed() {

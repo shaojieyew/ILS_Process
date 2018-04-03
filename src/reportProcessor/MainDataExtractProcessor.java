@@ -120,6 +120,9 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 						public void onFail(Processor processor) {
 							
 						}
+						@Override
+						public void onInterrupt(Processor processor) {
+						}
 					});
 					Thread thread1 = new Thread(rp);
 					thread1.start();
@@ -131,7 +134,11 @@ public class MainDataExtractProcessor extends Processor implements Runnable{
 		}
 		try {
 			token.acquire();
-			completed();
+			if(cancelProcess==true){
+				interupted();
+			}else{
+				completed();
+			}
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
