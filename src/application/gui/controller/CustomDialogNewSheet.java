@@ -90,9 +90,9 @@ public class CustomDialogNewSheet {
 		}
 		return false;
 	}
-	static boolean cancel = false;
+	static boolean cancel = true;
 	public static String[] showCustomDialog(){
-			cancel = false;
+			cancel = true;
 			final Stage dialog = new Stage();
 	        dialog.setTitle("Enter Processing Details: ");
 	        Button yes = new Button("Continue");
@@ -141,6 +141,7 @@ public class CustomDialogNewSheet {
 		                    	if(!checkIfSheetExist(textField_sheetName.getText())||textField_sheetName.isVisible()==false){
 		                    		if(textField_batchName.getText().length()>0){
 			                    		dialog.close();
+				                        cancel =false;
 			                    	}
 			                    	else{
 			                    		AppDialog.alert("Invalid batch name", "Invalid batch name");
@@ -159,7 +160,6 @@ public class CustomDialogNewSheet {
 	                    @Override
 	                    public void handle(MouseEvent e) {
 	                        dialog.close();
-	                        cancel =true;
 	                    }
 	                });
 	        
