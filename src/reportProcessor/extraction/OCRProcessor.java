@@ -1,7 +1,10 @@
 package reportProcessor.extraction;
 
 import java.awt.Graphics;
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
+import java.awt.image.DataBufferByte;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -13,6 +16,7 @@ import javax.imageio.ImageIO;
 
 import org.opencv.core.CvException;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 
@@ -30,7 +34,7 @@ import net.sourceforge.tess4j.ITessAPI.TessPageIteratorLevel;
 public class OCRProcessor extends DebugClass {
 	private  File file;
 	
-	   
+	
 	private Tesseract instance;
 	public OCRProcessor(){
         String jvmBit = System.getProperty("sun.arch.data.model");
@@ -120,11 +124,52 @@ public class OCRProcessor extends DebugClass {
 	    int minY1=image.getHeight();
 	    int maxX2=0;
 	    int maxY2=0;
+	    int subImageCount = 0;
         BufferedImage subImage;
         //slice process due to not enough heap size;
         int sliceX = (int) Math.ceil((float)image.getWidth()/1000f);
         int sliceY = (int) Math.ceil((float)image.getHeight()/1000f);
         double buffer = 0.1;
+        float confidence[] = {0,0,0,0};
+        int lines[] = {0,0,0,0};
+
+
+    	BufferedImage testImage=image;
+            for(int i=0;i<sliceX;i++){
+            	boolean breakout =false;
+    	    	for(int j=0;j<sliceY;j++){
+    	    		int minX=i*(testImage.getWidth()/sliceX);
+    	    		int minY=j*(testImage.getHeight()/sliceY);
+
+    	    		minX=(int) (minX-(buffer*(testImage.getWidth()/sliceX)));
+    	    		if(minX<0){
+    	    			minX=0;
+    	    		}
+    	    		minY=(int) (minY-(buffer*(testImage.getHeight()/sliceY)));
+    	    		if(minY<0){
+    	    			minY=0;
+    	    		}
+
+    	    		int maxX = (int) (((i+1)*(testImage.getWidth()/sliceX))+(buffer*(testImage.getWidth()/sliceX)));
+    	    		int maxY = (int) (((j+1)*(testImage.getHeight()/sliceY))+(buffer*(testImage.getHeight()/sliceY)));
+    	    		if(maxX>testImage.getWidth()){
+    	    			maxX=testImage.getWidth();
+    	    		}
+    	    		if(maxY>testImage.getHeight()){
+    	    			maxY=testImage.getHeight();
+    	    		}
+    	    		int w = maxX-minX;
+    	    		int h = maxY-minY;
+    	    		subImage = testImage.getSubimage(minX,minY,w ,h );
+
+
+    	    	    List<Word> textline = instance.getWords(subImage, TessPageIteratorLevel.RIL_TEXTLINE);
+    	    	}
+    	    	if(breakout){
+    	    		break;
+    	    	}
+    	    }        
+        
 	    for(int i=0;i<sliceX;i++){
 	    	for(int j=0;j<sliceY;j++){
 	    	    List<Word> results = new ArrayList<Word>();
@@ -156,7 +201,7 @@ public class OCRProcessor extends DebugClass {
 	    		int h = maxY-minY;
 	    		subImage = image.getSubimage(minX,minY,w ,h );
 
-
+    	    	
 	        	results.addAll( instance.getWords(subImage, TessPageIteratorLevel.RIL_BLOCK));
 	    	    for(Word result:results){
 	    	    	int x1 = (int) result.getBoundingBox().getX()+minX;
@@ -176,25 +221,106 @@ public class OCRProcessor extends DebugClass {
 	    	    		maxY2=y2;
 	    	    	}
 	    	    }
+	    	    if(subImageCount<2){
+	    	    	if(sliceY>1){
+		    	    	if(subImageCount==0&&j>=(sliceY/2)){
+		    	    		continue;
+		    	    	}
+		    	    	if(subImageCount==1&&j<(sliceY/2)){
+		    	    		continue;
+		    	    	}
+	    	    	}
+	    	    	
+		    	    List<Word> textline1 = instance.getWords(subImage, TessPageIteratorLevel.RIL_TEXTLINE);
+		    	    if(!textline1.isEmpty()){
+		    	        double fontsize = getFontHeight(textline1);
+			    		subImageCount++;
+	    	            for(int d =0;d<4;d++){
+	    	    	    	BufferedImage testimg = subImage;
+	    	            	if(d==0){
+	    			    	    //List<Word> testFont = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
+	    			    	    //fontsize = getFontHeight(testFont);
+	    	            		testimg = preprocessImage(testimg, fontsize);
+	    			    	    List<Word> textline = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
+	        	    	    	for(Word text: textline){
+	        	    	    		confidence[d] = confidence[d]+text.getConfidence();
+	        	    	    		lines[d]++;
+	        	    	    	}
+	    	            	}
+	    	            	if(d!=0){
+	    	            		testimg = rotate(testimg,d);
+	    			    	    List<Word> testFont = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
+	    			    	    fontsize = getFontHeight(testFont);
+	    	            		testimg = preprocessImage(testimg, fontsize);
+	    	    	    	    List<Word> textlines = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
+	        	    	    	for(Word text: textlines){
+	        	    	    		confidence[d] = confidence[d]+text.getConfidence();
+	        	    	    		lines[d]++;
+	        	    	    	}
+	    	            	}
+	    	            }
+		    	    }
+	    	    }
 	    	}
 	    }
+
+
+	    if(!(minX1>maxX2||minY1>maxY2)){
+		    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
+	    }
+
+	    System.out.println("=====================================");
+        for(int i =0;i<4;i++){
+    	    System.out.println((confidence[i]/(lines[i])+"%"+"   "+lines[i]));
+        }
+	    System.out.println("=====================================");
+        int orientation = 0;
+
+        int lowest1Count=Integer.MAX_VALUE;
+        int lowest2Count=Integer.MAX_VALUE;
+        int lowest1orentation=0;
+        int lowest2orentation=0;
+        for(int i =0;i<4;i++){
+        	if(lines[i]<lowest1Count){
+        		lowest2Count=lowest1Count;
+        		lowest1Count=lines[i];
+        		lowest2orentation=lowest1orentation;
+        		lowest1orentation=i;
+        	}else{
+            	if(lines[i]<lowest2Count){
+            		lowest2Count=lines[i];
+            		lowest2orentation=i;
+            	}
+        	}
+        }
+        
+        
+        float orientationConfidence = 0;
+        for(int j =0;j<2;j++){
+        	int i=0;
+        	if(j==0){
+        		i=lowest1orentation;
+        	}
+        	if(j==1){
+        		i=lowest2orentation;
+        	}
+        	System.out.println(i);
+        	float confidenceLevel = confidence[i]/(lines[i]);
+        	if(confidenceLevel>orientationConfidence){
+        		orientation = i;
+        		orientationConfidence = confidenceLevel;
+        	}
+        }
+        if(orientation!=0){
+        	image = rotate(image,orientation);
+        }
+	    
 	    List<Word> results1;
 	    //System.out.println("=====================================");
 	    results1 = instance.getWords(image, TessPageIteratorLevel.RIL_TEXTLINE);
-	    int count = 0;
-	    int[] numArray = new int[results1.size()];
-	    for(Word w: results1){
-	    	numArray[count] = (int) w.getBoundingBox().getHeight();
-	    	count++;
-	    }
-	    Arrays.sort(numArray);
-		double median;
-		if (numArray.length % 2 == 0)
-		    median = ((double)numArray[numArray.length/2] + (double)numArray[numArray.length/2 - 1])/2;
-		else
-		    median = (double) numArray[numArray.length/2];
+	    //System.out.println(results1);
 
-	    System.out.println("median height: "+median);
+
 	    /*
 	    System.out.println("=====================================");
 	    results1 = instance.getWords(image, TessPageIteratorLevel.RIL_WORD);
@@ -211,9 +337,7 @@ public class OCRProcessor extends DebugClass {
 	    */
 	    
 	    //System.out.println(results);
-	    if(!(minX1>maxX2||minY1>maxY2)){
-		    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
-	    }
+
 	    
 	    
         /*
@@ -226,11 +350,17 @@ public class OCRProcessor extends DebugClass {
         	shrinkRatio= (int) (oheight/(cheight));
         }
         */
-        float width = image.getWidth();
-        float height = image.getHeight();
+        double median = getFontHeight(results1);
+        image = preprocessImage(image, median);
+        return image;
+	}
+	
+	public BufferedImage preprocessImage(BufferedImage testimg, double fontsize){
+		float width = testimg.getWidth();
+        float height = testimg.getHeight();
         float ratio = 1;
-        if(median!=50){
-        	ratio = (float) (50/median);
+        if(fontsize!=50){
+        	ratio = (float) (50/fontsize);
         }
 
         int newW = (int) (ratio*width);
@@ -240,13 +370,13 @@ public class OCRProcessor extends DebugClass {
         if(ratio!=1){
         	BufferedImage newImage = new BufferedImage(newW, newH, BufferedImage.TYPE_INT_RGB);
         	Graphics g = newImage.createGraphics();
-        	g.drawImage(image, 0, 0, newW, newH, null);
+        	g.drawImage(testimg, 0, 0, newW, newH, null);
         	g.dispose();
         	//Imgproc.resize(source, source, new Size(newW,newH));
-        	image = newImage;
+        	testimg = newImage;
         }
         
-    	Mat source= OpenCVUtility.img2Mat(image);
+    	Mat source= OpenCVUtility.img2Mat(testimg);
     	if(source==null)
     		throw new OutOfMemoryError("OpenCV Error: Insufficient memory");
         int blurMat =3;
@@ -272,7 +402,77 @@ public class OCRProcessor extends DebugClass {
         Imgproc.threshold(source, source, 0, 255, Imgproc.THRESH_OTSU);
         //Imgproc.blur(source, source, new Size(3, 3));
         
-        image = OpenCVUtility.mat2Img(source);
-        return image;
+        testimg = OpenCVUtility.mat2Img(source);
+        return testimg;
 	}
+	
+	public double getFontHeight(List<Word> results1){
+	    int count = 0;
+	    int[] numArray = new int[results1.size()];
+	    for(Word w: results1){
+	    	numArray[count] = (int) w.getBoundingBox().getHeight();
+	    	count++;
+	    }
+	    Arrays.sort(numArray);
+		double median;
+		if (numArray.length % 2 == 0)
+		    median = ((double)numArray[numArray.length/2] + (double)numArray[numArray.length/2 - 1])/2;
+		else
+		    median = (double) numArray[numArray.length/2];
+		return median;
+	}
+
+	public BufferedImage rotate( BufferedImage inputImage, int orientation ){
+		if(orientation!=0){
+			if(orientation==1){
+				return rotate90(  inputImage );
+			}
+			if(orientation==2){
+				return rotate180(  inputImage );
+			}
+			if(orientation==3){
+				return rotate270(  inputImage );
+			}
+		}
+		return inputImage;
+	}
+	
+	public BufferedImage rotate90( BufferedImage inputImage ){
+		int width = inputImage.getWidth();
+		int height = inputImage.getHeight();
+		BufferedImage returnImage = new BufferedImage( height, width , inputImage.getType()  );
+
+		for( int x = 0; x < width; x++ ) {
+			for( int y = 0; y < height; y++ ) {
+				returnImage.setRGB( height - y -1, x, inputImage.getRGB( x, y  )  );
+			}
+		}
+		return returnImage;
+	}
+	public BufferedImage rotate180( BufferedImage inputImage ) {
+			int width = inputImage.getWidth(); //the Width of the original image
+			int height = inputImage.getHeight();//the Height of the original image
+
+			BufferedImage returnImage = new BufferedImage( width, height, inputImage.getType()  );
+			for( int x = 0; x < width; x++ ) {
+				for( int y = 0; y < height; y++ ) {
+					returnImage.setRGB( width - x- 1, height - y - 1, inputImage.getRGB( x, y  )  );
+				}
+			}
+			return returnImage;
+
+		}
+	public BufferedImage rotate270( BufferedImage inputImage ){
+			int width = inputImage.getWidth();
+			int height = inputImage.getHeight();
+			BufferedImage returnImage = new BufferedImage( height, width , inputImage.getType()  );
+
+			for( int x = 0; x < width; x++ ) {
+				for( int y = 0; y < height; y++ ) {
+					returnImage.setRGB(y, width - x - 1, inputImage.getRGB( x, y  )  );
+				}
+				}
+			return returnImage;
+
+		}
 }
