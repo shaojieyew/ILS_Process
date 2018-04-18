@@ -53,43 +53,6 @@ public class ReportDataReaderBySplit extends ReportDataReader {
 		}else{
 			report.setAuthor_name("");
 		}
-
-		text=text.replace(":", " ");
-		for(String attribute : ILS_ATTRIBUTES){
-			String digits = "";
-			if(text.indexOf(attribute)>=0){
-				String attributeText = text;
-				attributeText = attributeText.split(attribute)[1];
-				String arr[] = attributeText.split(NEWLINE);
-				if(arr.length>0){
-					attributeText = arr[0];
-				}
-				arr = attributeText.split(".");
-				if(arr.length>0){
-					attributeText = arr[0];
-				}
-				boolean digitExist = false;
-				for(int i =0;i<attributeText.length();i++){
-					if(Character.isDigit(attributeText.charAt(i))){
-						digitExist = true;
-						digits=digits+attributeText.charAt(i);
-					}else{
-						if(Character.isAlphabetic(attributeText.charAt(i))){
-							break;
-						}
-						if(digitExist){
-							break;
-						}
-					}
-				}
-			}
-			int index = 0;
-			if(digits.length()>0){
-				index = Integer.parseInt(digits);
-			}
-			AttributeIndex ai = report.getAttributeIndexByAttribute(attribute);
-			ai.setIndex(index);
-		}
 		if(report.getAuthor_name().length()==0){
 			String filename = report.getFileName();
 			if(filename.contains(".")){
@@ -100,5 +63,73 @@ public class ReportDataReaderBySplit extends ReportDataReader {
 			}
 			report.setAuthor_name(filename);
 		}
+
+		text=text.replace(":", " ");
+
+		if(name.indexOf(KEYWORD_QUESTIONNAIRE)>=0){
+			String temp[] = text.split(KEYWORD_QUESTIONNAIRE);
+			if(temp.length>1){
+				text = temp[1];
+			}
+		}
+		
+		boolean done=false;
+		String textlines[] = text.split(NEWLINE);
+		for(String textline: textlines){
+			for(String attribute : ILS_ATTRIBUTES){
+				String digits = "";
+				if(textline.indexOf(attribute)>=0){
+					//attributeText = 
+					String []arrsOfCandidate = textline.split(attribute);
+					int count=0;
+					for(String c :arrsOfCandidate){
+						if(count!=0){
+							String attributeText =c;
+							String arr[] = attributeText.split(NEWLINE);
+							if(arr.length>0){
+								attributeText = arr[0];
+							}
+							arr = attributeText.split(".");
+							if(arr.length>0){
+								attributeText = arr[0];
+							}
+							boolean digitExist = false;
+							for(int i =0;i<attributeText.length();i++){
+								if(Character.isDigit(attributeText.charAt(i))){
+									digitExist = true;
+									digits=digits+attributeText.charAt(i);
+								}else{
+									if(Character.isAlphabetic(attributeText.charAt(i))){
+										break;
+									}
+									if(digitExist){
+										break;
+									}
+								}
+							}
+							if(digits.length()>0){
+								break;
+							}
+						}
+						count++;
+					}
+				}
+				int index = 0;
+				if(digits.length()>0){
+					index = Integer.parseInt(digits);
+				}
+				AttributeIndex ai = report.getAttributeIndexByAttribute(attribute);
+				if(ai.getIndex()==0){
+					ai.setIndex(index);
+				}
+				if(report.validateFile()){
+					done=true;
+				}
+			}
+			if(done){
+				break;
+				}
+		}
+		
 	}
 }

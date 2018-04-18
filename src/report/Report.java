@@ -168,11 +168,18 @@ public class Report extends ReportObservable{
 		if(this.getAuthor_name()==null||this.getAuthor_name().length()==0){
 			no_name=true;
 		}
+		int indexCount=0;
 		int totalIndex = 0;
 		for(AttributeIndex ai : this.getAttributes()){
 			totalIndex = totalIndex+ai.getIndex();
+			if(ai.getIndex()>0){
+				indexCount++;
+			}
 		}
 		if(totalIndex==0 && no_name){
+			return false;
+		}
+		if(indexCount<4||indexCount>4){
 			return false;
 		}
 		return true;

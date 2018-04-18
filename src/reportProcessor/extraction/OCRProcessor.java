@@ -134,42 +134,6 @@ public class OCRProcessor extends DebugClass {
         int lines[] = {0,0,0,0};
 
 
-    	BufferedImage testImage=image;
-            for(int i=0;i<sliceX;i++){
-            	boolean breakout =false;
-    	    	for(int j=0;j<sliceY;j++){
-    	    		int minX=i*(testImage.getWidth()/sliceX);
-    	    		int minY=j*(testImage.getHeight()/sliceY);
-
-    	    		minX=(int) (minX-(buffer*(testImage.getWidth()/sliceX)));
-    	    		if(minX<0){
-    	    			minX=0;
-    	    		}
-    	    		minY=(int) (minY-(buffer*(testImage.getHeight()/sliceY)));
-    	    		if(minY<0){
-    	    			minY=0;
-    	    		}
-
-    	    		int maxX = (int) (((i+1)*(testImage.getWidth()/sliceX))+(buffer*(testImage.getWidth()/sliceX)));
-    	    		int maxY = (int) (((j+1)*(testImage.getHeight()/sliceY))+(buffer*(testImage.getHeight()/sliceY)));
-    	    		if(maxX>testImage.getWidth()){
-    	    			maxX=testImage.getWidth();
-    	    		}
-    	    		if(maxY>testImage.getHeight()){
-    	    			maxY=testImage.getHeight();
-    	    		}
-    	    		int w = maxX-minX;
-    	    		int h = maxY-minY;
-    	    		subImage = testImage.getSubimage(minX,minY,w ,h );
-
-
-    	    	    List<Word> textline = instance.getWords(subImage, TessPageIteratorLevel.RIL_TEXTLINE);
-    	    	}
-    	    	if(breakout){
-    	    		break;
-    	    	}
-    	    }        
-        
 	    for(int i=0;i<sliceX;i++){
 	    	for(int j=0;j<sliceY;j++){
 	    	    List<Word> results = new ArrayList<Word>();
@@ -221,7 +185,7 @@ public class OCRProcessor extends DebugClass {
 	    	    		maxY2=y2;
 	    	    	}
 	    	    }
-	    	    if(subImageCount<2){
+	    	    if(subImageCount<2||lines[0]<20){
 	    	    	if(sliceY>1){
 		    	    	if(subImageCount==0&&j>=(sliceY/2)){
 		    	    		continue;
@@ -250,7 +214,9 @@ public class OCRProcessor extends DebugClass {
 	    	            	if(d!=0){
 	    	            		testimg = rotate(testimg,d);
 	    			    	    List<Word> testFont = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
-	    			    	    fontsize = getFontHeight(testFont);
+	    			    	    if(!testFont.isEmpty()){
+	    			    	    	fontsize = getFontHeight(testFont);
+	    			    	    }
 	    	            		testimg = preprocessImage(testimg, fontsize);
 	    	    	    	    List<Word> textlines = instance.getWords(testimg, TessPageIteratorLevel.RIL_TEXTLINE);
 	        	    	    	for(Word text: textlines){
@@ -268,12 +234,13 @@ public class OCRProcessor extends DebugClass {
 	    if(!(minX1>maxX2||minY1>maxY2)){
 		    image = image.getSubimage(minX1, minY1, maxX2-minX1, maxY2-minY1);
 	    }
-
+	    /*
 	    System.out.println("=====================================");
         for(int i =0;i<4;i++){
     	    System.out.println((confidence[i]/(lines[i])+"%"+"   "+lines[i]));
         }
 	    System.out.println("=====================================");
+        */
         int orientation = 0;
 
         int lowest1Count=Integer.MAX_VALUE;
@@ -294,23 +261,22 @@ public class OCRProcessor extends DebugClass {
         	}
         }
         
-        
-        float orientationConfidence = 0;
-        for(int j =0;j<2;j++){
-        	int i=0;
-        	if(j==0){
-        		i=lowest1orentation;
-        	}
-        	if(j==1){
-        		i=lowest2orentation;
-        	}
-        	System.out.println(i);
-        	float confidenceLevel = confidence[i]/(lines[i]);
-        	if(confidenceLevel>orientationConfidence){
-        		orientation = i;
-        		orientationConfidence = confidenceLevel;
-        	}
-        }
+            float orientationConfidence = 0;
+            for(int j =0;j<2;j++){
+            	int i=0;
+            	if(j==0){
+            		i=lowest1orentation;
+            	}
+            	if(j==1){
+            		i=lowest2orentation;
+            	}
+            	float confidenceLevel = confidence[i]/(lines[i]);
+            	if(confidenceLevel>orientationConfidence){
+            		orientation = i;
+            		orientationConfidence = confidenceLevel;
+            	}
+            }
+    	System.out.println("orientation"+orientation);
         if(orientation!=0){
         	image = rotate(image,orientation);
         }

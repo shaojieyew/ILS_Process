@@ -19,7 +19,7 @@ public class DataCorrection {
 	public final static int STRICTNESS_VERY_STRICT =80;
 	public final static int STRICTNESS_STRICT =70;
 	public final static int STRICTNESS_LESS_STRICT =60;
-	public final static int STRICTNESS_NOT_STRICT =40;
+	public final static int STRICTNESS_NOT_STRICT =50;
 	
 	
 	//correct word in inText base on correctText array
@@ -128,7 +128,7 @@ public class DataCorrection {
 						line.indexOf(ReportDataReader.KEYWORD_ILS_GLOBAL)>-1)){
 					
 					DataCorrection dc = new DataCorrection(line);
-					line=dc.getCorrectedText(DataCorrection.STRICTNESS_LESS_STRICT,DataCorrection.STRICTNESS_LESS_STRICT);
+					line=dc.getCorrectedText(DataCorrection.STRICTNESS_LESS_STRICT,DataCorrection.STRICTNESS_NOT_STRICT);
 				}
 			}
 			newText = newText+line+System.getProperty("line.separator").toString();

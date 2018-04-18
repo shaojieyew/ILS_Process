@@ -119,6 +119,41 @@ public class DataExtractProcessor extends Processor implements Runnable{
 					 /*re-read data*/
 					 rdr = new ReportDataReaderBySplit(text,report);
 					 report = rdr.getReport();
+					  
+					 
+					 retry=false;
+					  nonZeroCount=0;
+					  zeroCount=0;
+					 	//check if author name exist
+					 if(report.getAuthor_name()==null||report.getAuthor_name().length()==0){
+						 retry=true;
+					 } 
+					 for(AttributeIndex ai : report.getAttributes()){
+						 if(ai.getIndex()==0){
+							 zeroCount++;
+						 }else{
+							 nonZeroCount++;
+						 }
+					 }
+					 	//check if learning index have scores for 4 attributes
+					 if(zeroCount!=4&&nonZeroCount!=4){
+						 retry=true;
+					 }
+					 
+					 if(retry){
+						 //re-extract data with other method; reProcessFile()
+						 dataExtract.reProcessFile();
+						 text = dataExtract.getText();
+						 org=text;
+						 if(text!=null&&text.length()>0){
+							 /*re-correct data*/
+							 dc = new DataCorrection(text);
+							 text=dc.getCorrectedText(DataCorrection.STRICTNESS_NOT_STRICT,DataCorrection.STRICTNESS_NOT_STRICT);
+							 /*re-read data*/
+							 rdr = new ReportDataReaderBySplit(text,report);
+							 report = rdr.getReport();
+						 }
+					 }
 				 }
 			 }
 			 
